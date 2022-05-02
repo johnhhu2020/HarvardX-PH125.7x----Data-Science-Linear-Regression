@@ -1,7 +1,6 @@
 ---
 title: 'HarvardX PH125.7x -- Data Science: Linear Regression'
 author: "JJ"
-email: 'john.hhu2020@gmail.com'
 date: '2022-05-02'
 output: html_document
 editor_options: 
