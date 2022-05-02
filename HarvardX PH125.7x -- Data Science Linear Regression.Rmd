@@ -1,0 +1,614 @@
+---
+title: 'HarvardX PH125.7x -- Data Science: Linear Regression'
+author: "JJ"
+email: 'john.hhu2020@gmail.com'
+date: '2022-05-02'
+output: html_document
+editor_options: 
+  markdown: 
+wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax
+for authoring HTML, PDF, and MS Word documents. For more details on
+using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that
+includes both content as well as the output of any embedded R code
+chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to
+prevent printing of the R code that generated the plot.
+
+# Course preparements, install libraaries and plot exercises
+library(dslabs)
+
+> installed.packages()
+
+> library(dslabs) data(Teams) Warning message: In data(Teams) : data set
+> 'Teams' not found data(teams) Warning message: In data(teams) : data
+> set 'teams' not found data(murders) population Error: object
+> 'population' not found murders\$population
+
+> pop \<-
+> murders$population length(pop) [1] 51 class(pop) [1] "numeric" class(murders$state)
+> [1] "character"
+
+> library(Lahman) Error in library(Lahman) : there is no package called
+> 'Lahman' install.packages("Lahman")
+
+> install.packages("tidyverse")
+
+> library(Lahman) library(tidyverse)
+
+> Teams %\>% filter(yearID %in% 1961:2001) %\>% + mutate(HR_per_game =
+> HR/G, R_per_game = R/G) %\>% + lm(R_per_game \~ BB, .)
+
+Call: lm(formula = R_per_game \~ BB, data = .)
+
+Coefficients: (Intercept) BB\
+2.582186 0.003396
+
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
+> AB/G, R_per_game = R/G) %\>% + ggplot(aes(R_per_game,
+> AB_per_game)) + + geom_point()
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
+> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
+> R_per_game)) + + geom_line()
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
+> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
+> R_per_game)) + + geom_point(alpha = 0.5)
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + ggplot(aes(AB,
+> R)) + + geom_point(alpha = 0.5)
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
+> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
+> R_per_game)) + + geom_point(alpha = 0.5)
+>
+> ?Teams
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
+> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
+> R_per_game)) + + geom_point(alpha = 0.5)
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% +
+> mutate(number_of_wins_per_game = W/G, fielding_errors_per_game = E/G)
+> %\>% + ggplot(aes(number_of_wins_per_game,
+> fielding_errors_per_game)) + + geom_point(alpha = 0.5)
+>
+> Teams %\>% filter(yearID %in% 1961:2001) %\>% + mutate(win_rate = W /
+> G, E_per_game = E / G) %\>% + ggplot(aes(win_rate, E_per_game)) + +
+> geom_point(alpha = 0.5)
+>
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% +
+> mutate(triple_per_game = X3B/G, double_per_game = X2B/G) %\>% +
+> ggplot(aes(triple_per_game, double_per_game)) + + geom_point(alpha =
+> 0.5)
+
+
+
+## Course  /  Section 1: Introduction to Regression  /  1.1: Baseball as a Motivating Example
+
+# Assessment: Baseball as a Motivating Example
+
+
+Comprehension Check due May 29, 2022 00:29 AWST
+Completed
+
+# Question 1
+1/1 point (graded)
+What is the application of statistics and data science to baseball called?
+Moneyball
+**Sabermetrics**
+The “Oakland A’s Approach”
+There is no specific name for this; it’s just data science.
+
+
+# Question 2
+1/1 point (graded)
+Which of the following outcomes is not included in the batting average?
+A home run
+**A base on balls**
+An out
+A single
+
+
+# Question 3
+1/1 point (graded)
+Why do we consider team statistics as well as individual player statistics?
+**The success of any individual player also depends on the strength of their team.**
+Team statistics can be easier to calculate.
+The ultimate goal of sabermetrics is to rank teams, not players.
+
+
+# Question 4
+1.0/1.0 point (graded)
+You want to know whether teams with more at-bats per game have more runs per game.
+What R code below correctly makes a scatter plot for this relationship?
+
+  Teams %>% filter(yearID %in% 1961:2001 ) %>%
+ggplot(aes(AB, R)) + 
+geom_point(alpha = 0.5)
+
+
+**Teams %>% filter(yearID %in% 1961:2001 ) %>%  **
+mutate(AB_per_game = AB/G, R_per_game = R/G) %>%
+ggplot(aes(AB_per_game, R_per_game)) + 
+geom_point(alpha = 0.5)
+
+
+  Teams %>% filter(yearID %in% 1961:2001 ) %>%
+mutate(AB_per_game = AB/G, R_per_game = R/G) %>%
+ggplot(aes(AB_per_game, R_per_game)) + 
+geom_line()
+
+
+  Teams %>% filter(yearID %in% 1961:2001 ) %>%
+mutate(AB_per_game = AB/G, R_per_game = R/G) %>%
+ggplot(aes(R_per_game, AB_per_game)) + 
+geom_point()
+
+
+# Question 5
+1.0/1.0 point (graded)
+What does the variable “SOA” stand for in the Teams table?
+
+Hint: make sure to use the help file (?Teams).
+sacrifice out
+slides or attempts
+**strikeouts by pitchers**
+accumulated singles
+
+
+# Question 6
+1/1 point (graded)
+
+Load the Lahman library. Filter the Teams data frame to include years from 1961 to 2001. Make a scatterplot of runs per game versus at bats (AB) per game.
+Which of the following is true?
+There is no clear relationship between runs and at bats per game.
+**As the number of at bats per game increases, the number of runs per game tends to increase.**
+As the number of at bats per game increases, the number of runs per game tends to decrease.
+
+> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
+> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
+> R_per_game)) + + geom_point(alpha = 0.5)
+
+
+# Question 7
+0/1 point (graded)
+
+Use the filtered Teams data frame from Question 6. Make a scatterplot of win rate (number of wins per game) versus number of fielding errors (E) per game.
+Which of the following is true?
+**There is no relationship between win rate and errors per game.**
+As the number of errors per game increases, the win rate tends to increase.
+As the number of errors per game increases, the win rate tends to decrease.**This is the answer**
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(Lahman) 
+library(tidyverse)
+Teams %>% filter(yearID %in% 1961:2001 ) %>% 
+  mutate(number_of_wins_per_game = W/G, fielding_errors_per_game = E/G) %>%
+  ggplot(aes(number_of_wins_per_game, fielding_errors_per_game)) + geom_point(alpha = 0.5) 
+```
+
+
+```{r}
+Teams %>% summarise(cor(W/G, E/G))
+```
+# Can we really call this as a relationship ??? Really???
+
+
+# Question 8
+1/1 point (graded)
+
+Use the filtered Teams data frame from Question 6. Make a scatterplot of triples (X3B) per game versus doubles (X2B) per game. Which of the following is true? **There is no clear relationship between doubles per game and triples per game.** As the number of doubles per game increases, the number of triples per game tends to increase. As the number of doubles per game increases, the number of triples per game tends to decrease.
+
+> Teams %>% filter(yearID %in% 1961:2001 ) %>%
++ mutate(triple_per_game = X3B/G, double_per_game = X2B/G) %>%
++ ggplot(aes(triple_per_game, double_per_game)) + 
++ geom_point(alpha = 0.5)
+
+
+Questions About Baseball as a Motivating Example?
+
+Ask your questions or make your comments about Baseball as a Motivating Example here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course). 
+
+Some reminders:
+
+Search the discussion board before posting to see if someone else has asked the same thing before asking a new question
+Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
+Posting snippets of code is okay, but posting full code solutions is not.
+If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+
+
+
+
+## Course  /  Section 1: Introduction to Regression  /  1.2: Correlation
+
+
+> library(HistData)
+Error in library(HistData) : there is no package called ‘HistData’
+> install.packages("HistData")
+
+> library(HistData)
+> data("GaltonFamilies")
+
+> galton_heights <- GaltonFamilies %>% 
++     filter(childNum == 1 & gender == 'male') %>% 
++     select(father, childHeight) %>% 
++     rename(son = childHeight)
+
+
+> galton_heights %>% 
++     summarise(mean(father), sd(father), mean(son), sd(son))
+  mean(father) sd(father) mean(son)  sd(son)
+1     69.09888   2.546555  70.45475 2.557061
+
+> galton_heights %>% 
++     ggplot(aes(father, son)) + 
++     geom_point(alpha=0.5)
+
+
+
+
+# Correlation
+
+
+Up to now in this series, we have focused mainly on univariate variables.  However, **in data science application it is very common to be interested in the relationship between two or more variables**. (`Google this topic and explore a case study`)   We saw this in our baseball example in which we were interested in the relationship, for example, between bases on balls and runs.  we'll come back to this example, but we introduce the concepts of correlation and regression using a simpler example.
+
+We'll create a data set with the heights of fathers and the first sons.  The actual data Galton used to discover and define regression.  So we have the father and son height data.  Suppose we were to summarize these data.  **Since both distributions are well approximated by normal distributions, we can use the two averages and two standard deviations as summaries**.  Here they are.
+
+**However, this summary fails to describe a very important characteristic of the data that you can see in this figure.  The trend that the taller the father, the taller the son, is not described by the summary statistics of the average and the standard deviation. We will learn that the correlation coefficient is a summary of this trend**.(`Interesting here how the instructor jumped in the topic of his teaching`)
+
+```{r}
+library(dplyr)
+library(Lahman)
+library(dplyr)
+library(HistData)
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == 'male') %>%
+  select(father, childHeight) %>%
+  rename(son=childHeight)
+
+
+galton_heights %>%
+  summarise(mean(father), sd(father), mean(son), sd(son))
+
+galton_heights %>% 
+  ggplot(aes(father, son)) +
+  geom_point(alpha=0.5)
+```
+
+
+
+
+
+# Correlation Coefficient
+
+
+**The correlation coefficient is defined for a list of pairs--x1, y1 through xn, yn**--
+with the following formula.  Here, mu x and mu y are the averages of x and y, respectively.
+And sigma x and sigma y are the standard deviations.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.
+
+Soon, we will learn about the connection between correlation and regression.  To understand why this equation does, in fact, summarize how two variables move together, consider the i-th entry of x is xi minus mu x divided by sigma x SDs away from the average.  Similarly, the yi-- which is paired with the xi--is yi minus mu y divided by sigma y SDs away from the average y.  
+
+If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  This will average to about 0.  **The correlation is this average.**
+
+**And therefore, unrelated variables will have a correlation of about 0** (`Why??? Sorry I didn't get it`).  If instead the quantities vary together, then we are averaging mostly positive products.  Because they're going to be either positive times positive or negative times negative.  And we get a positive correlation.  If they vary in opposite directions, we get a negative correlation.
+
+Another thing to know is that we can show mathematically that the correlation is always between negative 1 and 1.  To see this, consider that we can have higher correlation than when we compare a list to itself.
+That would be perfect correlation.  In this case, the correlation is given by this equation, which we can show is equal to 1.  A similar argument with x and its exact opposite, negative x, proves that the correlation has to be greater or equal to negative 1.  So it's between minus 1 and 1.  
+
+To see what data looks like for other values of rho, here are six examples of pairs with correlations ranging from negative 0.9 to 0.99.  When the correlation is negative, we see that they go in opposite direction.  As x increases, y decreases.  **When the correlation gets either closer to 1 or negative 1, we see the clot of points getting thinner and thinner.  When the correlation is 0, we just see a big circle of points**.
+
+
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient.png)
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient02.png)
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient03.png)
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient04.png)
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient05.png)
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient06.png)
+
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(HistData)
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == "male") %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+
+galton_heights %>% summarise(cor(father, son))
+```
+
+![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient08.png)
+
+
+
+# Sample Correlation is a Random Variable
+
+
+Before we continue describing regression, let's go over a reminder about **random variability**.  In most data science applications, we do not observe the population, but rather a sample.  
+
+As with the average and standard deviation, the sample correlation is the most commonly used estimate
+of the population correlation.  **This implies that the correlation we compute and use as a summary is a random variable**.  
+
+As an illustration, let's assume that the 179 pairs of fathers and sons is our entire population.  A less fortunate geneticist can only afford to take a random sample of 25 pairs.  The sample correlation for this random sample can be computed using this code.  **Here, the variable R is the random variable**.  We can run a monte-carlo simulation to see the distribution of this random variable.  
+
+Here, we recreate R 1000 times, and plot its histogram.  We see that the **expected value is the population correlation**, the mean of these Rs is 0.5, and that it has a _relatively high standard error relative to its size_, SD 0.147.  This is something to keep in mind when interpreting correlations.  **It is a random variable, and it can have a pretty large standard error**.  
+
+Also note that **because the sample correlation is an average of independent draws**, the Central Limit Theorem actually applies.  _Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal_.  
+
+The expected value we know is the population correlation.  The standard deviation is somewhat more complex to derive, but this is the actual formula here.  In our example, N equals to 25, does not appear to be large enough to make the approximation a good one (`how to identify a good one ???  Should the standard deviation equal to a normal distribution or something ???`), as we see in this QQ-plot.
+
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(HistData)
+library(stats)
+
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == "male") %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+
+
+set.seed(0)
+R <- sample_n(galton_heights, 25, replace=TRUE) %>%
+  summarize(cor(father, son))
+
+R
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+
+B <- 1000
+N <- 25
+
+R <- replicate(B, {
+  sample_n(galton_heights, N, replace = TRUE) %>%
+    summarize(r = cor(father, son)) %>% .$r
+})
+
+data.frame(R) %>% 
+  ggplot(aes(R)) + geom_histogram(binwidth=0.05, color='black')
+
+
+mean(R)
+sd(R)
+```
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(HistData)
+library(stats)
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == "male") %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+
+
+set.seed(0)
+R <- sample_n(galton_heights, 25, replace=TRUE) %>%
+  summarize(mean(father), sd(father), mean(son), sd(son))
+
+R
+```
+
+![alt text here.](C:/Users/JJ/Pictures/Sample Correlation is a Random Variable.png)
+
+![alt text here](C:/Users/JJ/Pictures/Sample Correlation is a Random Variable02.png)
+
+
+
+# Assessment: Correlation
+
+
+# Question 1
+1/1 point (graded)
+While studying heredity, Francis Galton developed what important statistical concept?
+Standard deviation
+Normal distribution
+**Correlation**
+Probability
+
+
+# Question 2
+1/1 point (graded)
+The correlation coefficient is a summary of what?
+**The trend between two variables**
+The dispersion of a variable
+The central tendency of a variable
+The distribution of a variable
+correct 
+
+
+#  Question 3
+1/1 point (graded)
+
+Below is a scatter plot showing the relationship between two variables, x and y.
+Scatter plot of relationship between x (plotted on the x-axis) and y (plotted on the y-axis). y-axis values range from -3 to 3; x-axis values range from -3 to 3. Points are fairly well distributed in a tight band with a range from approximately (-2, 2) to (3, -3).
+![image here](C:/Users/JJ/Pictures/7_6_1_assessment_IDS.png)
+From this figure, the correlation between x and y appears to be about:
+**-0.9**
+-0.2
+0.9
+2
+
+
+#  Question 4
+1/1 point (graded)
+
+Instead of running a Monte Carlo simulation with a sample size of 25 from the 179 father-son pairs described in the videos, we now run our simulation with a sample size of 50.
+Would you expect the mean of our sample correlation to increase, decrease, or stay approximately the same?
+Increase
+Decrease
+**Stay approximately the same**
+
+
+#  Question 5
+1/1 point (graded)
+
+Instead of running a Monte Carlo simulation with a sample size of 25 from the 179 father-son pairs described in the videos, we now run our simulation with a sample size of 50.
+Would you expect the standard deviation of our sample correlation to increase, decrease, or stay approximately the same?
+Increase
+**Decrease**
+Stay approximately the same
+
+
+#  Question 6
+1/1 point (graded)
+If X and Y are completely independent, what do you expect the value of the correlation coefficient to be?
+-1
+-0.5
+**0**
+0.5
+1
+Not enough information to answer the question
+
+
+#  Question 7
+1/1 point (graded)
+
+Load the Lahman library. Filter the Teams data frame to include years from 1961 to 2001.
+What is the correlation coefficient between number of runs per game and number of at bats per game?
+correct
+
+Loading
+You have used 1 of 10 attempts Some
+
+
+#  Question 8
+1/1 point (graded)
+
+Use the filtered Teams data frame from Question 7.
+What is the correlation coefficient between win rate (number of wins per game) and number of errors per game?
+correct
+
+Loading
+You have used 1 of 10 attempts Some
+
+
+#  Question 9
+1/1 point (graded)
+
+Use the filtered Teams data frame from Question 7.
+What is the correlation coefficient between doubles (X2B) per game and triples (X3B) per game?
+correct
+
+Loading
+You have used 1 of 10 attempts Some
+
+
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+Teams %>% filter(yearID %in% 1961:2001 ) %>% 
+  mutate(number_of_runs_per_game = R/G, number_of_bats_per_game = AB/G) %>%
+  ggplot2::ggplot(aes(number_of_runs_per_game, number_of_bats_per_game)) + geom_point(alpha = 0.5) 
+# https://stackoverflow.com/questions/60901319/r-language-registered-s3-method-overwritten-by-data-table
+
+```
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+Teams %>% filter(yearID %in% 1961:2001 ) %>% 
+  summarize(cor(R/G, AB/G))
+  
+```
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+Teams %>% filter(yearID %in% 1961:2001 ) %>% 
+  summarize(cor(W/G, E/G))
+```
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+
+Teams %>% filter(yearID %in% 1961:2001 ) %>% 
+  summarize(cor(X2B/G, X3B/G))
+```
+
+
+
+
+## Questions About Correlation?
+
+
+Ask your questions or make your comments about Correlation here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course). 
+
+Some reminders:
+
+        Search the discussion board before posting to see if someone else has asked the same thing before asking a new question
+        Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
+        Posting snippets of code is okay, but posting full code solutions is not.
+        If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+
+
+
+
+## Course  /  Section 1: Introduction to Regression  /  1.3: Stratification and Variance Explained
+
+
+# Anscombe's Quartet/Stratification
+
+
+
+
+
