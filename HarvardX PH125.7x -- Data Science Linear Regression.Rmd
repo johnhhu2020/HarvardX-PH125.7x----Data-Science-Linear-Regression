@@ -2,9 +2,12 @@
 title: 'HarvardX PH125.7x -- Data Science: Linear Regression'
 author: "JJ"
 date: '2022-05-02'
-output: html_document
-editor_options: 
-  markdown: 
+output:
+  html_document: default
+  pdf_document: default
+email: john.hhu2020@gmail.com
+editor_options:
+  markdown: null
 wrap: 72
 ---
 
@@ -204,13 +207,14 @@ As the number of errors per game increases, the win rate tends to increase.
 As the number of errors per game increases, the win rate tends to decrease.**This is the answer**
 
 ```{r}
-library(dplyr)
+#library(dplyr)
 library(ggplot2)
 library(Lahman) 
 library(tidyverse)
+
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
   mutate(number_of_wins_per_game = W/G, fielding_errors_per_game = E/G) %>%
-  ggplot(aes(number_of_wins_per_game, fielding_errors_per_game)) + geom_point(alpha = 0.5) 
+  ggplot(aes(number_of_wins_per_game, fielding_errors_per_game)) + geom_point(alpha = 0.3) 
 ```
 
 
@@ -286,8 +290,8 @@ We'll create a data set with the heights of fathers and the first sons.  The act
 ```{r}
 library(dplyr)
 library(Lahman)
-library(dplyr)
 library(HistData)
+
 data("GaltonFamilies")
 galton_heights <- GaltonFamilies %>%
   filter(childNum == 1 & gender == 'male') %>%
@@ -312,9 +316,9 @@ galton_heights %>%
 
 **The correlation coefficient is defined for a list of pairs--x1, y1 through xn, yn**--
 with the following formula.  Here, mu x and mu y are the averages of x and y, respectively.
-And sigma x and sigma y are the standard deviations.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.
+And _sigma x and sigma y are the standard deviations_.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.
 
-Soon, we will learn about the connection between correlation and regression.  To understand why this equation does, in fact, summarize how two variables move together, consider the i-th entry of x is xi minus mu x divided by sigma x SDs away from the average.  Similarly, the yi-- which is paired with the xi--is yi minus mu y divided by sigma y SDs away from the average y.  
+Soon, we will learn about the connection between correlation and regression.  To understand why this equation does, in fact, summarize how two variables move together, **consider the i-th entry of x is xi minus mu x divided by sigma x SDs away from the average**.  Similarly, the yi-- which is paired with the xi--is yi minus mu y divided by sigma y SDs away from the average y.  
 
 If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  This will average to about 0.  **The correlation is this average.**
 
@@ -339,11 +343,18 @@ To see what data looks like for other values of rho, here are six examples of pa
 
 ![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient06.png)
 
+![alt text here.](C:/Users/JJ/Pictures/variance and standard deviation.png)
+
+# https://www.mathsisfun.com/data/standard-deviation.html
+
+![alt text here.](C:/Users/JJ/Pictures/standard deviation and variabce relationship.png)
+
 
 ```{r}
 library(Lahman)
 library(dplyr)
 library(HistData)
+
 data("GaltonFamilies")
 galton_heights <- GaltonFamilies %>%
   filter(childNum == 1 & gender == "male") %>%
@@ -369,7 +380,7 @@ As an illustration, let's assume that the 179 pairs of fathers and sons is our e
 
 Here, we recreate R 1000 times, and plot its histogram.  We see that the **expected value is the population correlation**, the mean of these Rs is 0.5, and that it has a _relatively high standard error relative to its size_, SD 0.147.  This is something to keep in mind when interpreting correlations.  **It is a random variable, and it can have a pretty large standard error**.  
 
-Also note that **because the sample correlation is an average of independent draws**, the Central Limit Theorem actually applies.  _Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal_.  
+Also note that **because the sample correlation is an average of independent draws** (` independent? average? how? `), the Central Limit Theorem actually applies.  _Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal_.  
 
 The expected value we know is the population correlation.  The standard deviation is somewhat more complex to derive, but this is the actual formula here.  In our example, N equals to 25, does not appear to be large enough to make the approximation a good one (`how to identify a good one ???  Should the standard deviation equal to a normal distribution or something ???`), as we see in this QQ-plot.
 
@@ -405,6 +416,9 @@ R <- replicate(B, {
   sample_n(galton_heights, N, replace = TRUE) %>%
     summarize(r = cor(father, son)) %>% .$r
 })
+# ========================================================================================================
+# Using $ Operator to Access Data Frame Column. 
+# Using . to do what
 
 data.frame(R) %>% 
   ggplot(aes(R)) + geom_histogram(binwidth=0.05, color='black')
@@ -419,6 +433,7 @@ library(Lahman)
 library(dplyr)
 library(HistData)
 library(stats)
+
 data("GaltonFamilies")
 galton_heights <- GaltonFamilies %>%
   filter(childNum == 1 & gender == "male") %>%
@@ -466,6 +481,7 @@ correct
 
 Below is a scatter plot showing the relationship between two variables, x and y.
 Scatter plot of relationship between x (plotted on the x-axis) and y (plotted on the y-axis). y-axis values range from -3 to 3; x-axis values range from -3 to 3. Points are fairly well distributed in a tight band with a range from approximately (-2, 2) to (3, -3).
+
 ![image here](C:/Users/JJ/Pictures/7_6_1_assessment_IDS.png)
 From this figure, the correlation between x and y appears to be about:
 **-0.9**
@@ -606,6 +622,606 @@ Some reminders:
 
 
 # Anscombe's Quartet/Stratification
+
+Correlation is not always a good summary of the relationship between two variables.  A famous example used to illustrate this are the following for artificial data sets, referred to as Anscombe's quartet.  All of these pairs have a correlation of 0.82.  Correlation is only meaningful in a particular context.  
+
+To help us understand when it is that correlation is meaningful as a summary statistic, we'll try to predict the son's height using the father's height.  This will help motivate and define linear regression.  _We start by demonstrating how correlation can be useful for prediction_.  Suppose we are asked to guess the height of a randomly selected son.  Because of the distribution of the son height is approximately normal, we know that the average height of 70.5 inches is a value with the highest proportion and would be the prediction with the chances of minimizing the error.  _But what if we are told that the father is 72 inches?_  Do we still guess 70.5 inches for the son?  The father is taller than average, specifically he is 1.14 standard deviations taller than the average father.  So shall we predict that the son is also 1.14 standard deviations taller than the average son?  It turns out that this would be an overestimate.  
+
+To see this, we look at all the sons with fathers who are about 72 inches.  We do this by stratifying the father's height.  We call this a **conditional average**, since we are computing the average son height conditioned on the father being 72 inches tall.  A challenge when using this approach in practice is that _we don't have many fathers that are exactly 72_.  In our data set, we only have eight.  If we change the number to 72.5, we would only have one father who is that height.  This would result in averages with large standard errors, and they won't be useful for prediction for this reason.  But for now, what we'll do is we'll take an approach of creating strata of fathers with very similar heights.  Specifically, we will round fathers' heights to the nearest inch.  This gives us the following prediction for the son of a father that is approximately 72 inches tall.  We can use this code and get our answer, which is 71.84.  This is 0.54 standard deviations larger than the average son, a smaller number than the 1.14 standard deviations taller that the father was above the average father.  Stratification followed by _box plots_ lets us see the distribution of each group.  Here is that plot.  
+
+We can see that the centers of these groups are increasing with height, not surprisingly.  _The means of each group appear to follow a linear relationship_ (`  then why we supposed to use a scatter plot to explore relationship between two variales in Exploratory Data Analysis in Python DataCamp course ?  I mean many dots covering on each other, Using a boxplot would avoid this condition ???  `).  We can make that plot like this, with this code.  See the plot and notice that this appears to follow a line.  The slope of this line appears to be about 0.5, which happens to be the correlation between father and son heights.  **This is not a coincidence**.  To see this connection, let's plot the **standardized heights** (`  Why??? standardize?  can we just use the boxplot or the grouped mean?  `) against each other, son versus father, with a line that has a slope equal to the correlation.  (` Think, Think, Think `)   ****Read the important comments in below standardized plot, and think about how its all related to each other****
+
+Here's the code.  Here's a plot.  This line is what we call the regression line.  In a later video, we will describe Galton's theoretical justification for using this line to estimate conditional means.  Here, we define it and compute it for the data at hand.  The regression line for two variables, x and y, tells us that ***for every standard deviation (sigma x) increase above the average (mu x).  For x, y grows rho standard deviations (sigma y) above the average (mu y).***.  The formula for the regression line is therefore this one (`  Think, Think, Think  `).  If there's perfect correlation, we predict an increase that is the same number of SDs.  If there's zero correlation, then we don't use x at all for the prediction of y.  For values between 0 and 1, the prediction is somewhere in between.  If the correlation is negative, we predict a reduction, instead of an increase.  
+
+***It is because when the correlation is positive but lower than the one, that we predict something closer to the mean (`it has to be the normal distribution, enough sized sample`), that we call this regression.  The son regresses to the average height.***
+
+In fact, the title of Galton's paper was "Regression Towards Mediocrity in Hereditary Stature."  Note that if we write this in the standard form of a line, y equals b plus mx, where b is the intercept and m is the slope, the regression line has slope rho times sigma y, divided by sigma x, and intercept mu y, minus mu x, times the slope.  _So if we standardize the variable so they have average 0 and standard deviation 1.  Then the regression line has intercept 0 and slope equal to the correlation rho_.  Let's look at the original data, father son data, and add the regression line.  We can compute the intercept and the slope using the formulas we just derived.  Here's a code to make the plot with the regression line.  If we plot the data in standard units, then, as we discussed, the regression line as intercept 0 and slope rho.  Here's the code to make that plot.  
+
+We started this discussion by saying that we wanted to use the conditional means to predict the heights of the sons.  But then we realized that there were very few data points in each strata.  When we did this approximation of rounding off the height of the fathers (`  the boxplot  `), we found that these conditional means appear to follow a line.  And we ended up with the regression line (`  that is if we standardize both variables - father, son  `).  ****So the regression line gives us the prediction****.  An advantage of using the regression line is that _we used all the data to estimate just two parameters, the slope and the intercept.  This makes it much more stable_.  When we do _conditional means, we had fewer data points, which made the estimates have a large standard error_, and therefore be unstable.  So this is going to give us a much more stable prediction using the regression line.  However, are we justified in using the regression line to predict?  Galton gives us the answer.
+
+
+
+![image here](C:/Users/JJ/Pictures/correlation of 0.82.png)
+
+
+![image here](C:/Users/JJ/Pictures/1.14 sd taller than average.png)
+
+
+![image here](C:/Users/JJ/Pictures/stratifying.png)
+
+
+![image here](C:/Users/JJ/Pictures/conditional average.png)
+
+
+![image here](C:/Users/JJ/Pictures/conditional average2.png)
+
+```{r}
+conditional_avg <- galton_heights %>%
+  filter(round(father)==72) %>%
+  summarise(avg=mean(son)) %>% .$avg
+
+conditional_avg
+```
+
+
+```{r}
+galton_heights %>%
+  mutate(father_strata = factor(round(father))) %>%
+  ggplot2::ggplot(aes(father_strata, son)) +
+  geom_boxplot() +
+  geom_point()
+```
+
+```{r}
+galton_heights %>%
+  mutate(father=round(father)) %>%
+  group_by(father) %>%
+  summarise(son_conditional_avg = mean(son)) %>%
+  ggplot2::ggplot(aes(father, son_conditional_avg)) +
+  geom_point()
+```
+
+![image here](C:/Users/JJ/Pictures/slope is 0.5.png)
+
+```{r}
+r <- galton_heights %>%  summarise(r = cor(father, son)) %>% .$r
+
+galton_heights %>%
+  mutate(father=round(father)) %>%
+  group_by(father) %>%
+  summarise(son = mean(son)) %>%
+  mutate(z_father = scale(father), z_son = scale(son)) %>%
+  ggplot2::ggplot(aes(z_father, z_son)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = r)
+
+# **Why do we use scale function in R?**
+# When we want to scale the values in several columns of a data frame so that each column has a mean of 0 and a standard deviation of 1, we usually use the scale() function.  
+```
+
+```{r}
+r <- galton_heights %>%  summarise(r = cor(father, son)) %>% .$r
+
+galton_heights %>%
+  mutate(father=round(father)) %>%
+  group_by(father) %>%
+  summarise(son = mean(son)) %>%
+  mutate(z_father = father, z_son = son) %>%
+  ggplot2::ggplot(aes(z_father, z_son)) +
+  geom_point() +
+  geom_abline(intercept = 35.5, slope = r)
+
+# So the reason for standardize is the intercept is easy to define, or we have to guess until its 35 or something,  and also the two plot seems different, this one and the standardized one.  Recall how correlation is calculated, and how scale() function standardizing the data: (x - mean(x)) / sd(x)
+```
+
+![image here](C:/Users/JJ/Pictures/Correlation_Coefficient.png)
+
+
+```{r}
+a <- galton_heights %>%
+  mutate(father=round(father)) %>%
+  group_by(father) %>%
+  summarise(son = mean(son)) %>%
+  mutate(z_father = scale(father), z_son = scale(son))
+# https://stackoverflow.com/questions/20256028/understanding-scale-in-r
+
+a
+```
+
+![Read the below statement](C:/Users/JJ/Pictures/for every standard deviation increase above then.png)
+
+![image here](C:/Users/JJ/Pictures/formula for regression line.png)
+
+![image here](C:/Users/JJ/Pictures/perfect correlation will be sd.png)
+
+![image here](C:/Users/JJ/Pictures/intercept.png)
+
+![image here](C:/Users/JJ/Pictures/regression line formula.png)
+
+![image here](C:/Users/JJ/Pictures/20220503_181448.jpg)
+
+```{r}
+mu_x <- mean(galton_heights$father)
+mu_y <- mean(galton_heights$son)
+s_x <- sd(galton_heights$father)
+s_y <- sd(galton_heights$son)
+r <- cor(galton_heights$father, galton_heights$son)
+
+m <- r * s_y / s_x
+b <- mu_y - m * mu_x
+```
+
+```{r}
+galton_heights %>%
+  ggplot2::ggplot(aes(father, son)) +
+  geom_point(alpha=0.3) +
+  geom_abline(intercept = b, slope=m)
+```
+
+```{r}
+galton_heights %>%
+  ggplot2::ggplot(aes(scale(father), scale(son))) +
+  geom_point(alpha=0.3) +
+  geom_abline(intercept = 0, slope = r)
+```
+
+![image here](C:/Users/JJ/Pictures/regression lines gives us the prediction.png)
+
+
+
+# Bivariate Normal Distribution
+
+
+**Correlation and the regression line are widely used summary statistics**.  _But it is often misused or misinterpreted_.  Anscombe’s example provided toy example of data sets in which summarizing with a correlation would be a mistake.  But we also see it in the media and in scientific literature as well.  
+
+***The main way we motivate the use of correlation involve what is called the bivariate normal distribution***.  When a pair of random variables is approximated by a bivariate normal distribution, the scatterplot looks like ovals, like American footballs.  They can be thin.  That's when they have high correlation.  All the way up to a circle shape when they have no correlation.  We saw some examples previously.  Here they are again.  _A more technical way to define the bivariate normal distribution is the following_.  **First, this distribution is defined for pairs** (`  remember the father - son paris we used earlier  `).  So we have two variables, x and y.  And they have paired values.  They are going to be bivariate normally distributed if the following happens.  
+
+*If x is a normally distributed random variable, and y is also a normally distributed random variable--and for any grouping of x that we can define, say, with x being equal to some predetermined value, which we call here in this formula little x--then the y's in that group are approximately normal as well.*  If this happens, then the pair is approximately bivariate normal.  When we fix x in this way, we then refer to the resulting distribution of the y's in the group-- defined by setting x in this way-- as the conditional distribution of y given x. (`  Remember we did this before, fix father 72 inches, but the sample size is too small  `)  We write the notation like this for the conditional distribution and the conditional expectation.  _If we think the height data is well-approximated by the bivariate normal distribution, then we should see the normal approximation hold for each grouping._  
+
+Here, we stratify the son height by the standardized father heights and see that the assumption appears to hold.  Here's the code that gives us the desired plot.  Now, we come back to defining correlation.  Galton showed-- using mathematical statistics-- _that when two variables follow a bivariate normal distribution, then for any given x the expected value of the y in pairs for which x is set at that value is mu y plus rho x minus mu x divided by sigma x times sigma y_.  Note that this is a line with slope rho times sigma y divided by sigma x and intercept mu y minus n times mu x.  And therefore, this is the same as the regression line we saw in a previous video. (`  Now you must understand the slope difference between standalized vairable and non-standarilized vaiable in father son case we did in prevrious chapter  `)  That can be written like this.  So in summary, if our data is approximately bivariate, then the conditional expectation--which is the best prediction for y given that we know the value of x--is given by the regression line.  
+
+
+![image here](C:/Users/JJ/Pictures/bivate normal distribution.png)
+
+![image here](C:/Users/JJ/Pictures/scatter plot looks like ovals.png)
+
+![image here](C:/Users/JJ/Pictures/think means high correlation.png)
+
+![image here](C:/Users/JJ/Pictures/circle-shaped mean no correlation.png)
+
+![images here](C:/Users/JJ/Pictures/some examples of correlations.png)
+
+![images here](C:/Users/JJ/Pictures/bivariate normal distribution is defined for pairs.png)
+
+![image here](C:/Users/JJ/Pictures/bivariate normal distribution conditions.png)
+
+![image here](C:/Users/JJ/Pictures/conditional distribution of y given x=x.png)
+
+![image here](C:/Users/JJ/Pictures/we write the notation like this for conditional distribution.png)
+
+```{r}
+galton_heights %>%
+  #mutate(z_father=round((father-mean(father))/sd(father))) %>%
+  mutate(z_father=round(scale(father))) %>%  # Do you recall this
+  filter(z_father %in% -2:2) %>%
+  ggplot2::ggplot() +
+  stat_qq(aes(sample=son)) + 
+  facet_wrap(~z_father)
+
+# What does a QQ plot show? 
+# The purpose of the quantile-quantile (QQ) plot is to show if two data sets come from the same distribution. Plotting the first data set's quantiles along the x-axis and plotting the second data set's quantiles along the y-axis is how the plot is constructed.
+# https://math.illinois.edu/system/files/inline-files/Proj9AY1516-report2.pdf
+
+```
+
+![image here](C:/Users/JJ/Pictures/follow bivariate normal distribution the formula.png)
+# Where does above formula comes from???
+
+![image here](C:/Users/JJ/Pictures/as we saw in the previous video.png)
+
+![image here](C:/Users/JJ/Pictures/slope of bivariate normal distribution.png)
+
+![image here](C:/Users/JJ/Pictures/intercept of bivariate normal distribution.png)
+
+![image here](C:/Users/JJ/Pictures/bivariate normal distribution same as regression line.png)
+
+![image here](C:/Users/JJ/Pictures/in summary.png)
+
+
+
+# Variance Explained
+
+
+# Correction (`  So this video is recorded long times ago, how interesting  `)
+
+```The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance. **The variance is the standard deviation squared**. See the notes below the video for more clarification.```
+
+(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var of Y given X equals sigma y times the square root of 1 minus rho squared.  _This is where statements like x explains such and such percent of the variation in y comes from_ (`  Why saying this ???  `[][Google this topic]).  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y** [][Now what??? How did we get that equation???].  So _from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%_[][What are you talking about???].  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is  by a bivariate normal distribution.  
+
+
+![not the variance](C:/Users/JJ/Pictures/is for standard deviation not the variance.png)
+# Where does above equation comes from ???
+
+![image here](C:/Users/JJ/Pictures/X explain such and such % of the variation in Y.png)
+
+![image here](C:/Users/JJ/Pictures/variance is sigma squared.png)
+
+![image here](C:/Users/JJ/Pictures/condition on x then variance goes down.png)
+
+![image here](C:/Users/JJ/Pictures/what what waht what.png)
+
+![image here](C:/Users/JJ/Pictures/variance explained statement is only legit when bivariaate normal distribution.png)
+
+
+
+
+# There are Two Regression Lines
+
+
+We computed a regression line to predict the son's height from the father's height.  We used these calculations-- here's the code--to get the slope and the intercept.  This gives us the function that the conditional expectation of y given x is 35.7 plus 0.5 times x.  
+
+So, what if we wanted to predict the father's height based on the son's?  It is important to know that this is not determined by computing the inverse function of what we just saw, which would be this equation here.  [][We need to compute the expected value of x given y].  This gives us another regression function altogether, with slope and intercept computed like this. (`  How did this comes from??  `)  So now we get that the expected value of x given y, or the expected value of the father's height given the son's height, is equal to 34 plus 0.5 y, a different regression line.  
+
+So in summary, it's important to remember that the regression line comes from computing expectations, and these give you two different lines, depending on if you compute the expectation of y given x or x given y.  
+
+
+```{r}
+mu_x <- mean(galton_heights$father)
+mu_y <- mean(galton_heights$son)
+s_x <- sd(galton_heights$father)
+x_y <- sd(galton_heights$son)
+
+r <- cor(galton_heights$father, galton_heights$son)
+m <- r * s_y/s_x    # Thus the variance should be changed to variance**2, why made mistakes, poor Harvard
+b <- mu_y - m*mu_x
+
+m
+b
+```
+
+![Song predict father wrong](C:/Users/JJ/Pictures/son predict father wrong.png)
+
+![compute expected value of x given y](C:/Users/JJ/Pictures/expected value given y.png)
+
+```{r}
+m <- r * s_x/s_y
+b <- mu_x - m*mu_y
+
+m
+b
+```
+
+![image here](C:/Users/JJ/Pictures/expected value of x giveny2.png)
+
+![two different lines depending on what you do](C:/Users/JJ/Pictures/two different lines.png)
+
+
+
+
+# Assessment: Stratification and Variance Explained, Part 1
+
+# Question 1
+
+Look at the figure below.
+![question one image](C:/Users/JJ/Pictures/7_8_1_assessment_IDS.png)
+Scatter plot of son and father heights with son heights on the y-axis and father heights on the x-axis. There is also a regression line that runs from roughly (63,66) to (78,76). The dots on the plot are scattered around the line.
+The slope of the regression line in this figure is equal to what, in words?
+**Slope = (correlation coefficient of son and father heights) * (standard deviation of sons’ heights / standard deviation of fathers’ heights)**
+Slope = (correlation coefficient of son and father heights) * (standard deviation of fathers’ heights / standard deviation of sons’ heights)
+Slope = (correlation coefficient of son and father heights) / (standard deviation of sons’ heights * standard deviation of fathers’ heights)
+Slope = (mean height of fathers) - (correlation coefficient of son and father heights * mean height of sons).
+
+
+#  Question 2
+1 point possible (graded)
+Why does the regression line simplify to a line with intercept zero and slope rho when we standardize our x and y variables?
+
+Try the simplification on your own first!
+When we standardize variables, both x and y will have a mean of one and a standard deviation of zero. When you substitute this into the formula for the regression line, the terms cancel out until we have the following equation: y_i = rho * x_i.
+**When we standardize variables, both x and y will have a mean of zero and a standard deviation of one. When you substitute this into the formula for the regression line, the terms cancel out until we have the following equation: y_i = rho * x_i.**
+When we standardize variables, both x and y will have a mean of zero and a standard deviation of one. When you substitute this into the formula for the regression line, the terms cancel out until we have the following equation: y_i = rho + x_i. 
+
+
+#  Question 3
+1 point possible (graded)
+What is a limitation of calculating conditional means?
+
+Select ALL that apply.
+**Each stratum we condition on (e.g., a specific father’s height) may not have many data points.**
+Because there are limited data points for each stratum, our average values have large standard errors.
+**Conditional means are less stable than a regression line.**
+Conditional means are a useful theoretical tool but cannot be calculated.
+
+
+#  Question 4
+1/1 point (graded)
+**A regression line is the best prediction of Y given we know the value of X when:**
+X and Y follow a bivariate normal distribution.
+Both X and Y are normally distributed.
+Both X and Y have been standardized.
+There are at least 25 X-Y pairs.
+
+
+#  Question 5
+0/1 point (graded)
+Which one of the following scatterplots depicts an x and y distribution that is NOT well-approximated by the bivariate normal distribution?
+
+I chose 3, but false, why.  
+
+## Explanation
+
+The v-shaped distribution of points from the first plot means that the x and y variables do not follow a bivariate normal distribution.
+
+When a pair of random variables is approximated by a bivariate normal, the scatter plot looks like an oval (as in the 2nd, 3rd, and 4th plots) - [][it is okay if the oval is very round (as in the 3rd plot) or long and thin (as in the 4th plot)].
+
+
+![Question 5 image 1](C:/Users/JJ/Pictures/7_9_2_assessment_A_IDS.png)
+![Question 5 image 2](C:/Users/JJ/Pictures/7_9_2_assessment_B_IDS.png)
+![Question 5 image 3](C:/Users/JJ/Pictures/7_9_2_assessment_C_IDS.png)
+![Question 5 image 4 last one](C:/Users/JJ/Pictures/7_9_2_assessment_D_IDS.png)
+
+
+#  Question 6
+0/1 point (graded)
+
+We previously calculated that the correlation coefficient between fathers’ and sons’ heights is 0.5.
+Given this, what percent of the variation in sons’ heights is explained by fathers’ heights?
+0%
+25%
+**50%**
+75%
+incorrect  I choose 50% which is incorrect, Think, Think, Think
+Answer
+Incorrect: Try again. [][When two variables follow a bivariate normal distribution, the variation explained can be calculated as rho^2 x 100](`  How does this comes from???  `).
+
+
+#  Question 7
+1/1 point (graded)
+
+Suppose the correlation between father and son’s height is 0.5, the standard deviation of fathers’ heights is 2 inches, and the standard deviation of sons’ heights is 3 inches.
+Given a one inch increase in a father’s height, what is the predicted change in the son’s height?
+0.333
+0.5
+0.667
+**0.75**
+1
+1.5
+correct
+Answer
+Correct: Correct! TThe slope of the regression line is calculated by multiplying the correlation coefficient by the ratio of the standard deviation of son heights and standard deviation of father heights: var_son/var_father.  (Note: here he means SD_son/SD_father, its a mistake)  .
+
+
+
+# Assessment: Stratification and Variance Explained, Part 2
+
+
+Comprehension Check due May 29, 2022 00:29 AWST
+
+In the second part of this assessment, you'll analyze a set of mother and daughter heights, also from GaltonFamilies.
+
+Define female_heights, a set of mother and daughter heights sampled from GaltonFamilies, as follows:
+
+set.seed(1989) #if you are using R 3.5 or earlier
+set.seed(1989, sample.kind="Rounding") #if you are using R 3.6 or later
+library(HistData)
+data("GaltonFamilies")
+
+female_heights <- GaltonFamilies%>%     
+    filter(gender == "female") %>%     
+    group_by(family) %>%     
+    sample_n(1) %>%     
+    ungroup() %>%     
+    select(mother, childHeight) %>%     
+    rename(daughter = childHeight)
+
+```{r}
+set.seed(1989, sample.kind="Rounding") #if you are using R 3.6 or later
+library(HistData)
+data("GaltonFamilies")
+
+female_heights <- GaltonFamilies %>%     
+    filter(gender == "female") %>%     
+    group_by(family) %>%     
+    sample_n(1) %>%     
+    ungroup() %>%     
+    select(mother, childHeight) %>%     
+    rename(daughter = childHeight)
+
+
+mean(female_heights$mother)
+sd(female_heights$mother)
+mean(female_heights$daughter)
+sd(female_heights$daughter)
+cor(female_heights$mother, female_heights$daughter)
+```
+
+```{r}
+mu_x <- mean(female_heights$mother)
+mu_y <- mean(female_heights$daughter)
+s_x <- sd(female_heights$mother)
+s_y <- sd(female_heights$daughter)
+
+r <- cor(female_heights$mother, female_heights$daughter)
+
+m <- r * s_y/s_x
+b <- mu_y - m*mu_x
+
+m
+b
+
+m*m
+
+
+outcome <- m * 60 + b
+outcome
+```
+```
+***Recall what we did in above courses***
+mu_x <- mean(galton_heights$father)
+mu_y <- mean(galton_heights$son)
+s_x <- sd(galton_heights$father)
+x_y <- sd(galton_heights$son)
+
+r <- cor(galton_heights$father, galton_heights$son)
+
+m <- r * s_y/s_x    # Thus the variance should be changed to variance**2, why made mistakes, poor Harvard
+b <- mu_y - m*mu_x
+```
+
+#  Question 8
+5/5 points (graded)
+
+Calculate the mean and standard deviation of mothers' heights, the mean and standard deviation of daughters' heights, and the correlaton coefficient between mother and daughter heights.
+Mean of mothers' heights
+correct
+**64.125**
+
+Loading
+Standard deviation of mothers' heights
+correct
+**2.289292**
+
+Loading
+Mean of daughters' heights
+correct
+**64.28011**
+
+Loading
+Standard deviation of daughters' heights
+correct
+**2.39416**
+
+Loading
+Correlation coefficient
+correct
+**0.3245199**
+
+Loading
+You have used 1 of 10 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Correct (5/5 points)
+
+
+# Question 9
+3/3 points (graded)
+
+Calculate the slope and intercept of the regression line predicting daughters' heights given mothers' heights. Given an increase in mother's height by 1 inch, how many inches is the daughter's height expected to change?
+Slope of regression line predicting daughters' height from mothers' heights
+correct
+**0.3393856**
+
+Loading
+Intercept of regression line predicting daughters' height from mothers' heights
+correct
+**42.51701**
+
+Loading
+Change in daughter's height in inches given a 1 inch increase in the mother's height
+correct
+**0.3393856**
+
+Loading
+You have used 1 of 10 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Correct (3/3 points)
+
+
+# Question 10
+1/1 point (graded)
+What percent of the variability in daughter heights is explained by the mother's height?
+
+Report your answer as a value between 0 and 100. Do NOT include the percent symbol (%) in your submission.
+correct
+**11**
+
+Loading
+You have used 4 of 10 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Correct (1/1 point)
+
+
+# Question 11
+1/1 point (graded)
+
+A mother has a height of 60 inches.
+Using the regression formula, what is the conditional expected value of her daughter's height given the mother's height?
+correct
+**62.88015**
+
+Loading
+You have used 1 of 10 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Correct (1/1 point) 
+
+
+
+
+# Questions About Stratification and Variance Explained?
+
+Ask your questions or make your comments about Stratification and Variance Explained here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course).
+
+Some reminders:
+
+        Search the discussion board before posting to see if someone else has asked the same thing before asking a new question
+        Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
+        Posting snippets of code is okay, but posting full code solutions is not.
+        If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+
+
+How about Q 10, I was confusing how the r squared comes from, sorry if this is a stupit question. But I really didn't get it. please help me too
+
+Course statements: The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var of Y given X equals sigma y times the square root of 1 minus rho squared. This is where statements like x explains such and such percent of the variation in y comes from (Why saying this ???) Var(Y|x=x) = SD_y * RootSquared(1 - rho^2)
+
+And if possible, I want to know how these equation linked together, say if there's a connection between this one and the Cor by definition: rho = (1/n) * SUM(i=1 - n) * ((x_i - mu_x)/Sigma_x) * ((y_i - mu_y)/Sigma_y) (And should here be SD, instead of Sigma)
+
+Question 10: What percent of the variability in daughter heights is explained by the mother's height
+
+
+
+SD and Var confusion in course material, except one correlation, pplease help
+
+question posted 11 minutes ago by john_hhu2020
+
+As title mentioned, I have noticed in many places, even the slides show as Sigma, but the actual notation should be a Var (the Var is Sigma aquared ^2), the ^2 is missing, can any instructor associate helps us correct all the placed involved? Thank you
+
+Its can be annoying for the new learner, and this is a Harvard course
+
+
+
+
+
+
+
+
+## Course  /  Section 2: Linear Models  /  Linear Models Overview
+
+
+
+# Linear Models Overview
+
+
+
+In the Linear Models section, you will learn how to do linear regression.
+
+After completing this section, you will be able to:
+
+        Use multivariate regression to adjust for confounders.
+        Write linear models to describe the relationship between two or more variables.
+        Calculate the least squares estimates for a regression model using the lm function.
+        Understand the differences between tibbles and data frames.
+        Use the do() function to bridge R functions and the tidyverse.
+        Use the tidy(), glance(), and augment() functions from the broom package.
+        Apply linear regression to measurement error models.
+
+This section has four parts: Introduction to Linear Models, Least Squares Estimates, Tibbles, do, and broom, and Regression and Baseball. There are comprehension checks at the end of each part, along with an assessment on linear models at the end of the whole section for Verified learners only.
+
+We encourage you to use R to interactively test out your answers and further your own learning. If you get stuck, we encourage you to search the discussion boards for the answer to your issue or ask us for help!
+
+
+
+
+
+
+
+
+
 
 
 
