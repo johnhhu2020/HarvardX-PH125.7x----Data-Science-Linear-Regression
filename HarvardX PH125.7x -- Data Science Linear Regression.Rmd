@@ -110,7 +110,246 @@ Coefficients: (Intercept) BB\
 
 
 
+
+
+
 ## Course  /  Section 1: Introduction to Regression  /  1.1: Baseball as a Motivating Example
+
+
+
+# Motivating Example: Moneyball
+
+As motivation for this course, we'll go back to 2002 and try to build a baseball team with a limited budget.  Note that in 2002, the Yankees payroll was almost $130 million, and had more than tripled the Oakland A's $40 million budget.  [][Statistics have been used in baseball since its beginnings].  Note that the data set we will be using, included in the Lahman Library, goes back to the 19th century.  For example, a summary of statistics we will describe soon, the **batting average**, has been used to summarize a batter's success for decades.  Other statistics such as home runs, runs batted in, and stolen bases, we'll describe all this soon, are reported for each player in the game summaries included in the sports section of newspapers.  
+
+And players are rewarded for high numbers.  Although summary statistics were widely used in baseball, data analysis per se was not.  These statistics were arbitrarily decided on without much thought as to whether they actually predicted, or were related to helping a team win.  This all changed with Bill James.  In the late 1970s, this aspiring writer and baseball fan started publishing articles describing more in-depth analysis of baseball data.  He named the approach of using data to predict what outcomes best predict if a team wins [][sabermetrics].  Until Billy Beane made sabermetrics the center of his baseball operations, Bill James' work was mostly ignored by the baseball world.  
+
+Today, pretty much every team uses the approach, and it has gone beyond baseball into other sports.  In this course, to simplify the example we use, **we'll focus on predicting scoring runs.  We will ignore pitching and fielding**, although those are important as well.  We will see how regression analysis can help develop strategies to build a competitive baseball team with a constrained budget.  [][The approach can be divided into two separate data analyses.  In the first, we determine which recorded player specific statistics predict runs.  In the second, we examine if players were undervalued based on what our first analysis predicts.]
+
+
+[][Textbook link]
+
+The corresponding section of the textbook is the case study on Moneyball. 
+https://rafalab.github.io/dsbook/linear-models.html#case-study-moneyball
+
+
+[][Key point]
+
+    Bill James was the originator of sabermetrics, the approach of using data to predict what outcomes best predicted if a team would win.
+
+
+
+
+![image here](C:/Users/JJ/Pictures/yankees 2002.png)
+
+![image here](C:/Users/JJ/Pictures/oakland a 2002.png)
+
+![](C:/Users/JJ/Pictures/other statistics in baseball.png)
+
+![](C:/Users/JJ/Pictures/scoring runs and ignore pitching and fielding.png)
+
+![](C:/Users/JJ/Pictures/determine which recorded player-specific.png)
+
+![](C:/Users/JJ/Pictures/examine if players were undervalued.png)
+
+
+
+
+
+
+# Baseball Basics
+
+We actually don't need to understand all the details about the game of baseball, which has over 100 rules, to see how regression will help us find undervalued players.  Here, we distill the sport to the basic knowledge one needs to know to effectively attack the data science challenge.  Let's get started.
+[][The goal of a baseball game is to score more runs, they're like points, than the other team].  Each team has _nine batters_ that bat in a predetermined order.  After the ninth batter hits, we start with the first again.  Each time they come to bat, we call it a _plate appearance, PA_.  At each plate appearance, the _other team's pitcher_ throws the ball and you try to hit it.  The plate appearance ends with a binary outcome--you either make an _out_, that's a failure and sit back down, or you don't, that's a success and you get to _run around the bases and potentially score a run_ (`  So a run means batter from Home base to 2ed base or something??? `).  Each team gets nine tries, referred to as innings, to score runs.  Each inning ends after three outs, after you've failed three times.  
+
+From these examples, we see how luck is involved in the process.  When you bat you want to hit the ball hard.  If you hit it hard enough, it's a home run, the best possible outcome as you get at least one automatic run.  But sometimes, due to chance, you hit the ball very hard and a defender (`  who is this defender???  `) catches it, which makes it an out, a failure.  In contrast, sometimes you hit the ball softly but it lands just in the right place.  You get a hit which is a success.  The fact that there is chance involved hints at why probability models will be involved in all this.  Now there are [][several ways to succeed].  **Understanding this distinction will be important for our analysis**.  
+
+[][When you hit the ball you want to pass as many bases as possible].  There are four bases with the fourth one called home plate.  Home plate is where you start, where you try to hit.  So the bases form a cycle.  [][If you get home, you score a run] (`  does this means you passes 4 bases one by one under one batter???  `).  We're simplifying a bit.  But there are **five ways you can succeed**.  In other words, not making an out.  First one is called a **base on balls**.  [][This is when the pitcher does not pitch well and you get to go to first base].  A single is when you hit the ball and you get to first base.  A double is when you hit the ball and you go past first base to second.  **Triple** is when you do that but get to third.  And [][a home run is when you hit the ball and go all the way home and score a run].  [][If you get to a base, you still have a chance of getting home and scoring a run if the next batter hits successfully].  While you are on base, you can also try to [][steal a base].  If you run fast enough, you can try to go from first to second or from second to third without the other team tagging you. 
+
+All right.  Now historically, the **batting average** has been considered the most important offensive statistic.  To define this average, we define a [][hit] and an [][at bat].  **Singles, doubles, triples, and home runs are **[][hits].  But remember, there's a fifth way to be successful, the **base on balls**.  That is not a hit.  [][An at bat] **is the number of times you either get a hit or make an out**, bases on balls are excluded.  The batting average is simply hits divided by at bats.  And it is considered the main measure of a success rate.  Today, in today's game, this success rates ranges from player to player from about 20% to 38%.  We refer to the batting average in thousands.  So for example, if your success rate is 25% we say you're batting 250.  
+
+One of Bill James' first important insights is that the [][batting average ignores bases on balls but bases on balls is a success].  So a player that gets many more bases on balls than the average player might not be recognized if he does not excel in batting average.  But is this player not helping produce runs?  No award is given to the player with the most bases on balls.  In contrast, the total number of stolen bases are considered important and an award is given out to the player with the most.  But players with high totals of stolen bases also make outs as they do not always succeed.  
+
+So does a player with a high stolen base total help produce runs?  Can we use data size to determine if it's better to pay for bases on balls or stolen bases?  [][One of the challenges in this analysis is that it is not obvious how to determine if a player produces runs because so much depends on his teammates].  We do keep track of the number of runs scored by our player.  **But note that if you hit after someone who hits many home runs**, you will score many runs (`  Super batter hit the ball far away thus you can run many bases as well, lucky player  `).  But these runs don't necessarily happen if we hire this player but not his home run hitting teammate.  [][However, we can examine team level statistics] (`  How ???  `).  How do teams with many stolen bases compare to teams with few?  How about bases on balls?  We have data.  Let's examine some.
+
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on baseball basics.
+https://rafalab.github.io/dsbook/linear-models.html#baseball-basics
+
+
+[][Key points]
+
+    The goal of a baseball game is to score more runs (points) than the other team.
+    Each team has 9 batters who have an opportunity to hit a ball with a bat in a predetermined order. 
+    Each time a batter has an opportunity to bat, we call it a plate appearance (PA).
+    The PA ends with a binary outcome: the batter either makes an out (failure) and returns to the bench or the batter doesn’t (success) and can run around the bases, and potentially score a run (reach all 4 bases).
+    We are simplifying a bit, but there are five ways a batter can succeed (not make an out):
+
+        Base on balls (BB): the pitcher fails to throw the ball through a predefined area considered to be hittable (the strike zone), so the batter is permitted to go to first base.
+        Single: the batter hits the ball and gets to first base.
+        Double (2B): the batter hits the ball and gets to second base.
+        Triple (3B): the batter hits the ball and gets to third base.
+        Home Run (HR): the batter hits the ball and goes all the way home and scores a run.
+
+    Historically, the batting average has been considered the most important offensive statistic. To define this average, we define a hit (H) and an at bat (AB). Singles, doubles, triples, and home runs are hits. The fifth way to be successful, a walk (BB), is not a hit. An AB is the number of times you either get a hit or make an out; BBs are excluded. The batting average is simply H/AB and is considered the main measure of a success rate.
+    Note: The video states that if you hit AFTER someone who hits many home runs, you will score many runs, while the textbook states that if you hit BEFORE someone who hits many home runs, you will score many runs. The textbook wording is accurate.
+
+
+
+![image here](C:/Users/JJ/Pictures/baseball goal.png)
+
+![image here](C:/Users/JJ/Pictures/9 order predetermined batters.png)
+
+![plate appearance](C:/Users/JJ/Pictures/plate appearance.png)
+
+![image here](C:/Users/JJ/Pictures/inning ends after 3 outs.png)
+
+**In baseball, a home run (abbreviated HR) is scored when the ball is hit in such a way that the batter is able to circle the bases and reach home safely **
+
+![image here](C:/Users/JJ/Pictures/4 bases in baseball field.png)
+
+![image here](C:/Users/JJ/Pictures/if you get home base you hit a run.png)
+
+![Base on ball](C:/Users/JJ/Pictures/base on ball, you get go first base.png)
+
+![A single is you hit the ball and get to first base](C:/Users/JJ/Pictures/a single is you hit the ball and you get to 1 base.png)
+
+![image here](C:/Users/JJ/Pictures/a double is you hit the ball and pass through first to second base.png)
+
+![image here](C:/Users/JJ/Pictures/a triple is you hit ball and get to third base.png)
+
+![baseball home run, go all the way home and score a run](C:/Users/JJ/Pictures/home run is you hit the ball and go all the way home and score a run.png)
+
+![baseball steal a base](C:/Users/JJ/Pictures/baseball steal a base.png)
+
+![Image here](C:/Users/JJ/Pictures/batting average considered as most important.png)
+
+![batting average equation](C:/Users/JJ/Pictures/baseball batting average equation.png)
+
+![image here](C:/Users/JJ/Pictures/base on abll or stolen base.png)
+
+
+
+
+
+
+# Bases on Balls or Stolen Bases?
+
+Let's start looking at some baseball data and try to answer your questions using these data.  First one, do teams that hit more home runs score more runs?  We know what the answer to this will be, but let's look at the data anyways.  We're going to examine data from 1961 to 2001.  We end at 2001 because, remember, we're back in 2002, getting ready to build a team.  
+
+We started in 1961, because that year, the league changed from 154 games to 162 games.  _The visualization of choice when exploring the relationship between two variables like home runs and runs is a scatterplot_ (`  So we can do what we prefer I suppose  `).  The following code shows you how to make that scatterplot.  We start by loading the Lahman library that has all these baseball statistics.  And then we simply make a scatterplot using 2d plot.  Here's a plot of runs per game versus home runs per game.  
+
+The plot shows a very strong association--teams with more home runs tended to score more runs.  Now, let's examine the relationship between stolen bases and wins.  Here are the runs per game plotted against stolen bases per game.  Here, the relationship is not as clear.  Finally, let's examine the relationship between bases on balls and runs.  Here are runs per game versus bases on balls per game.  Although the relationship is not as strong as it was for home runs, we do see a pretty strong relationship here.  
+
+We know that, by definition, home runs cause runs, because when you hit a home run, at least one run will score. [][Need to stufy how baseball rules the scores or runs, is Runs and Scores the same stuff in baseball game ???]  Now it could be that home runs also cause the bases on balls (`  How ???  `  **base on balls. This is when the pitcher does not pitch well and you get to go to first base**).  If you understand the game, you will agree with me that that could be the case.  [][So it might appear that a base on ball is causing runs, when in fact, it's home runs that's causing both].  This is called [][confounding].  An important concept you will learn about.  Linear regression will help us parse all this out and quantify the associations.  This will then help us determine what players to recruit.  Specifically, we will try to predict things like how many more runs will the team score if we increase the number of bases on balls but keep the home runs fixed.  Regression will help us answer this question, as well.
+
+
+[][Textbook link]
+
+This video corresponds to the base on balls or stolen bases textbook section.
+https://rafalab.github.io/dsbook/linear-models.html#base-on-balls-or-stolen-bases
+
+
+[][Key points]
+
+    The visualization of choice when exploring the relationship between two variables like home runs and runs is a scatterplot.
+
+Code: Scatterplot of the relationship between HRs and wins
+
+library(Lahman)
+library(tidyverse)
+library(dslabs)
+ds_theme_set()
+
+Teams %>% filter(yearID %in% 1961:2001) %>%
+    mutate(HR_per_game = HR / G, R_per_game = R / G) %>%
+    ggplot(aes(HR_per_game, R_per_game)) + 
+    geom_point(alpha = 0.5)
+
+Code: Scatterplot of the relationship between stolen bases and wins
+
+Teams %>% filter(yearID %in% 1961:2001) %>%
+    mutate(SB_per_game = SB / G, R_per_game = R / G) %>%
+    ggplot(aes(SB_per_game, R_per_game)) + 
+    geom_point(alpha = 0.5)
+
+Code: Scatterplot of the relationship between bases on balls and runs
+
+Teams %>% filter(yearID %in% 1961:2001) %>%
+    mutate(BB_per_game = BB / G, R_per_game = R / G) %>%
+    ggplot(aes(BB_per_game, R_per_game)) + 
+    geom_point(alpha = 0.5)
+
+
+![Image here](C:/Users/JJ/Pictures/baseball more home runs get more runs.png)
+
+```{r}
+library(Lahman)
+library(dplyr)
+library(ggplot2)
+
+#ggplot2::ds_theme_set()
+Teams %>%
+  filter(yearID %in% 1961:2001) %>%
+  mutate(HR_per_game = HR/G, R_per_game = R/G) %>%
+  ggplot2::ggplot(aes(HR_per_game, R_per_game)) +
+  geom_point(alpha=0.5)
+```
+
+![Image here](C:/Users/JJ/Pictures/plot of runs per game vs home runs per game.png)
+
+![Image here](C:/Users/JJ/Pictures/runs per game vs stolen bases.png)
+
+![image here](C:/Users/JJ/Pictures/runs per game vs base on balls.png)
+
+![caused the both](C:/Users/JJ/Pictures/confounding.png)
+
+![image here](C:/Users/JJ/Pictures/linear regression will help us parse all out and quantify the associations.png)
+
+
+
+
+
+[][Textbook link]
+
+This video corresponds to the base on balls or stolen bases textbook section.
+https://rafalab.github.io/dsbook/linear-models.html#base-on-balls-or-stolen-bases
+
+
+[][Key points]
+
+    The visualization of choice when exploring the relationship between two variables like home runs and runs is a scatterplot.
+
+Code: Scatterplot of the relationship between HRs and wins
+
+library(Lahman)
+library(tidyverse)
+library(dslabs)
+ds_theme_set()
+
+Teams %>% filter(yearID %in% 1961:2001) %>%
+    mutate(HR_per_game = HR / G, R_per_game = R / G) %>%
+    ggplot(aes(HR_per_game, R_per_game)) + 
+    geom_point(alpha = 0.5)
+
+Code: Scatterplot of the relationship between stolen bases and wins
+
+Teams %>% filter(yearID %in% 1961:2001) %>%
+    mutate(SB_per_game = SB / G, R_per_game = R / G) %>%
+    ggplot(aes(SB_per_game, R_per_game)) + 
+    geom_point(alpha = 0.5)
+
+Code: Scatterplot of the relationship between bases on balls and runs
+
+Teams %>% filter(yearID %in% 1961:2001) %>%
+    mutate(BB_per_game = BB / G, R_per_game = R / G) %>%
+    ggplot(aes(BB_per_game, R_per_game)) + 
+    geom_point(alpha = 0.5)
+
+
+
 
 # Assessment: Baseball as a Motivating Example
 
@@ -207,7 +446,7 @@ As the number of errors per game increases, the win rate tends to increase.
 As the number of errors per game increases, the win rate tends to decrease.**This is the answer**
 
 ```{r}
-#library(dplyr)
+library(dplyr)   # this is for pipe %>%
 library(ggplot2)
 library(Lahman) 
 library(tidyverse)
@@ -216,6 +455,14 @@ Teams %>% filter(yearID %in% 1961:2001 ) %>%
   mutate(number_of_wins_per_game = W/G, fielding_errors_per_game = E/G) %>%
   ggplot(aes(number_of_wins_per_game, fielding_errors_per_game)) + geom_point(alpha = 0.3) 
 ```
+# Explanation
+
+When you examine the scatterplot, you can see a clear trend towards decreased win rate with increasing number of errors per game (`  before I wa using big scatter markersize  `). The following code can be used to make the scatterplot:
+
+          Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(win_rate = W / G, E_per_game = E / G) %>%
+  ggplot(aes(win_rate, E_per_game)) + 
+  geom_point(alpha = 0.5)
 
 
 ```{r}
@@ -235,7 +482,9 @@ Use the filtered Teams data frame from Question 6. Make a scatterplot of triples
 + geom_point(alpha = 0.5)
 
 
-Questions About Baseball as a Motivating Example?
+
+
+# Questions About Baseball as a Motivating Example?
 
 Ask your questions or make your comments about Baseball as a Motivating Example here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course). 
 
@@ -245,7 +494,6 @@ Search the discussion board before posting to see if someone else has asked the 
 Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
 Posting snippets of code is okay, but posting full code solutions is not.
 If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
-
 
 
 
@@ -286,6 +534,44 @@ Up to now in this series, we have focused mainly on univariate variables.  Howev
 We'll create a data set with the heights of fathers and the first sons.  The actual data Galton used to discover and define regression.  So we have the father and son height data.  Suppose we were to summarize these data.  **Since both distributions are well approximated by normal distributions, we can use the two averages and two standard deviations as summaries**.  Here they are.
 
 **However, this summary fails to describe a very important characteristic of the data that you can see in this figure.  The trend that the taller the father, the taller the son, is not described by the summary statistics of the average and the standard deviation. We will learn that the correlation coefficient is a summary of this trend**.(`Interesting here how the instructor jumped in the topic of his teaching`)
+
+
+[][Textbook link]
+
+The corresponding textbook section is Case Study: is height hereditary?
+https://rafalab.github.io/dsbook/regression.html#case-study-is-height-hereditary
+
+
+[][Key points]
+
+        Galton tried to predict sons' heights based on fathers' heights.
+        The mean and standard errors are insufficient for describing an important characteristic of the data: the trend that the taller the father, the taller the son.
+        The correlation coefficient is an informative summary of how two variables move together that can be used to predict one variable using the other.
+
+Code
+
+# create the dataset
+library(tidyverse)
+library(HistData)
+data("GaltonFamilies")
+set.seed(1983)
+galton_heights <- GaltonFamilies %>%
+  filter(gender == "male") %>%
+  group_by(family) %>%
+  sample_n(1) %>%
+  ungroup() %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+
+# means and standard deviations
+galton_heights %>%
+    summarize(mean(father), sd(father), mean(son), sd(son))
+
+# scatterplot of father and son heights
+galton_heights %>%
+    ggplot(aes(father, son)) +
+    geom_point(alpha = 0.5)
+
 
 ```{r}
 library(dplyr)
@@ -330,6 +616,31 @@ That would be perfect correlation.  In this case, the correlation is given by th
 To see what data looks like for other values of rho, here are six examples of pairs with correlations ranging from negative 0.9 to 0.99.  When the correlation is negative, we see that they go in opposite direction.  As x increases, y decreases.  **When the correlation gets either closer to 1 or negative 1, we see the clot of points getting thinner and thinner.  When the correlation is 0, we just see a big circle of points**.
 
 
+[][Textbook link]
+
+This video corresponds to the correlation coefficient section of the textbook.
+https://rafalab.github.io/dsbook/regression.html#the-correlation-coefficient
+
+
+[][Key points]
+
+        The correlation coefficient is defined for a list of pairs 
+        
+            (x_1, y_1), ..., (x_n, y_n)
+        
+        as the product of the standardized values:
+        
+            ((x_i - mu_x)/Sigma_x) * ((y_i - mu_y)/Sigma_y)
+
+        .
+        The correlation coefficient essentially conveys how two variables move together.
+        The correlation coefficient is always between -1 and 1.
+
+Code
+
+rho <- mean(scale(x)*scale(y))
+galton_heights %>% summarize(r = cor(father, son)) %>% pull(r)
+
 
 ![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient.png)
 
@@ -368,6 +679,7 @@ galton_heights %>% summarise(cor(father, son))
 
 
 
+
 # Sample Correlation is a Random Variable
 
 
@@ -383,6 +695,46 @@ Here, we recreate R 1000 times, and plot its histogram.  We see that the **expec
 Also note that **because the sample correlation is an average of independent draws** (` independent? average? how? `), the Central Limit Theorem actually applies.  _Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal_.  
 
 The expected value we know is the population correlation.  The standard deviation is somewhat more complex to derive, but this is the actual formula here.  In our example, N equals to 25, does not appear to be large enough to make the approximation a good one (`how to identify a good one ???  Should the standard deviation equal to a normal distribution or something ???`), as we see in this QQ-plot.
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section titled: Sample correlation is a random variable.
+https://rafalab.github.io/dsbook/regression.html#sample-correlation-is-a-random-variable
+
+
+[][Key points]
+
+        The correlation that we compute and use as a summary is a random variable.
+        When interpreting correlations, it is important to remember that correlations derived from samples are estimates containing uncertainty.
+        Because the sample correlation is an average of independent draws, the central limit theorem applies. 
+
+Code
+
+# compute sample correlation
+R <- sample_n(galton_heights, 25, replace = TRUE) %>%
+    summarize(r = cor(father, son))
+R
+
+# Monte Carlo simulation to show distribution of sample correlation
+B <- 1000
+N <- 25
+R <- replicate(B, {
+    sample_n(galton_heights, N, replace = TRUE) %>%
+    summarize(r = cor(father, son)) %>%
+    pull(r)
+})
+qplot(R, geom = "histogram", binwidth = 0.05, color = I("black"))
+
+# expected value and standard error
+mean(R)
+sd(R)
+
+# QQ-plot to evaluate whether N is large enough
+data.frame(R) %>%
+    ggplot(aes(sample = R)) +
+    stat_qq() +
+    geom_abline(intercept = mean(R), slope = sqrt((1-mean(R)^2)/(N-2)))
 
 
 ```{r}
@@ -454,6 +806,7 @@ R
 
 
 
+
 # Assessment: Correlation
 
 
@@ -482,7 +835,7 @@ correct
 Below is a scatter plot showing the relationship between two variables, x and y.
 Scatter plot of relationship between x (plotted on the x-axis) and y (plotted on the y-axis). y-axis values range from -3 to 3; x-axis values range from -3 to 3. Points are fairly well distributed in a tight band with a range from approximately (-2, 2) to (3, -3).
 
-![image here](C:/Users/JJ/Pictures/7_6_1_assessment_IDS.png)
+![Question 3 image here](C:/Users/JJ/Pictures/7_6_1_assessment_IDS.png)
 From this figure, the correlation between x and y appears to be about:
 **-0.9**
 -0.2
@@ -527,6 +880,7 @@ Not enough information to answer the question
 Load the Lahman library. Filter the Teams data frame to include years from 1961 to 2001.
 What is the correlation coefficient between number of runs per game and number of at bats per game?
 correct
+**0.6580976 **
 
 Loading
 You have used 1 of 10 attempts Some
@@ -538,6 +892,7 @@ You have used 1 of 10 attempts Some
 Use the filtered Teams data frame from Question 7.
 What is the correlation coefficient between win rate (number of wins per game) and number of errors per game?
 correct
+**-0.3396947**
 
 Loading
 You have used 1 of 10 attempts Some
@@ -549,6 +904,7 @@ You have used 1 of 10 attempts Some
 Use the filtered Teams data frame from Question 7.
 What is the correlation coefficient between doubles (X2B) per game and triples (X3B) per game?
 correct
+**-0.01157404**
 
 Loading
 You have used 1 of 10 attempts Some
@@ -629,9 +985,9 @@ To help us understand when it is that correlation is meaningful as a summary sta
 
 To see this, we look at all the sons with fathers who are about 72 inches.  We do this by stratifying the father's height.  We call this a **conditional average**, since we are computing the average son height conditioned on the father being 72 inches tall.  A challenge when using this approach in practice is that _we don't have many fathers that are exactly 72_.  In our data set, we only have eight.  If we change the number to 72.5, we would only have one father who is that height.  This would result in averages with large standard errors, and they won't be useful for prediction for this reason.  But for now, what we'll do is we'll take an approach of creating strata of fathers with very similar heights.  Specifically, we will round fathers' heights to the nearest inch.  This gives us the following prediction for the son of a father that is approximately 72 inches tall.  We can use this code and get our answer, which is 71.84.  This is 0.54 standard deviations larger than the average son, a smaller number than the 1.14 standard deviations taller that the father was above the average father.  Stratification followed by _box plots_ lets us see the distribution of each group.  Here is that plot.  
 
-We can see that the centers of these groups are increasing with height, not surprisingly.  _The means of each group appear to follow a linear relationship_ (`  then why we supposed to use a scatter plot to explore relationship between two variales in Exploratory Data Analysis in Python DataCamp course ?  I mean many dots covering on each other, Using a boxplot would avoid this condition ???  `).  We can make that plot like this, with this code.  See the plot and notice that this appears to follow a line.  The slope of this line appears to be about 0.5, which happens to be the correlation between father and son heights.  **This is not a coincidence**.  To see this connection, let's plot the **standardized heights** (`  Why??? standardize?  can we just use the boxplot or the grouped mean?  `) against each other, son versus father, with a line that has a slope equal to the correlation.  (` Think, Think, Think `)   ****Read the important comments in below standardized plot, and think about how its all related to each other****
+We can see that the centers of these groups are increasing with height, not surprisingly.  _The means of each group appear to follow a linear relationship_ (`  then why we supposed to use a scatter plot to explore relationship between two variales in Exploratory Data Analysis in Python DataCamp course ?  I mean many dots covering on each other, Using a boxplot would avoid this condition ???  `).  We can make that plot like this, with this code.  See the plot and notice that this appears to follow a line.  The slope of this line appears to be about 0.5, which happens to be the correlation between father and son heights.  **This is not a coincidence**.  To see this connection, let's plot the **standardized heights** (`  Why??? standardize?  can we just use the boxplot or the grouped mean?  `) against each other, son versus father, with a line that has a slope equal to the correlation.  (` Think, Think, Think `)   [][****Read the important comments in below standardized plot, and think about how its all related to each other****]
 
-Here's the code.  Here's a plot.  This line is what we call the regression line.  In a later video, we will describe Galton's theoretical justification for using this line to estimate conditional means.  Here, we define it and compute it for the data at hand.  The regression line for two variables, x and y, tells us that ***for every standard deviation (sigma x) increase above the average (mu x).  For x, y grows rho standard deviations (sigma y) above the average (mu y).***.  The formula for the regression line is therefore this one (`  Think, Think, Think  `).  If there's perfect correlation, we predict an increase that is the same number of SDs.  If there's zero correlation, then we don't use x at all for the prediction of y.  For values between 0 and 1, the prediction is somewhere in between.  If the correlation is negative, we predict a reduction, instead of an increase.  
+Here's the code.  Here's a plot.  This line is what we call the regression line.  In a later video, we will describe Galton's theoretical justification for using this line to estimate conditional means.  Here, we define it and compute it for the data at hand.  The regression line for two variables, x and y, tells us that [][***for every standard deviation (sigma x) increase above the average (mu x).  For x, y grows rho standard deviations (sigma y) above the average (mu y).***].  The formula for the regression line is therefore this one (`  Think, Think, Think  `)[][How does this comes out???].  If there's perfect correlation, we predict an increase that is the same number of SDs.  If there's zero correlation, then we don't use x at all for the prediction of y.  For values between 0 and 1, the prediction is somewhere in between.  If the correlation is negative, we predict a reduction, instead of an increase.  
 
 ***It is because when the correlation is positive but lower than the one, that we predict something closer to the mean (`it has to be the normal distribution, enough sized sample`), that we call this regression.  The son regresses to the average height.***
 
@@ -639,6 +995,67 @@ In fact, the title of Galton's paper was "Regression Towards Mediocrity in Hered
 
 We started this discussion by saying that we wanted to use the conditional means to predict the heights of the sons.  But then we realized that there were very few data points in each strata.  When we did this approximation of rounding off the height of the fathers (`  the boxplot  `), we found that these conditional means appear to follow a line.  And we ended up with the regression line (`  that is if we standardize both variables - father, son  `).  ****So the regression line gives us the prediction****.  An advantage of using the regression line is that _we used all the data to estimate just two parameters, the slope and the intercept.  This makes it much more stable_.  When we do _conditional means, we had fewer data points, which made the estimates have a large standard error_, and therefore be unstable.  So this is going to give us a much more stable prediction using the regression line.  However, are we justified in using the regression line to predict?  Galton gives us the answer.
 
+
+[][Textbook link]
+
+There are three links to relevant sections of the textbook for this video:
+
+        correlation is not always a useful summary
+        https://rafalab.github.io/dsbook/regression.html#correlation-is-not-always-a-useful-summary
+        conditional expectation
+        https://rafalab.github.io/dsbook/regression.html#conditional-expectation
+        the regression line
+        https://rafalab.github.io/dsbook/regression.html#the-regression-line
+
+
+[][Key points]
+
+        Correlation is not always a good summary of the relationship between two variables.
+        The general idea of conditional expectation is that we stratify a population into groups and compute summaries in each group.
+        A practical way to improve the estimates of the conditional expectations is to define strata of with similar values of x.
+        If there is perfect correlation, the regression line predicts an increase that is the same number of SDs for both variables. If there is 0 correlation, then we don’t use x at all for the prediction and simply predict the average . For values between 0 and 1, the prediction is somewhere in between. If the correlation is negative, we predict a reduction instead of an increase.
+
+Code
+
+# number of fathers with height 72 or 72.5 inches
+sum(galton_heights$father == 72)
+sum(galton_heights$father == 72.5)
+
+# predicted height of a son with a 72 inch tall father
+conditional_avg <- galton_heights %>%
+    filter(round(father) == 72) %>%
+    summarize(avg = mean(son)) %>%
+    pull(avg)
+conditional_avg
+
+# stratify fathers' heights to make a boxplot of son heights
+galton_heights %>% mutate(father_strata = factor(round(father))) %>%
+    ggplot(aes(father_strata, son)) +
+    geom_boxplot() +
+    geom_point()
+
+# center of each boxplot
+galton_heights %>%
+    mutate(father = round(father)) %>%
+    group_by(father) %>%
+    summarize(son_conditional_avg = mean(son)) %>%
+    ggplot(aes(father, son_conditional_avg)) +
+    geom_point()
+
+# calculate values to plot regression line on original data
+mu_x <- mean(galton_heights$father)
+mu_y <- mean(galton_heights$son)
+s_x <- sd(galton_heights$father)
+s_y <- sd(galton_heights$son)
+r <- cor(galton_heights$father, galton_heights$son)
+m <- r * s_y/s_x
+b <- mu_y - m*mu_x
+
+# add regression line to plot
+galton_heights %>%
+    ggplot(aes(father, son)) +
+    geom_point(alpha = 0.5) +
+    geom_abline(intercept = b, slope = m)
 
 
 ![image here](C:/Users/JJ/Pictures/correlation of 0.82.png)
@@ -781,6 +1198,28 @@ galton_heights %>%
 Here, we stratify the son height by the standardized father heights and see that the assumption appears to hold.  Here's the code that gives us the desired plot.  Now, we come back to defining correlation.  Galton showed-- using mathematical statistics-- _that when two variables follow a bivariate normal distribution, then for any given x the expected value of the y in pairs for which x is set at that value is mu y plus rho x minus mu x divided by sigma x times sigma y_.  Note that this is a line with slope rho times sigma y divided by sigma x and intercept mu y minus n times mu x.  And therefore, this is the same as the regression line we saw in a previous video. (`  Now you must understand the slope difference between standalized vairable and non-standarilized vaiable in father son case we did in prevrious chapter  `)  That can be written like this.  So in summary, if our data is approximately bivariate, then the conditional expectation--which is the best prediction for y given that we know the value of x--is given by the regression line.  
 
 
+[][Textbook link]
+
+This video corresponds to the textbook section on the bivariate normal distribution (advanced). 
+https://rafalab.github.io/dsbook/regression.html#bivariate-normal-distribution-advanced
+
+
+[][Key points]
+
+        When a pair of random variables are approximated by the bivariate normal distribution, scatterplots look like ovals. They can be thin (high correlation) or circle-shaped (no correlation).
+        When two variables follow a bivariate normal distribution, computing the regression line is equivalent to computing conditional expectations.
+        We can obtain a much more stable estimate of the conditional expectation by finding the regression line and using it to make predictions.
+
+Code
+
+galton_heights %>%
+  mutate(z_father = round((father - mean(father)) / sd(father))) %>%
+  filter(z_father %in% -2:2) %>%
+  ggplot() +  
+  stat_qq(aes(sample = son)) +
+  facet_wrap( ~ z_father)
+
+
 ![image here](C:/Users/JJ/Pictures/bivate normal distribution.png)
 
 ![image here](C:/Users/JJ/Pictures/scatter plot looks like ovals.png)
@@ -835,8 +1274,33 @@ galton_heights %>%
 # Correction (`  So this video is recorded long times ago, how interesting  `)
 
 ```The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance. **The variance is the standard deviation squared**. See the notes below the video for more clarification.```
+![Variance is standard deviation squared](C:/Users/JJ/Pictures/variance and standard deviation.png)
+(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var (`  Correction: The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance  `) of Y given X equals sigma y times the square root of 1 minus rho squared.  _This is where statements like x explains such and such percent of the variation in y comes from_ (`  Why saying this ???  Where does this equation comes from ???  `[][Google this topic]).  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y** [][Now what??? How did we get that equation???].  So _from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%_[][What are you talking about???].  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is  by a bivariate normal distribution.  
 
-(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var of Y given X equals sigma y times the square root of 1 minus rho squared.  _This is where statements like x explains such and such percent of the variation in y comes from_ (`  Why saying this ???  `[][Google this topic]).  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y** [][Now what??? How did we get that equation???].  So _from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%_[][What are you talking about???].  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is  by a bivariate normal distribution.  
+[][Read all the course material and thinking, then trying to answer your own questions, its a good way of learning, and thinking]
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on variance explained.
+# https://rafalab.github.io/dsbook/regression.html#variance-explained
+
+
+[][Key points]
+
+        Conditioning on a random variable X can help to reduce variance of response variable Y.
+        The standard deviation of the conditional distribution is 
+        
+            SD(Y|X=x) = Sigma_y * SquaredRoot(1 - rho**2), 
+        
+        which is smaller than the standard deviation without conditioning sigma_y.
+        Because variance is the standard deviation squared, the variance of the conditional distribution is:
+        
+            Var(Y\X=x) = Sigma_y^(2) * (1 - rho**2).
+        
+        In the statement "X explains such and such percent of the variability," the percent value refers to the variance. The variance decreases by \(\rho^2\) percent.
+        The “variance explained” statement only makes sense when the data is approximated by a bivariate normal distribution.
+
 
 
 ![not the variance](C:/Users/JJ/Pictures/is for standard deviation not the variance.png)
@@ -863,6 +1327,30 @@ We computed a regression line to predict the son's height from the father's heig
 So, what if we wanted to predict the father's height based on the son's?  It is important to know that this is not determined by computing the inverse function of what we just saw, which would be this equation here.  [][We need to compute the expected value of x given y].  This gives us another regression function altogether, with slope and intercept computed like this. (`  How did this comes from??  `)  So now we get that the expected value of x given y, or the expected value of the father's height given the son's height, is equal to 34 plus 0.5 y, a different regression line.  
 
 So in summary, it's important to remember that the regression line comes from computing expectations, and these give you two different lines, depending on if you compute the expectation of y given x or x given y.  
+
+
+[][Textbook link]
+
+The link to the corresponding section of the textbook is warning: there are two regression lines.
+https://rafalab.github.io/dsbook/regression.html#warning-there-are-two-regression-lines
+
+
+[][Key point]
+There are two different regression lines depending on whether we are taking the expectation of Y given X or taking the expectation of X given Y.
+Code
+
+# compute a regression line to predict the son's height from the father's height
+mu_x <- mean(galton_heights$father)
+mu_y <- mean(galton_heights$son)
+s_x <- sd(galton_heights$father)
+s_y <- sd(galton_heights$son)
+r <- cor(galton_heights$father, galton_heights$son)
+m_1 <-  r * s_y / s_x
+b_1 <- mu_y - m_1*mu_x
+
+# compute a regression line to predict the father's height from the son's height
+m_2 <-  r * s_x / s_y
+b_2 <- mu_x - m_2*mu_y
 
 
 ```{r}
@@ -1165,37 +1653,12 @@ Some reminders:
 
 
 
-How about Q 10, I was confusing how the r squared comes from, sorry if this is a stupit question. But I really didn't get it. please help me too
-
-Course statements: The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var of Y given X equals sigma y times the square root of 1 minus rho squared. This is where statements like x explains such and such percent of the variation in y comes from (Why saying this ???) Var(Y|x=x) = SD_y * RootSquared(1 - rho^2)
-
-And if possible, I want to know how these equation linked together, say if there's a connection between this one and the Cor by definition: rho = (1/n) * SUM(i=1 - n) * ((x_i - mu_x)/Sigma_x) * ((y_i - mu_y)/Sigma_y) (And should here be SD, instead of Sigma)
-
-Question 10: What percent of the variability in daughter heights is explained by the mother's height
-
-
-
-SD and Var confusion in course material, except one correlation, pplease help
-
-question posted 11 minutes ago by john_hhu2020
-
-As title mentioned, I have noticed in many places, even the slides show as Sigma, but the actual notation should be a Var (the Var is Sigma aquared ^2), the ^2 is missing, can any instructor associate helps us correct all the placed involved? Thank you
-
-Its can be annoying for the new learner, and this is a Harvard course
-
-
-
-
-
-
 
 
 ## Course  /  Section 2: Linear Models  /  Linear Models Overview
 
 
-
 # Linear Models Overview
-
 
 
 In the Linear Models section, you will learn how to do linear regression.
@@ -1213,6 +1676,69 @@ After completing this section, you will be able to:
 This section has four parts: Introduction to Linear Models, Least Squares Estimates, Tibbles, do, and broom, and Regression and Baseball. There are comprehension checks at the end of each part, along with an assessment on linear models at the end of the whole section for Verified learners only.
 
 We encourage you to use R to interactively test out your answers and further your own learning. If you get stuck, we encourage you to search the discussion boards for the answer to your issue or ask us for help!
+
+
+
+
+
+## Course  /  Section 2: Linear Models  /  2.1: Introduction to Linear Models
+
+
+# Confounding: Are BBs More Predictive?
+
+
+In a previous video, we found that the slope of the regression line for predicting runs from bases on balls was 0.735.  So, **does this mean that if we go and hire low salary players with many bases on balls that increases the number of walks per game by 2 for our team?  Our team will score 1.47 more runs per game?**  [][We are again reminded that association is not causation].  The data does provide strong evidence that a team with 2 more bases on balls per game than the average team scores 1.47 more runs per game, but this does not mean that bases on balls are the cause.  If we do compute the regression line slope for singles, we get 0.449, a lower value.  Note that a single gets you to first base just like a base on balls.  Those that know a little bit more about baseball will tell you that with a single, runners that are on base have a better chance of scoring than with a base on balls (`  DId you see the logic conflict here`).  
+
+So, how can base on balls be more predictive of runs?  The reason this happens is because of [][confounding].  Note the correlation between homeruns, bases on balls, and singles.  We see that the correlation between bases on balls and homeruns is quite high compared to the other two pairs.  [][It turns out that pitchers, afraid of homeruns, will sometimes avoid throwing strikes to homerun hitters].  As a result, homerun hitters tend to have more bases on balls.  Thus, a team with many homeruns will also have more bases on balls than average, and as a result, it may appear that bases on balls cause runs.  But it is actually the homeruns that caused the runs.  
+
+In this case, we say that bases on balls are confounded with homeruns.  [][But could it be that bases on balls still help?  To find out, we somehow have to adjust for the homerun effect.  Regression can help with this].  **=====================================================================================**
+
+
+
+```{r}
+library(dplyr )
+library(Lahman)
+library(ggplot2)
+#library(tidyverse)
+#library(dslabs)
+
+Teams %>% 
+  filter(yearID %in% 1961:2001) %>%
+  mutate(Singles = (H - HR - X2B - X3B)/G, BB = BB/G, HR = HR/G) %>%
+  summarize(cor(BB, HR), cor(Singles, HR), cor(BB, Singles))
+```
+
+
+
+![](C:/Users/JJ/Pictures/predicting runs from base on balls.png)
+
+![](C:/Users/JJ/Pictures/association is not causation.png)
+
+![](C:/Users/JJ/Pictures/base on balls and runs relation.png)
+
+![](C:/Users/JJ/Pictures/association is not a causation 1.png)
+
+![](C:/Users/JJ/Pictures/how about run with singles, slope dropped.png)
+
+![Why](C:/Users/JJ/Pictures/runners on base have better change of scoring with single than bb.png)
+[][Did you see the logic conflict here ???  Single-R slope < BB-R slope, but Single gives runner better chance.  Now interesting]**++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++**
+
+
+![](C:/Users/JJ/Pictures/confounding cause.png)
+
+![](C:/Users/JJ/Pictures/base on balls and home runs.png)
+
+![](C:/Users/JJ/Pictures/pitchers avoid strike to home runners, thus .png)
+
+![](C:/Users/JJ/Pictures/bb are condounded with hr.png)
+
+
+
+
+# Stratification and Multivariate Regression
+
+
+
 
 
 
