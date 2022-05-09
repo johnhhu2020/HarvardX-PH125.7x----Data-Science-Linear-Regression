@@ -602,16 +602,13 @@ galton_heights %>%
 
 **The correlation coefficient is defined for a list of pairs--x1, y1 through xn, yn**--
 with the following formula.  Here, mu x and mu y are the averages of x and y, respectively.
-And _sigma x and sigma y are the standard deviations_.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.
+And sigma x and sigma y are the standard deviations.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.  Soon, we will learn about the connection between correlation and regression.  [][*To understand why this equation does, in fact, summarize how two variables move together*], **consider the i-th entry of x is xi minus mu x divided by sigma x SDs away from the average**.  Similarly, the yi-- which is paired with the xi--is yi minus mu y divided by sigma y SDs away from the average y.  
 
-Soon, we will learn about the connection between correlation and regression.  To understand why this equation does, in fact, summarize how two variables move together, **consider the i-th entry of x is xi minus mu x divided by sigma x SDs away from the average**.  Similarly, the yi-- which is paired with the xi--is yi minus mu y divided by sigma y SDs away from the average y.  
+If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  [][*This will average to about 0*.  **The correlation is this average.**]
 
-If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  This will average to about 0.  **The correlation is this average.**
+**And therefore, unrelated variables will have a correlation of about 0** (`  Why ??? Sorry I didn't get it`  ).  If instead the quantities vary together, then we are averaging mostly positive products.  Because they're going to be either positive times positive or negative times negative.  And we get a positive correlation.  If they vary in opposite directions, we get a negative correlation.
 
-**And therefore, unrelated variables will have a correlation of about 0** (`Why??? Sorry I didn't get it`).  If instead the quantities vary together, then we are averaging mostly positive products.  Because they're going to be either positive times positive or negative times negative.  And we get a positive correlation.  If they vary in opposite directions, we get a negative correlation.
-
-Another thing to know is that we can show mathematically that the correlation is always between negative 1 and 1.  To see this, consider that we can have higher correlation than when we compare a list to itself.
-That would be perfect correlation.  In this case, the correlation is given by this equation, which we can show is equal to 1.  A similar argument with x and its exact opposite, negative x, proves that the correlation has to be greater or equal to negative 1.  So it's between minus 1 and 1.  
+Another thing to know is that we can show mathematically that the correlation is always between negative 1 and 1.  To see this, consider that we can have higher correlation than when we compare a list to itself.  That would be perfect correlation.  In this case, the correlation is given by this equation, which we can show is equal to 1.  A similar argument with x and its exact opposite, negative x, proves that the correlation has to be greater or equal to negative 1.  So it's between minus 1 and 1.  
 
 To see what data looks like for other values of rho, here are six examples of pairs with correlations ranging from negative 0.9 to 0.99.  When the correlation is negative, we see that they go in opposite direction.  As x increases, y decreases.  **When the correlation gets either closer to 1 or negative 1, we see the clot of points getting thinner and thinner.  When the correlation is 0, we just see a big circle of points**.
 
@@ -683,18 +680,11 @@ galton_heights %>% summarise(cor(father, son))
 # Sample Correlation is a Random Variable
 
 
-Before we continue describing regression, let's go over a reminder about **random variability**.  In most data science applications, we do not observe the population, but rather a sample.  
+Before we continue describing regression, let's go over a reminder about **random variability**.  In most data science applications, we do not observe the population, but rather a sample.  As with the average and standard deviation, the sample correlation is the most commonly used estimate of the population correlation.  **This implies that the correlation we compute and use as a summary is a random variable** (`  So What ???  `).  As an illustration, let's assume that the 179 pairs of fathers and sons is our entire population.  A less fortunate geneticist can only afford to take a random sample of 25 pairs.  The sample correlation for this random sample can be computed using this code.  **Here, the variable R is the random variable**.  
 
-As with the average and standard deviation, the sample correlation is the most commonly used estimate
-of the population correlation.  **This implies that the correlation we compute and use as a summary is a random variable**.  
+[][*We can run a monte-carlo simulation to see the distribution of this random variable*].  Here, we recreate R 1000 times, and plot its histogram.  We see that the **expected value is the population correlation**, the mean of these Rs is 0.5, and that it has a relatively high standard error relative to its size, SD 0.147.  This is something to keep in mind when interpreting correlations.  [][**It is a random variable, and it can have a pretty large standard error**].  Also note that **because the sample correlation is an average of independent draws** (` independent? average? how? `), the Central Limit Theorem actually applies.  [][*Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal*].  
 
-As an illustration, let's assume that the 179 pairs of fathers and sons is our entire population.  A less fortunate geneticist can only afford to take a random sample of 25 pairs.  The sample correlation for this random sample can be computed using this code.  **Here, the variable R is the random variable**.  We can run a monte-carlo simulation to see the distribution of this random variable.  
-
-Here, we recreate R 1000 times, and plot its histogram.  We see that the **expected value is the population correlation**, the mean of these Rs is 0.5, and that it has a _relatively high standard error relative to its size_, SD 0.147.  This is something to keep in mind when interpreting correlations.  **It is a random variable, and it can have a pretty large standard error**.  
-
-Also note that **because the sample correlation is an average of independent draws** (` independent? average? how? `), the Central Limit Theorem actually applies.  _Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal_.  
-
-The expected value we know is the population correlation.  The standard deviation is somewhat more complex to derive, but this is the actual formula here.  In our example, N equals to 25, does not appear to be large enough to make the approximation a good one (`how to identify a good one ???  Should the standard deviation equal to a normal distribution or something ???`), as we see in this QQ-plot.
+The expected value we know is the population correlation.  The standard deviation is somewhat more complex to derive, but this is the actual formula here.  In our example, N equals to 25, does not appear to be large enough to make the approximation a good one (`  how to identify a good one ???  Should the standard deviation equal to a normal distribution or something ???  `), as we see in this QQ-plot.  
 
 
 [][Textbook link]
@@ -800,9 +790,24 @@ R <- sample_n(galton_heights, 25, replace=TRUE) %>%
 R
 ```
 
+![](C:/Users/JJ/Pictures/in most data science application what we do observe is a sample.png)
+
+![](C:/Users/JJ/Pictures/thus the sample correlation is most commonly used to estimate population correlation.png)
+
+![this implies that the correlation we compte and used as a summary is a random variable.png](C:/Users/JJ/Pictures/this implies that the correlation we compte and used as a summary is a random variable.png)
+
+![](C:/Users/JJ/Pictures/here the variable r is a random variable.png)
+
+![because the sample correlation is an average of independent draws, the centeral limit theorem applies.png](C:/Users/JJ/Pictures/because the sample correlation is an average of independent draws, the centeral limit theorem applies.png)
+
+[][**Read this and think**]
+![Sample Correlation is a Random Variable.png](C:/Users/JJ/Pictures/therefore for a large enough sample size N the distribution of these Rs is approximately normal, the expected value we know is the population correlation, thesd is somewhat more complex to derive, but here is the formula.png)
+
+
 ![alt text here.](C:/Users/JJ/Pictures/Sample Correlation is a Random Variable.png)
 
 ![alt text here](C:/Users/JJ/Pictures/Sample Correlation is a Random Variable02.png)
+
 
 
 
@@ -979,13 +984,13 @@ Some reminders:
 
 # Anscombe's Quartet/Stratification
 
-Correlation is not always a good summary of the relationship between two variables.  A famous example used to illustrate this are the following for artificial data sets, referred to as Anscombe's quartet.  All of these pairs have a correlation of 0.82.  Correlation is only meaningful in a particular context.  
+Correlation is not always a good summary of the relationship between two variables.  A famous example used to illustrate this are the following for artificial data sets, referred to as Anscombe's quartet.  All of these pairs have a correlation of 0.82.  Correlation is only meaningful in a particular context.   To help us understand when it is that correlation is meaningful as a summary statistic, we'll try to predict the son's height using the father's height.  This will help motivate and define linear regression.  **We start by demonstrating how correlation can be useful for prediction**.  
 
-To help us understand when it is that correlation is meaningful as a summary statistic, we'll try to predict the son's height using the father's height.  This will help motivate and define linear regression.  _We start by demonstrating how correlation can be useful for prediction_.  Suppose we are asked to guess the height of a randomly selected son.  Because of the distribution of the son height is approximately normal, we know that the average height of 70.5 inches is a value with the highest proportion and would be the prediction with the chances of minimizing the error.  _But what if we are told that the father is 72 inches?_  Do we still guess 70.5 inches for the son?  The father is taller than average, specifically he is 1.14 standard deviations taller than the average father.  So shall we predict that the son is also 1.14 standard deviations taller than the average son?  It turns out that this would be an overestimate.  
+[][*Suppose we are asked to guess the height of a randomly selected son*].  Because of the distribution of the son height is approximately normal, we know that the average height of 70.5 inches is a value with the highest proportion and would be the prediction with the chances of minimizing the error.  [][*But what if we are told that the father is 72 inches?*]  Do we still guess 70.5 inches for the son?  The father is taller than average, specifically he is 1.14 standard deviations taller than the average father.  So shall we predict that the son is also 1.14 standard deviations taller than the average son?  It turns out that this would be an overestimate.  
 
-To see this, we look at all the sons with fathers who are about 72 inches.  We do this by stratifying the father's height.  We call this a **conditional average**, since we are computing the average son height conditioned on the father being 72 inches tall.  A challenge when using this approach in practice is that _we don't have many fathers that are exactly 72_.  In our data set, we only have eight.  If we change the number to 72.5, we would only have one father who is that height.  This would result in averages with large standard errors, and they won't be useful for prediction for this reason.  But for now, what we'll do is we'll take an approach of creating strata of fathers with very similar heights.  Specifically, we will round fathers' heights to the nearest inch.  This gives us the following prediction for the son of a father that is approximately 72 inches tall.  We can use this code and get our answer, which is 71.84.  This is 0.54 standard deviations larger than the average son, a smaller number than the 1.14 standard deviations taller that the father was above the average father.  Stratification followed by _box plots_ lets us see the distribution of each group.  Here is that plot.  
+To see this, we look at all the sons with fathers who are about 72 inches.  We do this by stratifying the father's height.  We call this a **conditional average**, since we are computing the average son height conditioned on the father being 72 inches tall.  A challenge when using this approach in practice is that *we don't have many fathers that are exactly 72*.  In our data set, we only have eight.  If we change the number to 72.5, we would only have one father who is that height.  This would result in averages with large standard errors, and they won't be useful for prediction for this reason.  But for now, what we'll do is we'll take an approach of creating strata of fathers with very similar heights.  Specifically, we will round fathers' heights to the nearest inch.  This gives us the following prediction for the son of a father that is approximately 72 inches tall.  We can use this code and get our answer, which is 71.84.  This is 0.54 standard deviations larger than the average son, a smaller number than the 1.14 standard deviations taller that the father was above the average father.  Stratification followed by _box plots_ lets us see the distribution of each group.  Here is that plot.  
 
-We can see that the centers of these groups are increasing with height, not surprisingly.  _The means of each group appear to follow a linear relationship_ (`  then why we supposed to use a scatter plot to explore relationship between two variales in Exploratory Data Analysis in Python DataCamp course ?  I mean many dots covering on each other, Using a boxplot would avoid this condition ???  `).  We can make that plot like this, with this code.  See the plot and notice that this appears to follow a line.  The slope of this line appears to be about 0.5, which happens to be the correlation between father and son heights.  **This is not a coincidence**.  To see this connection, let's plot the **standardized heights** (`  Why??? standardize?  can we just use the boxplot or the grouped mean?  `) against each other, son versus father, with a line that has a slope equal to the correlation.  (` Think, Think, Think `)   [][****Read the important comments in below standardized plot, and think about how its all related to each other****]
+We can see that the centers of these groups are increasing with height, not surprisingly.  *The means of each group appear to follow a linear relationship* (`  then why we supposed to use a scatter plot to explore relationship between two variales in Exploratory Data Analysis in Python DataCamp course ?  I mean many dots covering on each other, Using a boxplot would avoid this condition ???  `).  We can make that plot like this, with this code.  See the plot and notice that this appears to follow a line.  The slope of this line appears to be about 0.5, which happens to be the correlation between father and son heights.  **This is not a coincidence**.  To see this connection, let's plot the **standardized heights** (`  Why??? standardize?  can we just use the boxplot or the grouped mean?  `) against each other, son versus father, with a line that has a slope equal to the correlation.  (` Think, Think, Think `)   [][****Read the important comments in below standardized plot, and think about how its all related to each other****]  
 
 Here's the code.  Here's a plot.  This line is what we call the regression line.  In a later video, we will describe Galton's theoretical justification for using this line to estimate conditional means.  Here, we define it and compute it for the data at hand.  The regression line for two variables, x and y, tells us that [][***for every standard deviation (sigma x) increase above the average (mu x).  For x, y grows rho standard deviations (sigma y) above the average (mu y).***].  The formula for the regression line is therefore this one (`  Think, Think, Think  `)[][How does this comes out???].  If there's perfect correlation, we predict an increase that is the same number of SDs.  If there's zero correlation, then we don't use x at all for the prediction of y.  For values between 0 and 1, the prediction is somewhere in between.  If the correlation is negative, we predict a reduction, instead of an increase.  
 
@@ -1186,10 +1191,11 @@ galton_heights %>%
 
 
 
+
 # Bivariate Normal Distribution
 
 
-**Correlation and the regression line are widely used summary statistics**.  _But it is often misused or misinterpreted_.  Anscombe’s example provided toy example of data sets in which summarizing with a correlation would be a mistake.  But we also see it in the media and in scientific literature as well.  
+**Correlation and the regression line are widely used summary statistics**.  [][*But it is often misused or misinterpreted*_*].  Anscombe’s example provided toy example of data sets in which summarizing with a correlation would be a mistake.  But we also see it in the media and in scientific literature as well.  
 
 ***The main way we motivate the use of correlation involve what is called the bivariate normal distribution***.  When a pair of random variables is approximated by a bivariate normal distribution, the scatterplot looks like ovals, like American footballs.  They can be thin.  That's when they have high correlation.  All the way up to a circle shape when they have no correlation.  We saw some examples previously.  Here they are again.  _A more technical way to define the bivariate normal distribution is the following_.  **First, this distribution is defined for pairs** (`  remember the father - son paris we used earlier  `).  So we have two variables, x and y.  And they have paired values.  They are going to be bivariate normally distributed if the following happens.  
 
@@ -1746,7 +1752,7 @@ Now, _although our understanding of the application-- our understanding of baseb
 
 [][**Regardless, it seems that if we stratify by home runs, we have an approximately bivariate normal distribution for runs versus bases on balls.  Similarly, if we stratify by bases on balls, we have an approximately normal bivariate distribution for runs versus home runs.  So what do we do?**]  It is somewhat complex to be computing regression lines for each strata.  We're essentially fitting this model that you can see in this equation with the slopes for x1 changing for different values of x2 and vice versa.  Here, x1 is bases on balls.  And x2 are home runs.  Is there an easier approach?  (**So we have to take whole influence aerospace into a equation???**)
 
-[][*Note that if we take random variability into account, the estimated slopes by strata don't appear to change that much*] (`  Sorry what ???  `).  **If these slopes are in fact the same, this implies that this function beta 1 of x2 and the other function beta 2 of x1 are actually constant**.  Which, in turn, implies that the expectation of runs condition on home runs and bases on balls can be written in this simpler model.  This model implies that if the number of home runs is fixed, we observe a linear relationship between runs and bases on balls.  And that the slope of that relationship does not depend on the number of home runs.  Only the slope changes as the home runs increase.  
+[][*Note that if we take random variability into account, the estimated slopes by strata don't appear to change that much*] (`  Sorry what ???  `).  **If these slopes are in fact the same, this implies that this function beta 1 of x2 and the other function beta 2 of x1 are actually constant**.  Which, in turn, implies that the expectation of runs condition on home runs and bases on balls can be written in this simpler model.  This model implies that if the number of home runs is fixed, we observe a linear relationship between runs and bases on balls.  And that the slope of that relationship does not depend on the number of home runs.  Only the slope changes as the home runs increase. (`  Someone asked a question here  `)  [][*The statement "Only the slope changes as the home runs increase" is actually incorrect. We have since modified the script and re-filmed the video, though editing for the updated video has not been completed yet. The correct, updated text will be "Only the INTERCEPT changes". I will add a comment on the video page now until the updated video is uploaded.*]  Thingking and asking and answering.  
 
 [][**The same is true if we swap home runs and bases on balls.  In this analysis, referred to as multivariate regression, we say that the bases on balls slope beta 1 is adjusted for the home run effect.  If this model is correct, then confounding has been accounted for.  But how do we estimate beta 1 and beta 2 from the data?  For this, we'll learn about linear models and least squares estimates.**]
 
@@ -1896,6 +1902,9 @@ For Galton's data, we would denote n observed fathers' heights with x1 through x
 
 Note that given how we wrote the model, the intercept beta 0 is not very interpretable, as it is the predicted height of a son with a father with no height.  Due to regression to the mean, the prediction will usually be a bit larger than 0, which is really not very interpretable.  To make the intercept parameter more interpretable, we can rewrite the model slightly in the following way.  Here, we have changed xi to xi minus the average height x bar.  We have centered our covariate xi.  In this case, beta 0, the intercept, would be the predicted height for the average father for the case where xi equals x bar.  
 
+
+**quotation form the book:**
+**Note that if we further assume that the ε is normally distributed, then this model is exactly the same one we derived earlier by assuming bivariate normal data. A somewhat nuanced difference is that in the first approach we assumed the data was bivariate normal and that the linear model was derived, not assumed. In practice, linear models are just assumed without necessarily assuming normality: the distribution of the εs is not specified. Nevertheless, if your data is bivariate normal, the above linear model holds. If your data is not bivariate normal, then you will need to have other ways of justifying the model.**
 
 
 [][Textbook link]
@@ -2087,6 +2096,341 @@ galton_heights <- galton_heights %>%
 
 lm(son ~ father_centered, data = galton_heights)
 ```
+
+
+
+
+# Questions About Introduction to Linear Models
+
+
+Ask your questions or make your comments about Introduction to Linear Models here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course).
+
+Some reminders:
+
+        Search the discussion board before posting to see if someone else has asked the same thing before asking a new question
+        Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
+        Posting snippets of code is okay, but posting full code solutions is not.
+        If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+
+
+
+
+
+## Course  /  Section 2: Linear Models  /  2.2: Least Squares Estimates
+
+
+# Least Squares Estimates (LSE)
+
+
+For linear models to be useful, **we have to estimate the unknown parameters, the betas**.  The standard approach in science is to find the values that minimize the distance of the fitted model to the data.  To quantify, this we use the [][**least squares equation**].  For Galton's data, we would write something like this.  This quantity is called the [][**Residual Sum of Squares, RSS**].  Once we find the values that minimize the RSS, **we call the values the Least Squares Estimate, LSE, and denote them, in this case, with beta 0 hat and beta 1 hat**.  
+
+[][**Let's write the function that computes the RSS for any pair of values, beta 0 and beta 1, for our heights data.  It would look like this.  So for any pair of values, we get an RSS.  So this is a three-dimensional plot with beta 1 and beta 2, and x and y and the RSS as a z.  To find the minimum, you would have to look at this three-dimensional plot**].  Here, we're just going to make a two-dimensional version by keeping beta 0 fixed at 25.  So it will be a function of the RSS as a function of beta 1.  We can use this code to produce this plot.  We can see a clear minimum for beta 1 at around 0.65.  So you could see how we would pick the least squares estimates.  However, this minimum is for beta 1 when beta 0 is fixed at 25.  But we don't know if that's the minimum for beta 0.  We don't know if 25 comma 0.65 minimizes the equation across all pairs.  
+
+[][****We could use trial and error, but it's really not going to work here.  Instead we will use calculus.****]  We'll take the partial derivatives, set them equal to 0, and solve for beta 1 and beta 0.  Of course, if we have many parameters, these equations can get rather complex.  But there are functions in R that do these calculations for us.  We will learn these soon.  To learn the mathematics behind this, you can consult the book on linear models.  
+
+
+**quotation form the book:**
+**In mathematics, when we multiply each variable by a constant and then add them together, we say we formed a linear combination of the variables.   For example, 3x−4y+5z is a linear combination of x, y, and z. We can also add a constant so 2+3x−4y+5z is also linear combination of x, y, and z.**
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on least squares estimates.
+https://rafalab.github.io/dsbook/linear-models.html#lse
+
+
+[][Key points]
+
+        For regression, we aim to find the coefficient values that minimize the distance of the fitted model to the data.
+        Residual sum of squares (RSS) measures the distance between the true value and the predicted value given by the regression line. The values that minimize the RSS are called the least squares estimates (LSE).
+        We can use partial derivatives to get the values for and in Galton's data.
+        NOTE: At timepoint 0:57 in the video, the Professor uses the terms and , but this should be and
+
+Code
+
+# compute RSS for any pair of beta0 and beta1 in Galton's data
+library(HistData)
+data("GaltonFamilies")
+set.seed(1983)
+galton_heights <- GaltonFamilies %>%
+  filter(gender == "male") %>%
+  group_by(family) %>%
+  sample_n(1) %>%
+  ungroup() %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+rss <- function(beta0, beta1){
+    resid <- galton_heights$son - (beta0+beta1*galton_heights$father)
+    return(sum(resid^2))
+}
+
+# plot RSS as a function of beta1 when beta0=25
+beta1 = seq(0, 1, len=nrow(galton_heights))
+results <- data.frame(beta1 = beta1,
+                      rss = sapply(beta1, rss, beta0 = 25))
+results %>% ggplot(aes(beta1, rss)) + geom_line() + 
+  geom_line(aes(beta1, rss))
+
+
+
+![](C:/Users/JJ/Pictures/in order to make linear model useful have to estimate the unknow parameters - beta.png)
+
+![](C:/Users/JJ/Pictures/standard approach in data science when estimate is to using least squares equation.png)
+
+![](C:/Users/JJ/Pictures/residual sum of squares RSS.png)
+
+![](C:/Users/JJ/Pictures/once we found the values-parameters that minimize RSS we call it least squares estimate LSE.png)
+
+![](C:/Users/JJ/Pictures/use beta_x hat to denote the LSE_x.png)
+
+```{r}
+rss <- function(beta0, beta1, data){
+  resid <- galton_heights$son - (beta0 + beta1 * galton_heights$father)
+  return(sum(resid^2))
+}
+
+
+beta1 = seq(0, 1, len=nrow(galton_heights))
+results <- data.frame(beta1 = beta1, 
+                      rss = sapply(beta1, rss, beta0=25))
+
+results %>% ggplot2::ggplot(aes(beta1, rss)) + geom_line() +
+  geom_line(aes(beta1, rss), col=2)
+```
+
+![](C:/Users/JJ/Pictures/we dont know if thats the minimun for beta 0.png)
+
+![](C:/Users/JJ/Pictures/we dont know if this parameter minimize the equations across all pairs.png)
+
+[][**Definition of trial and error: a finding out of the best way to reach a desired result or a correct solution by trying out one or more ways or means and by noting and eliminating errors or causes of failure also : the trying of one thing or another until something succeeds.**]
+
+
+
+# The lm Function
+
+
+[][**In r, we can obtain the least squares estimates using the lm function**].  To fit the following model where Yi is the son's height and Xi is the father height, we would write the following piece of code.  This gives us the least squares estimates, which we can see in the output of r.  The general way we use lm is by using the **tilde (~)** character to let lm know which is the value we're predicting that's on the left side of the tilde, and which variables we're using to predict-- those will be on the right side of the tilde.  The intercept is added automatically to the model.  So you don't have to include it when you write it.  
+
+The object fit that we just computed includes more information about the least squares fit.  We can use the function summary to extract more of this information, like this.  **To understand some of the information included in this summary, we need to remember that the LSE are random variables.**  Mathematical statistics gives us some ideas of the distribution of these random variables.  And we'll learn some of that next.  End of transcript. Skip to the start.
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on the lm function. 
+https://rafalab.github.io/dsbook/linear-models.html#the-lm-function
+
+
+[][Key points]
+
+        When calling the lm() function, the variable that we want to predict is put to the left of the ~ symbol, and the variables that we use to predict is put to the right of the ~ symbol. The intercept is added automatically.
+        LSEs are random variables.
+
+Code
+
+# fit regression line to predict son's height from father's height
+fit <- lm(son ~ father, data = galton_heights)
+fit
+
+# summary statistics
+summary(fit)
+
+
+```{r}
+fit <- lm(son ~ father, data = galton_heights)
+
+fit
+```
+
+```{r}
+summary(fit)
+```
+
+
+
+![](C:/Users/JJ/Pictures/r lm function.png)
+
+![](C:/Users/JJ/Pictures/r lm function to fit model of father son height.png)
+
+![](C:/Users/JJ/Pictures/r lm function ~ tilde left to predict.png)
+
+![](C:/Users/JJ/Pictures/we can use function - summary to extract more of its information.png)
+
+
+
+
+
+# LSE are Random Variables
+
+
+[][*The LSE are derived from the data, Y1 through Yn, which are random.  This implies that our estimates are random variables*].  **To see this, we can run a Monte Carlo simulation** (`  What would I do ???  `) in which we assume that the son and father height data that we have defines an entire population.  And we're going to take random samples of size 50 and compute the regression slope coefficient for each one.  We write this code, which gives us several estimates of the regression slope.  
+
+*We can see the variability of the estimates by plotting their distribution*.  Here you can see the histograms of the estimated beta 0's and the estimated beta 1's.  [][The reason these look normal is because the central limit theorem applies here as well.  For large enough N, the least squares estimates will be approximately normal with expected value beta 0 and beta 1 respectively].  
+
+The standard errors are a bit complicated to compute, but mathematical theory does allow us to compute them, and they are included in the summary provided by the lm function.  Here are the estimated standard errors for one of our simulated data sets.  You could see them at the *second column in the coefficients table*.  [][*You can see that the standard errors estimates reported by the summary function are close to the standard errors that we obtain from our Monte Carlo simulation*].  
+
+The summary function also reports t-statistics--this is the t value column--and p-value.  This is the Pr bigger than absolute value of t column.  [][***The t-statistic***] is not actually based on the central limit theorem, but rather on the assumption that [][the epsilons follow a normal distribution].  Under this assumption, mathematical theory tells us that the **LSE divided by their standard error, which we can see here and here, follow a t distribution with N minus p degrees of freedom, with p the number of parameters in our model, which in this case is 2**.  
+
+The 2p values are testing the null hypothesis that beta 0 is 0 and beta 1 is 0 respectively.  
+
+[Go read this book][**https://www.statisticshowto.com/probability-and-statistics/null-hypothesis/]
+
+[][***Note that as we described previously, for large enough N, the central limit works, and the t distribution becomes almost the same as a normal distribution.  So if either you assume the errors are normal and use the t distribution or if you assume that N is large enough to use the central limit theorem, you can construct confidence intervals for your parameters.***] (`  How to construct confidnece intervals for our parameters  `)  
+
+We know here that although we will not show examples in this video, **hypothesis testing for regression models is very commonly used** in, for example, epidemiology and economics, **to make statements such as the effect of A and B was statistically significant after adjusting for X, Y, and Z**.  But it's very important to note that several assumptions--we just described some of them--have to hold for these statements to hold.  [][the effect of A and B was statistically significant after adjusting for X, Y, and Z]
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on LSE.
+https://rafalab.github.io/dsbook/linear-models.html#lse-are-random-variables
+
+
+[]Key points]
+
+        Because they are derived from the samples, LSE are random variables.
+        Beat_0 and Beta_1 appear to be normally distributed because the central limit theorem plays a role.
+        The t-statistic depends on the assumption that follows a normal distribution.
+
+Code
+
+# Monte Carlo simulation
+B <- 1000
+N <- 50
+lse <- replicate(B, {
+  sample_n(galton_heights, N, replace = TRUE) %>% 
+    lm(son ~ father, data = .) %>% 
+    .$coef 
+})
+lse <- data.frame(beta_0 = lse[1,], beta_1 = lse[2,]) 
+
+# Plot the distribution of beta_0 and beta_1
+library(gridExtra)
+p1 <- lse %>% ggplot(aes(beta_0)) + geom_histogram(binwidth = 5, color = "black") 
+p2 <- lse %>% ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.1, color = "black") 
+grid.arrange(p1, p2, ncol = 2)
+
+# summary statistics
+sample_n(galton_heights, N, replace = TRUE) %>% 
+  lm(son ~ father, data = .) %>% 
+  summary %>%
+  .$coef
+  
+lse %>% summarize(se_0 = sd(beta_0), se_1 = sd(beta_1))
+
+
+
+```{r}
+library(dplyr)
+
+
+B <- 1000
+N <- 50
+
+lse <- replicate(B, {
+  sample_n(galton_heights, N, replace = TRUE) %>%
+    lm(son ~ father, data = .) %>%
+    .$coef
+})
+
+
+lse <- data.frame(beta_0 = lse[1, ], beta_1 = lse[2, ])
+
+lse
+```
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(gridExtra)
+
+
+p1 <- lse %>% ggplot2::ggplot(aes(beta_0)) + geom_histogram(binwidth = 5, color = "black")
+p2 <- lse %>% ggplot2::ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.1, color = "black")
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+```{r}
+sample_n(galton_heights, N, replace = TRUE) %>%
+  lm(son ~ father, data = .) %>% summary
+```
+
+```{r}
+lse %>% summarise(se_0 = sd(beta_0), se_1 = sd(beta_1))
+
+```
+
+
+
+![](C:/Users/JJ/Pictures/the lse are derived from data through y1 through yn.png)
+
+![](C:/Users/JJ/Pictures/for large enough n the lse will be approximately normal with expected values beta0 and beta1.png)
+
+![](C:/Users/JJ/Pictures/here are standard error for one of our simulated dataset.png)
+
+![you can see the standard error estimates reported by the summary function are close to the standard errors that we obtained from our monte carlo simulation.png](C:/Users/JJ/Pictures/you can see the standard error estimates reported by the summary function are close to the standard errors that we obtained from our monte carlo simulation.png)
+
+![](C:/Users/JJ/Pictures/the summary function also reports t-statistics and p-value.png)
+
+![](C:/Users/JJ/Pictures/and here are the p-values pr bigger than absolute value of t column.png)
+
+![++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++](C:/Users/JJ/Pictures/the t-statistics are not actually based on center limit theorem but rather on the assumption that the spsilons follow a normal distribution.png)
+
+![](C:/Users/JJ/Pictures/the 2p values are testing the null hypothesis that beta0 is 0 and beta1 is 0 respectively.png)
+
+![hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png](C:/Users/JJ/Pictures/hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png)
+
+
+
+
+
+# Advanced Note on LSE
+
+
+Although interpretation is not straight-forward, it is also useful to know that the LSE can be strongly correlated, which can be seen using this code:
+
+lse %>% summarize(cor(beta_0, beta_1))
+
+However, the correlation depends on how the predictors are defined or transformed.
+
+Here we standardize the father heights, which changes x_i to x_i - x hat
+
+.
+
+B <- 1000
+N <- 50
+lse <- replicate(B, {
+      sample_n(galton_heights, N, replace = TRUE) %>%
+      mutate(father = father - mean(father)) %>%
+      lm(son ~ father, data = .) %>% .$coef 
+})
+
+Observe what happens to the correlation in this case:
+
+cor(lse[1,], lse[2,]) 
+
+
+
+```{r}
+lse %>% summarize(cor(beta_0, beta_1))
+
+
+B <- 1000
+N <- 50
+lse <- replicate(B, {
+      sample_n(galton_heights, N, replace = TRUE) %>%
+      mutate(father = father - mean(father)) %>%
+      lm(son ~ father, data = .) %>% .$coef 
+})
+
+
+cor(lse[1,], lse[2,]) 
+```
+
+
+
+
 
 
 
