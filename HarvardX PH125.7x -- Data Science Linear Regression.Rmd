@@ -168,7 +168,7 @@ All right.  Now historically, the **batting average** has been considered the mo
 
 One of Bill James' first important insights is that the [][batting average ignores bases on balls but bases on balls is a success].  So a player that gets many more bases on balls than the average player might not be recognized if he does not excel in batting average.  But is this player not helping produce runs?  No award is given to the player with the most bases on balls.  In contrast, the total number of stolen bases are considered important and an award is given out to the player with the most.  But players with high totals of stolen bases also make outs as they do not always succeed.  
 
-So does a player with a high stolen base total help produce runs?  Can we use data size to determine if it's better to pay for bases on balls or stolen bases?  [][One of the challenges in this analysis is that it is not obvious how to determine if a player produces runs because so much depends on his teammates].  We do keep track of the number of runs scored by our player.  **But note that if you hit after someone who hits many home runs**, you will score many runs (`  Super batter hit the ball far away thus you can run many bases as well, lucky player  `).  But these runs don't necessarily happen if we hire this player but not his home run hitting teammate.  [][However, we can examine team level statistics] (`  How ???  `).  How do teams with many stolen bases compare to teams with few?  How about bases on balls?  We have data.  Let's examine some.
+So does a player with a high stolen base total help produce runs?  Can we use data size to determine if it's better to pay for bases on balls or stolen bases?  [][One of the challenges in this analysis is that it is not obvious how to determine if a player produces runs because so much depends on his teammates].  We do keep track of the number of runs scored by our player.  **But note that if you hit after someone who hits many home runs**, you will score many runs (`  Super batter hit the ball far away thus you can run many bases as well, lucky player  `).  But these runs don't necessarily happen if we hire this player but not his home run hitting teammate.  [][However, we can examine team level statistics] (`  How ???  `).  How do teams with many stolen bases compare to teams with few?  How about bases on balls?  We have data.  Let's examine some.  
 
 
 
@@ -257,6 +257,7 @@ https://rafalab.github.io/dsbook/linear-models.html#base-on-balls-or-stolen-base
 
 Code: Scatterplot of the relationship between HRs and wins
 
+```{r}
 library(Lahman)
 library(tidyverse)
 library(dslabs)
@@ -266,20 +267,25 @@ Teams %>% filter(yearID %in% 1961:2001) %>%
     mutate(HR_per_game = HR / G, R_per_game = R / G) %>%
     ggplot(aes(HR_per_game, R_per_game)) + 
     geom_point(alpha = 0.5)
+```
 
-Code: Scatterplot of the relationship between stolen bases and wins
+```{r}
+# Code: Scatterplot of the relationship between stolen bases and wins
 
 Teams %>% filter(yearID %in% 1961:2001) %>%
     mutate(SB_per_game = SB / G, R_per_game = R / G) %>%
     ggplot(aes(SB_per_game, R_per_game)) + 
     geom_point(alpha = 0.5)
+```
 
-Code: Scatterplot of the relationship between bases on balls and runs
+```{r}
+# Code: Scatterplot of the relationship between bases on balls and runs
 
 Teams %>% filter(yearID %in% 1961:2001) %>%
     mutate(BB_per_game = BB / G, R_per_game = R / G) %>%
     ggplot(aes(BB_per_game, R_per_game)) + 
     geom_point(alpha = 0.5)
+```
 
 
 ![Image here](C:/Users/JJ/Pictures/baseball more home runs get more runs.png)
@@ -325,9 +331,10 @@ Code: Scatterplot of the relationship between HRs and wins
 
 ```{r}
 library(Lahman)
-library(tidyverse)
+library(tidyverse)   # this one includes dplyr and ggplot2 and many others
 library(dslabs)
 ds_theme_set()
+
 
 Teams %>% filter(yearID %in% 1961:2001) %>%
     mutate(HR_per_game = HR / G, R_per_game = R / G) %>%
@@ -452,8 +459,8 @@ As the number of errors per game increases, the win rate tends to decrease.**Thi
 ```{r}
 library(dplyr)   # this is for pipe %>%
 library(ggplot2)
-library(Lahman) 
-library(tidyverse)
+library(Lahman)  # this is for Teams
+#library(tidyverse)   # this one includes dplyr, ggplot2 and many others
 
 
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
@@ -507,30 +514,33 @@ If you do post snippets of code, please format it as code for readability. If yo
 
 
 
+
+
 ## Course  /  Section 1: Introduction to Regression  /  1.2: Correlation
 
 
-> library(HistData)
-Error in library(HistData) : there is no package called ‘HistData’
-> install.packages("HistData")
-
-> library(HistData)
-> data("GaltonFamilies")
-
-> galton_heights <- GaltonFamilies %>% 
-+     filter(childNum == 1 & gender == 'male') %>% 
-+     select(father, childHeight) %>% 
-+     rename(son = childHeight)
+```{r}
+library(HistData)
+library(dplyr)
 
 
-> galton_heights %>% 
-+     summarise(mean(father), sd(father), mean(son), sd(son))
-  mean(father) sd(father) mean(son)  sd(son)
-1     69.09888   2.546555  70.45475 2.557061
+data("GaltonFamilies")
 
-> galton_heights %>% 
-+     ggplot(aes(father, son)) + 
-+     geom_point(alpha=0.5)
+galton_heights <- GaltonFamilies %>% 
+  filter(childNum == 1 & gender == 'male') %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight)
+
+galton_heights %>% 
+  summarise(mean(father), sd(father), mean(son), sd(son))
+#  mean(father) sd(father) mean(son)  sd(son)
+#1     69.09888   2.546555  70.45475 2.557061
+
+galton_heights %>% 
+  ggplot(aes(father, son)) + 
+  geom_point(alpha=0.5)
+```
+
 
 
 
@@ -569,6 +579,7 @@ library(HistData)
 data("GaltonFamilies")
 set.seed(1983)
 
+# ##################################################################################################################################
 galton_heights <- GaltonFamilies %>%
   filter(gender == "male") %>%
   group_by(family) %>%
@@ -577,14 +588,16 @@ galton_heights <- GaltonFamilies %>%
   select(father, childHeight) %>%
   rename(son = childHeight)
 
+
 # means and standard deviations
 galton_heights %>%
-    summarize(mean(father), sd(father), mean(son), sd(son))
+  summarize(mean(father), sd(father), mean(son), sd(son))
+
 
 # scatterplot of father and son heights
 galton_heights %>%
-    ggplot(aes(father, son)) +
-    geom_point(alpha = 0.5)
+  ggplot(aes(father, son)) +
+  geom_point(alpha = 0.5)
 
 ```
 
@@ -593,6 +606,7 @@ galton_heights %>%
 library(dplyr)
 library(Lahman)
 library(HistData)
+
 
 data("GaltonFamilies")
 galton_heights <- GaltonFamilies %>%
@@ -680,6 +694,7 @@ library(Lahman)
 library(dplyr)
 library(HistData)
 
+
 data("GaltonFamilies")
 galton_heights <- GaltonFamilies %>%
   filter(childNum == 1 & gender == "male") %>%
@@ -690,6 +705,7 @@ galton_heights %>% summarise(cor(father, son))
 ```
 
 ![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient08.png)
+
 
 
 
@@ -719,16 +735,30 @@ https://rafalab.github.io/dsbook/regression.html#sample-correlation-is-a-random-
 Code
 
 ```{r}
+library(dplyr)
+library(Lahman)
+library(HistData)
+
+
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == 'male') %>%
+  select(father, childHeight) %>%
+  rename(son=childHeight)
+
+
 # compute sample correlation
 R <- sample_n(galton_heights, 25, replace = TRUE) %>%
     summarize(r = cor(father, son))
 R
+R$r
+
 
 # Monte Carlo simulation to show distribution of sample correlation
 B <- 1000
 N <- 25
 R <- replicate(B, {
-    sample_n(galton_heights, N, replace = TRUE) %>%
+  sample_n(galton_heights, N, replace = TRUE) %>%
     summarize(r = cor(father, son)) %>%
     pull(r)
 })
@@ -738,18 +768,70 @@ qplot(R, geom = "histogram", binwidth = 0.05, color = I("black"))
 mean(R)
 sd(R)
 
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 # QQ-plot to evaluate whether N is large enough
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 data.frame(R) %>%
-    ggplot(aes(sample = R)) +
-    stat_qq() +
-    geom_abline(intercept = mean(R), slope = sqrt((1-mean(R)^2)/(N-2)))
+  ggplot(aes(sample = R)) +
+  stat_qq() +
+  geom_abline(intercept = mean(R), slope = sqrt((1-mean(R)^2)/(N-2)))
 ```
+
+
+
+```{r}
+library(dplyr)
+library(Lahman)
+library(HistData)
+
+
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == 'male') %>%
+  select(father, childHeight) %>%
+  rename(son=childHeight)
+
+
+# compute sample correlation
+R <- sample_n(galton_heights, 25, replace = TRUE) %>%
+    summarize(r = cor(father, son))
+R
+R$r
+
+
+# Monte Carlo simulation to show distribution of sample correlation
+B <- 1000
+N <- 25
+R <- replicate(B, {
+  sample_n(galton_heights, N, replace = TRUE) %>%
+    summarize(r = cor(father, son)) %>%
+    pull(r)
+})
+qplot(R, geom = "histogram", bins = 5, color = I("black"))
+
+# expected value and standard error
+mean(R)
+sd(R)
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# QQ-plot to evaluate whether N is large enough
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+data.frame(R) %>%
+  ggplot(aes(sample = R)) +
+  stat_qq() +
+  geom_abline(intercept = mean(R), slope = sqrt((1-mean(R)^2)/(N-2)))
+```
+
+
 
 ```{r}
 library(Lahman)
 library(dplyr)
 library(HistData)
 library(stats)
+
 
 data("GaltonFamilies")
 galton_heights <- GaltonFamilies %>%
@@ -936,9 +1018,9 @@ You have used 1 of 10 attempts Some
 
 ```{r}
 library(Lahman)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
+#library(dplyr)
+#library(ggplot2)
 
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
   mutate(number_of_runs_per_game = R/G, number_of_bats_per_game = AB/G) %>%
@@ -949,8 +1031,6 @@ Teams %>% filter(yearID %in% 1961:2001 ) %>%
 
 ```{r}
 library(Lahman)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
 
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
@@ -960,8 +1040,6 @@ Teams %>% filter(yearID %in% 1961:2001 ) %>%
 
 ```{r}
 library(Lahman)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
 
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
@@ -970,13 +1048,13 @@ Teams %>% filter(yearID %in% 1961:2001 ) %>%
 
 ```{r}
 library(Lahman)
-library(dplyr)
-library(ggplot2)
 library(tidyverse)
 
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
   summarize(cor(X2B/G, X3B/G))
 ```
+
+
 
 
 
@@ -992,6 +1070,8 @@ Some reminders:
         Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
         Posting snippets of code is okay, but posting full code solutions is not.
         If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+
 
 
 
@@ -1045,30 +1125,33 @@ Code
 sum(galton_heights$father == 72)
 sum(galton_heights$father == 72.5)
 
+
 # predicted height of a son with a 72 inch tall father
 conditional_avg <- galton_heights %>%
-    filter(round(father) == 72) %>%
-    summarize(avg = mean(son)) %>%
-    pull(avg)
+  filter(round(father) == 72) %>%
+  summarize(avg = mean(son)) %>%
+  pull(avg)
+
 conditional_avg
 ```
 
 ```{r}
 # stratify fathers' heights to make a boxplot of son heights
-galton_heights %>% mutate(father_strata = factor(round(father))) %>%
-    ggplot(aes(father_strata, son)) +
-    geom_boxplot() +
-    geom_point()
+galton_heights %>% 
+  mutate(father_strata = factor(round(father))) %>%
+  ggplot(aes(father_strata, son)) +
+  geom_boxplot() +
+  geom_point()
 ```
 
 ```{r}
 # center of each boxplot
 galton_heights %>%
-    mutate(father = round(father)) %>%
-    group_by(father) %>%
-    summarize(son_conditional_avg = mean(son)) %>%
-    ggplot(aes(father, son_conditional_avg)) +
-    geom_point()
+  mutate(father = round(father)) %>%
+  group_by(father) %>%
+  summarize(son_conditional_avg = mean(son)) %>%
+  ggplot(aes(father, son_conditional_avg)) +
+  geom_point()
 ```
 
 ```{r}
@@ -1077,17 +1160,22 @@ mu_x <- mean(galton_heights$father)
 mu_y <- mean(galton_heights$son)
 s_x <- sd(galton_heights$father)
 s_y <- sd(galton_heights$son)
+
 r <- cor(galton_heights$father, galton_heights$son)
 m <- r * s_y/s_x
 b <- mu_y - m*mu_x
+
+r
+m
+b
 ```
 
 ```{r}
 # add regression line to plot
 galton_heights %>%
-    ggplot(aes(father, son)) +
-    geom_point(alpha = 0.5) +
-    geom_abline(intercept = b, slope = m)
+  ggplot(aes(father, son)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(intercept = b, slope = m)
 ```
 
 
@@ -1108,7 +1196,8 @@ galton_heights %>%
 ```{r}
 conditional_avg <- galton_heights %>%
   filter(round(father)==72) %>%
-  summarise(avg=mean(son)) %>% .$avg
+  summarise(avg=mean(son)) %>% 
+  .$avg
 
 conditional_avg
 ```
@@ -1117,27 +1206,31 @@ conditional_avg
 ```{r}
 galton_heights %>%
   mutate(father_strata = factor(round(father))) %>%
-  ggplot2::ggplot(aes(father_strata, son)) +
+  ggplot(aes(father_strata, son)) +
   geom_boxplot() +
   geom_point()
 ```
+
 
 ```{r}
 galton_heights %>%
   mutate(father=round(father)) %>%
   group_by(father) %>%
   summarise(son_conditional_avg = mean(son)) %>%
-  ggplot2::ggplot(aes(father, son_conditional_avg)) +
+  ggplot(aes(father, son_conditional_avg)) +
   geom_point()
 ```
 
 ![image here](C:/Users/JJ/Pictures/slope is 0.5.png)
 
 ```{r}
-r <- galton_heights %>%  summarise(r = cor(father, son)) %>% .$r
+r <- galton_heights %>%  
+  summarise(r = cor(father, son)) %>% 
+  .$r
+
 
 galton_heights %>%
-  mutate(father=round(father)) %>%
+  mutate(father = round(father)) %>%
   group_by(father) %>%
   summarise(son = mean(son)) %>%
   mutate(z_father = scale(father), z_son = scale(son)) %>%
@@ -1150,14 +1243,18 @@ galton_heights %>%
 ```
 
 ```{r}
-r <- galton_heights %>%  summarise(r = cor(father, son)) %>% .$r
+r <- galton_heights %>%  
+  summarise(r = cor(father, son)) %>% 
+  .$r
+
 
 galton_heights %>%
-  mutate(father=round(father)) %>%
+  mutate(father = round(father)) %>%
   group_by(father) %>%
   summarise(son = mean(son)) %>%
-  mutate(z_father = father, z_son = son) %>%
-  ggplot2::ggplot(aes(z_father, z_son)) +
+#  mutate(z_father = father, z_son = son) %>%
+#  ggplot2::ggplot(aes(z_father, z_son)) +
+  ggplot(aes(father, son)) +
   geom_point() +
   geom_abline(intercept = 35.5, slope = r)
 
@@ -1169,7 +1266,7 @@ galton_heights %>%
 
 ```{r}
 a <- galton_heights %>%
-  mutate(father=round(father)) %>%
+  mutate(father = round(father)) %>%
   group_by(father) %>%
   summarise(son = mean(son)) %>%
   mutate(z_father = scale(father), z_son = scale(son))
@@ -1195,22 +1292,27 @@ mu_x <- mean(galton_heights$father)
 mu_y <- mean(galton_heights$son)
 s_x <- sd(galton_heights$father)
 s_y <- sd(galton_heights$son)
+
 r <- cor(galton_heights$father, galton_heights$son)
 
 m <- r * s_y / s_x
 b <- mu_y - m * mu_x
+
+r
+m
+b
 ```
 
 ```{r}
 galton_heights %>%
-  ggplot2::ggplot(aes(father, son)) +
+  ggplot(aes(father, son)) +
   geom_point(alpha=0.3) +
   geom_abline(intercept = b, slope=m)
 ```
 
 ```{r}
 galton_heights %>%
-  ggplot2::ggplot(aes(scale(father), scale(son))) +
+  ggplot(aes(scale(father), scale(son))) +
   geom_point(alpha=0.3) +
   geom_abline(intercept = 0, slope = r)
 ```
@@ -1220,16 +1322,19 @@ galton_heights %>%
 
 
 
+
+
+
 # Bivariate Normal Distribution
 
 
-**Correlation and the regression line are widely used summary statistics**.  [][*But it is often misused or misinterpreted*_*].  Anscombe’s example provided toy example of data sets in which summarizing with a correlation would be a mistake.  But we also see it in the media and in scientific literature as well.  
+**Correlation and the regression line are widely used summary statistics**.  [][*But it is often misused or misinterpreted*].  Anscombe’s example provided toy example of data sets in which summarizing with a correlation would be a mistake.  But we also see it in the media and in scientific literature as well.  
 
-***The main way we motivate the use of correlation involve what is called the bivariate normal distribution***.  When a pair of random variables is approximated by a bivariate normal distribution, the scatterplot looks like ovals, like American footballs.  They can be thin.  That's when they have high correlation.  All the way up to a circle shape when they have no correlation.  We saw some examples previously.  Here they are again.  _A more technical way to define the bivariate normal distribution is the following_.  **First, this distribution is defined for pairs** (`  remember the father - son paris we used earlier  `).  So we have two variables, x and y.  And they have paired values.  They are going to be bivariate normally distributed if the following happens.  
+***The main way we motivate the use of correlation involve what is called the bivariate normal distribution***.  [][***When a pair of random variables is approximated by a bivariate normal distribution, the scatterplot looks like ovals, like American footballs***].  They can be thin.  That's when they have high correlation.  All the way up to a circle shape when they have no correlation.  We saw some examples previously.  Here they are again.  A more technical way to define the bivariate normal distribution is the following.  **First, this distribution is defined for pairs** (`  like the father - son paris used earlier  `).  So we have two variables, x and y.  And they have paired values.  They are going to be bivariate normally distributed if the following happens.  
 
-*If x is a normally distributed random variable, and y is also a normally distributed random variable--and for any grouping of x that we can define, say, with x being equal to some predetermined value, which we call here in this formula little x--then the y's in that group are approximately normal as well.*  If this happens, then the pair is approximately bivariate normal.  When we fix x in this way, we then refer to the resulting distribution of the y's in the group-- defined by setting x in this way-- as the conditional distribution of y given x. (`  Remember we did this before, fix father 72 inches, but the sample size is too small  `)  We write the notation like this for the conditional distribution and the conditional expectation.  _If we think the height data is well-approximated by the bivariate normal distribution, then we should see the normal approximation hold for each grouping._  
+[][*If x is a normally distributed random variable, and y is also a normally distributed random variable--and for any grouping of x that we can define, say, with x being equal to some predetermined value, which we call here in this formula little x--then the y's in that group are approximately normal as well.*]  If this happens, then the pair is approximately bivariate normal.  When we fix x in this way, we then refer to the resulting distribution of the y's in the group--defined by setting x in this way--as the conditional distribution of y given x. (`  Remember we did this before, fix father 72 inches, but the sample size is too small  `)  We write the notation like this for the conditional distribution and the conditional expectation.  If we think the height data is well-approximated by the bivariate normal distribution, then we should see the normal approximation hold for each grouping.  
 
-Here, we stratify the son height by the standardized father heights and see that the assumption appears to hold.  Here's the code that gives us the desired plot.  Now, we come back to defining correlation.  Galton showed-- using mathematical statistics-- _that when two variables follow a bivariate normal distribution, then for any given x the expected value of the y in pairs for which x is set at that value is mu y plus rho x minus mu x divided by sigma x times sigma y_.  Note that this is a line with slope rho times sigma y divided by sigma x and intercept mu y minus n times mu x.  And therefore, this is the same as the regression line we saw in a previous video. (`  Now you must understand the slope difference between standalized vairable and non-standarilized vaiable in father son case we did in prevrious chapter  `)  That can be written like this.  So in summary, if our data is approximately bivariate, then the conditional expectation--which is the best prediction for y given that we know the value of x--is given by the regression line.  
+Here, we stratify the son height by the standardized father heights and see that the assumption appears to hold.  Here's the code that gives us the desired plot.  Now, we come back to defining correlation.  Galton showed-- using mathematical statistics-- that **when two variables follow a bivariate normal distribution, then for any given x the expected value of the y in pairs for which x is set at that value is mu y plus rho x minus mu x divided by sigma x times sigma y**.  Note that this is a line with slope rho times sigma y divided by sigma x and intercept mu y minus n times mu x.  And therefore, this is the same as the regression line we saw in a previous video. (`  Now you must understand the slope difference between standalized vairable and non-standarilized vaiable in father son case we did in prevrious chapter  `)  That can be written like this.  So in summary, if our data is approximately bivariate, then the conditional expectation--which is the best prediction for y given that we know the value of x--is given by the regression line.  
 
 
 [][Textbook link]
@@ -1246,6 +1351,7 @@ https://rafalab.github.io/dsbook/regression.html#bivariate-normal-distribution-a
 
 Code
 
+```{r}
 galton_heights %>%
   mutate(z_father = round((father - mean(father)) / sd(father))) %>%
   filter(z_father %in% -2:2) %>%
@@ -1253,6 +1359,10 @@ galton_heights %>%
   stat_qq(aes(sample = son)) +
   facet_wrap( ~ z_father)
 
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# What are we doing here?
+# https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0?gi=409ca0cd036
+```
 
 ![image here](C:/Users/JJ/Pictures/bivate normal distribution.png)
 
@@ -1274,8 +1384,8 @@ galton_heights %>%
 
 ```{r}
 galton_heights %>%
-  #mutate(z_father=round((father-mean(father))/sd(father))) %>%
-  mutate(z_father=round(scale(father))) %>%  # Do you recall this
+  #mutate(z_father=round((father-mean(father))/sd(father))) %>%     # we can scale it manually or use scale() function
+  mutate(z_father = round(scale(father))) %>% 
   filter(z_father %in% -2:2) %>%
   ggplot2::ggplot() +
   stat_qq(aes(sample=son)) + 
@@ -1302,6 +1412,9 @@ galton_heights %>%
 
 
 
+
+
+
 # Variance Explained
 
 
@@ -1309,9 +1422,9 @@ galton_heights %>%
 
 ```The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance. **The variance is the standard deviation squared**. See the notes below the video for more clarification.```
 ![Variance is standard deviation squared](C:/Users/JJ/Pictures/variance and standard deviation.png)
-(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var (`  Correction: The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance  `) of Y given X equals sigma y times the square root of 1 minus rho squared.  _This is where statements like x explains such and such percent of the variation in y comes from_ (`  Why saying this ???  Where does this equation comes from ???  `[][Google this topic]).  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y** [][Now what??? How did we get that equation???].  So _from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%_[][What are you talking about???].  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is  by a bivariate normal distribution.  
+(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var (`  Correction: The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance  `) of Y given X equals sigma y times the square root of 1 minus rho squared.  This is where statements like x explains such and such percent of the variation in y comes from.  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y**.  So from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%.  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is  by a bivariate normal distribution.  
 
-[][Read all the course material and thinking, then trying to answer your own questions, its a good way of learning, and thinking]
+[][Read all the course material and thinking, then trying to answer your questions, its a good way of learning, and thinking]
 
 
 [][Textbook link]
@@ -1353,12 +1466,12 @@ This video corresponds to the textbook section on variance explained.
 
 
 
+
+
 # There are Two Regression Lines
 
 
-We computed a regression line to predict the son's height from the father's height.  We used these calculations-- here's the code--to get the slope and the intercept.  This gives us the function that the conditional expectation of y given x is 35.7 plus 0.5 times x.  
-
-So, what if we wanted to predict the father's height based on the son's?  It is important to know that this is not determined by computing the inverse function of what we just saw, which would be this equation here.  [][We need to compute the expected value of x given y].  This gives us another regression function altogether, with slope and intercept computed like this. (`  How did this comes from??  `)  So now we get that the expected value of x given y, or the expected value of the father's height given the son's height, is equal to 34 plus 0.5 y, a different regression line.  
+We computed a regression line to predict the son's height from the father's height.  We used these calculations--here's the code--to get the slope and the intercept.  This gives us the function that the conditional expectation of y given x is 35.7 plus 0.5 times x.  So, what if we wanted to predict the father's height based on the son's?  It is important to know that this is not determined by computing the inverse function of what we just saw, which would be this equation here.  [][We need to compute the expected value of x given y].  This gives us another regression function altogether, with slope and intercept computed like this. (`  How did this comes from??  `)  So now we get that the expected value of x given y, or the expected value of the father's height given the son's height, is equal to 34 plus 0.5 y, a different regression line.  
 
 So in summary, it's important to remember that the regression line comes from computing expectations, and these give you two different lines, depending on if you compute the expectation of y given x or x given y.  
 
@@ -1371,13 +1484,17 @@ https://rafalab.github.io/dsbook/regression.html#warning-there-are-two-regressio
 
 [][Key point]
 There are two different regression lines depending on whether we are taking the expectation of Y given X or taking the expectation of X given Y.
+
 Code
 
+```{r}
 # compute a regression line to predict the son's height from the father's height
 mu_x <- mean(galton_heights$father)
 mu_y <- mean(galton_heights$son)
 s_x <- sd(galton_heights$father)
 s_y <- sd(galton_heights$son)
+
+
 r <- cor(galton_heights$father, galton_heights$son)
 m_1 <-  r * s_y / s_x
 b_1 <- mu_y - m_1*mu_x
@@ -1386,6 +1503,11 @@ b_1 <- mu_y - m_1*mu_x
 m_2 <-  r * s_x / s_y
 b_2 <- mu_x - m_2*mu_y
 
+m_1
+b_1
+m_2
+b_2
+```
 
 ```{r}
 mu_x <- mean(galton_heights$father)
@@ -1420,13 +1542,16 @@ b
 
 
 
+
+
+
 # Assessment: Stratification and Variance Explained, Part 1
 
 # Question 1
 
 Look at the figure below.
 ![question one image](C:/Users/JJ/Pictures/7_8_1_assessment_IDS.png)
-Scatter plot of son and father heights with son heights on the y-axis and father heights on the x-axis. There is also a regression line that runs from roughly (63,66) to (78,76). The dots on the plot are scattered around the line.
+Scatter plot of son and father heights with son heights on the y-axis and father heights on the x-axis. There is also a regression line that runs from roughly (63,66) to (78,76).  The dots on the plot are scattered around the line.
 The slope of the regression line in this figure is equal to what, in words?
 **Slope = (correlation coefficient of son and father heights) * (standard deviation of sons’ heights / standard deviation of fathers’ heights)**
 Slope = (correlation coefficient of son and father heights) * (standard deviation of fathers’ heights / standard deviation of sons’ heights)
@@ -1474,7 +1599,7 @@ I chose 3, but false, why.
 
 The v-shaped distribution of points from the first plot means that the x and y variables do not follow a bivariate normal distribution.
 
-When a pair of random variables is approximated by a bivariate normal, the scatter plot looks like an oval (as in the 2nd, 3rd, and 4th plots) - [][it is okay if the oval is very round (as in the 3rd plot) or long and thin (as in the 4th plot)].
+****When a pair of random variables is approximated by a bivariate normal, the scatter plot looks like an oval**** (as in the 2nd, 3rd, and 4th plots) - [][it is okay if the oval is very round (as in the 3rd plot) or long and thin (as in the 4th plot)].
 
 
 ![Question 5 image 1](C:/Users/JJ/Pictures/7_9_2_assessment_A_IDS.png)
@@ -1511,6 +1636,9 @@ Given a one inch increase in a father’s height, what is the predicted change i
 correct
 Answer
 Correct: Correct! TThe slope of the regression line is calculated by multiplying the correlation coefficient by the ratio of the standard deviation of son heights and standard deviation of father heights: var_son/var_father.  (Note: here he means SD_son/SD_father, its a mistake)  .
+
+
+
 
 
 
@@ -1674,6 +1802,7 @@ Correct (1/1 point)
 
 
 
+
 # Questions About Stratification and Variance Explained?
 
 Ask your questions or make your comments about Stratification and Variance Explained here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course).
@@ -1725,15 +1854,13 @@ In a previous video, we found that the slope of the regression line for predicti
 
 So, how can base on balls be more predictive of runs?  The reason this happens is because of [][confounding].  Note the correlation between homeruns, bases on balls, and singles.  We see that the correlation between bases on balls and homeruns is quite high compared to the other two pairs.  [][It turns out that pitchers, afraid of homeruns, will sometimes avoid throwing strikes to homerun hitters].  As a result, homerun hitters tend to have more bases on balls.  Thus, a team with many homeruns will also have more bases on balls than average, and as a result, it may appear that bases on balls cause runs.  But it is actually the homeruns that caused the runs.  
 
-In this case, we say that bases on balls are confounded with homeruns.  [][But could it be that bases on balls still help?  To find out, we somehow have to adjust for the homerun effect.  Regression can help with this].  **=====================================================================================**
+In this case, we say that bases on balls are confounded with homeruns.  [][But could it be that bases on balls still help?  To find out, we somehow have to adjust for the homerun effect.  Regression can help with this].  **=============================================================================================================================**
 
 
 
 ```{r}
-library(dplyr )
 library(Lahman)
-library(ggplot2)
-#library(tidyverse)
+library(tidyverse)
 #library(dslabs)
 
 Teams %>% 
@@ -1770,13 +1897,14 @@ Teams %>%
 
 
 
+
 # Stratification and Multivariate Regression
 
-[][**To try to determine if bases on balls is still useful for creating runs, a first approach is to keep home runs fixed at a certain value and then examine the relationship between runs and bases on balls**].  As we did when we stratified fathers by rounding to the closest inch, here, we can stratify home runs per game to the closest 10th.  We filtered our strata with few points.  We use this code to generate an informative data set.  And then, we can make a scatter plot for each strata.  A scatterplot of **runs** versus **bases on balls**.  This is what it looks like.  Remember that the regression slope for predicting runs with bases on balls when we ignore home runs was 0.735.  
+**To try to determine if bases on balls is still useful for creating runs, a first approach is to keep home runs fixed at a certain value and then examine the relationship between runs and bases on balls**.  As we did when we stratified fathers by rounding to the closest inch, here, we can stratify home runs per game to the closest 10th.  [][We filtered our strata with few points.  We use this code to generate an informative data set.  And then, we can make a scatter plot for each strata].  A scatterplot of **runs** versus **bases on balls**.  This is what it looks like.  Remember that the regression slope for predicting runs with bases on balls when we ignore home runs was 0.735.  
 
 [][**But once we stratify by home runs, these slopes are substantially reduced**].  We can actually see what the slopes are by using this code.  We stratify by home run and then compute the slope using the formula that we showed you previously.  These values are closer to the slope we obtained from singles, which is 0.449.  Which is more consistent with our intuition.  **Since both singles and bases on ball get us to first base, they should have about the same predictive power**.  
 
-Now, _although our understanding of the application-- our understanding of baseball-- tells us that home runs cause bases on balls and not the other way around_, we can still check if, after stratifying by base on balls, we still see a home run effect or if it goes down.  We use the same code that we just used for bases on balls.  But now, we swap home runs for bases on balls to get this plot.  In this case, the slopes are the following.  You can see they are all around 1.5, 1.6, 1.7.  So they do not change that much from the original slope estimate, which was 1.84.  
+Now, although our understanding of the application-- our understanding of baseball--tells us that home runs cause bases on balls and not the other way around, we can still check if, after stratifying by base on balls, we still see a home run effect or if it goes down.  We use the same code that we just used for bases on balls.  But now, we swap home runs for bases on balls to get this plot.  In this case, the slopes are the following.  You can see they are all around 1.5, 1.6, 1.7.  So they do not change that much from the original slope estimate, which was 1.84.  
 
 [][**Regardless, it seems that if we stratify by home runs, we have an approximately bivariate normal distribution for runs versus bases on balls.  Similarly, if we stratify by bases on balls, we have an approximately normal bivariate distribution for runs versus home runs.  So what do we do?**]  It is somewhat complex to be computing regression lines for each strata.  We're essentially fitting this model that you can see in this equation with the slopes for x1 changing for different values of x2 and vice versa.  Here, x1 is bases on balls.  And x2 are home runs.  Is there an easier approach?  (**So we have to take whole influence aerospace into a equation???**)
 
@@ -1800,6 +1928,7 @@ https://rafalab.github.io/dsbook/linear-models.html#multivariate-regression
 
 Code
 
+```{r}
 # stratify HR per game to nearest 10, filter out strata with few points
 dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
   mutate(HR_strata = round(HR/G, 1), 
@@ -1818,7 +1947,9 @@ dat %>%
 dat %>%  
   group_by(HR_strata) %>%
   summarize(slope = cor(BB_per_game, R_per_game)*sd(R_per_game)/sd(BB_per_game))
-  
+```
+
+```{r}
 # stratify by BB
 dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
   mutate(BB_strata = round(BB/G, 1), 
@@ -1836,8 +1967,7 @@ dat %>% ggplot(aes(HR_per_game, R_per_game)) +
 dat %>%  
   group_by(BB_strata) %>%
   summarize(slope = cor(HR_per_game, R_per_game)*sd(R_per_game)/sd(HR_per_game)) 
-
-
+```
 
 
 ```{r}
@@ -1919,9 +2049,9 @@ dat %>%
 # Linear Models
 
 
-Since Galton's original development, **regression has become one of the most widely used tools in data science**.  One reason for this has to do with the fact that [][*regression permits us to find relationships between two variables while adjusting for others*], as we have just shown for bases on balls and home runs.  This has been particularly popular in fields where **randomized experiments are hard to run** (`  Think here, can we think other cases ??? and how can we apply it into our cases analyzing app users ???  `), such as economics and epidemiology.  **When we're not able to randomly assign each individual to a treatment or control group, confounding is particularly prevalent**.  
+Since Galton's original development, **regression has become one of the most widely used tools in data science**.  One reason for this has to do with the fact that [][*regression permits us to find relationships between two variables while adjusting for others*], as we have just shown for bases on balls and home runs.  This has been particularly popular in fields where **randomized experiments are hard to run** (`  Think, other cases ?  can we apply it into analyzing app users ???  `), such as economics and epidemiology.  **When we're not able to randomly assign each individual to a treatment or control group, confounding is particularly prevalent**.  
 
-For example, consider estimating the effect of any fast foods on life expectancy using data collected from a random sample of people in some jurisdiction.  **Fast food consumers are more likely to be smokers, drinkers, and have lower incomes** (`  Your customer groups are already limited into a narrowed condition  `).  Therefore, a naive regression model may lead to an overestimate of a negative health effect of fast foods.  So how do we adjust for confounding in practice?  We can use regression.  [][*We have described how, if data is bivariate normal, then the conditional expectation follow a regression line*], that the conditional expectation as a line is not an extra assumption, but rather a result derived from the assumption, that they are approximately bivariate normal.  
+For example, consider estimating the effect of any fast foods on life expectancy using data collected from a random sample of people in some jurisdiction.  **Fast food consumers are more likely to be smokers, drinkers, and have lower incomes** (`  Your customer groups are already limited into certain group  `).  Therefore, a naive regression model may lead to an overestimate of a negative health effect of fast foods.  So how do we adjust for confounding in practice?  We can use regression.  [][*We have described how, if data is bivariate normal, then the conditional expectation follow a regression line*], that the conditional expectation as a line is not an extra assumption, but rather a result derived from the assumption, that they are approximately bivariate normal.  
 
 [][*However, in practice it is common to explicitly write down a model that describes the relationship between two or more variables using what is called a linear model*].  We know that linear here does not refer to lines exclusively, but rather to the fact that the conditional expectation is a linear combination of known quantities.  Any combination that multiplies them by a constant and then adds them up with, perhaps, a shift.  For example, 2 plus 3x minus 4y plus 5z is a linear combination of x, y, and z.  So beta 0 plus beta 1x1, plus beta 2x 2 is a linear combination of x1 and x2.  The simplest linear model is a constant beta 0.  The second simplest is a line, beta 0 plus beta 1x.  
 
@@ -1986,6 +2116,8 @@ https://rafalab.github.io/dsbook/linear-models.html
 ![](C:/Users/JJ/Pictures/rewrite father-son height model this way to make it more interpretable.png)
 
 ![So smart](C:/Users/JJ/Pictures/now the intercept meaning the predicted son height of average father.png)
+
+
 
 
 
@@ -2105,10 +2237,7 @@ partially correct
 
 
 
-
-
 ```{r}
-lm(son ~ father, data = galton_heights)
 
 lm(formula = son ~ father, data = galton_heights)
 ```
@@ -2117,14 +2246,17 @@ Summary: R linear regression uses the lm() function to create a regression model
 
 
 ```{r}
-library(dplyr)
-
 
 galton_heights <- galton_heights %>%
-    mutate(father_centered=father - mean(father))
+  mutate(father_centered = father - mean(father))
 
 lm(son ~ father_centered, data = galton_heights)
+
+# So intercept changed, a lot, does that mean the median father and mean son are not match? 
+# Or someone is not normal distributed ???
 ```
+
+
 
 
 
@@ -2245,6 +2377,7 @@ results %>% ggplot2::ggplot(aes(beta1, rss)) + geom_line() +
 ![](C:/Users/JJ/Pictures/we dont know if this parameter minimize the equations across all pairs.png)
 
 [][**Definition of trial and error: a finding out of the best way to reach a desired result or a correct solution by trying out one or more ways or means and by noting and eliminating errors or causes of failure also : the trying of one thing or another until something succeeds.**]
+
 
 
 
@@ -2729,6 +2862,17 @@ galton_heights %>% ggplot(aes(father, son)) +
 ```{r}
 library(dplyr)
 library(ggplot2)
+library(HistData)
+
+
+data("GaltonFamilies")
+
+galton_heights <- GaltonFamilies %>%
+  filter(gender == "male") %>%
+  select(father, childHeight) %>% 
+  rename(son = childHeight)
+
+
 
 galton_heights %>% ggplot(aes(father, son)) +
   geom_point() +
@@ -2971,46 +3115,88 @@ bat_02 <- Batting %>% filter(yearID == 2002) %>%
   filter(pa >= 100) %>%
   select(playerID, singles, bb)
 
-
 bat_01 <- Batting %>% filter(yearID %in% 1999:2001) %>%
   mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
   filter(pa >= 100) %>%
   select(playerID, singles, bb)
 
 
-head(bat_01)
+bat_01
 
 
-bat_01_n <- bat_01 %>%
+
+
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+bat_01_n1 <- bat_01 %>%
   group_by(playerID) %>% 
-  filter(nrow(.) > 100) %>%
-  mutate(mean_single = sum(.$singles)/nrow(.), mean_bb = sum(.$bb)/nrow(.)) %>%
-  filter(mean_single > 0.2)
+  summarise_at(vars(singles, bb), list(name = mean)) %>%
+  filter(singles_name > 0.2)
+# https://www.statology.org/r-mean-by-group/
 
-bat_01_n
+  
+bat_01_n1
 
-length(bat_01_n[[1]])
+length(bat_01_n1[[1]])
 
 
 bat_01_n2 <- bat_01 %>%
   group_by(playerID) %>% 
-  filter(nrow(.) > 100) %>%
-  mutate(mean_single = mean(.$singles), mean_bb = mean(.$bb)) %>%
-  filter(mean_bb > 0.2)
+  summarise_at(vars(singles, bb), list(name = mean)) %>%
+  filter(bb_name > 0.2)
+# https://www.statology.org/r-mean-by-group/
+# I suppose Google worth half my brain, or my brain is not functional as it should thus need Google
+
+  
+bat_01_n2
 
 length(bat_01_n2[[1]])
+
 ```
+
+
+
 
 
 ```{r}
-bat_02 <- Batting %>% filter(yearID == 2002) %>%
-  mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
-  filter(pa >= 100) %>%
-  select(playerID, singles, bb)
+bat_01_n1 <- bat_01 %>%
+  group_by(playerID) %>% 
+  summarise_at(vars(singles, bb), list(name = mean))
 
 
-head(bat_02)
+
+inner_join(bat_02, bat_01_n1, by = 'playerID')
+
+
+
+inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
+  summarise(cor(singles, singles_name)) 
+
+inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
+  summarise(cor(bb, bb_name))
+
+
+
+
+inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
+  ggplot(aes(singles_name, singles)) + 
+  geom_point(alpha = 0.3) 
+
+
+
+inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
+  ggplot(aes(bb_name, bb)) + 
+  geom_point(alpha = 0.3) 
+
 ```
+
+
+
+
+
+
+
+
+
 
 
 
