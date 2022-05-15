@@ -2288,7 +2288,7 @@ For linear models to be useful, **we have to estimate the unknown parameters, th
 
 [][**Let's write the function that computes the RSS for any pair of values, beta 0 and beta 1, for our heights data.  It would look like this.  So for any pair of values, we get an RSS.  So this is a three-dimensional plot with beta 1 and beta 2, and x and y and the RSS as a z.  To find the minimum, you would have to look at this three-dimensional plot**].  Here, we're just going to make a two-dimensional version by keeping beta 0 fixed at 25.  So it will be a function of the RSS as a function of beta 1.  We can use this code to produce this plot.  We can see a clear minimum for beta 1 at around 0.65.  So you could see how we would pick the least squares estimates.  However, this minimum is for beta 1 when beta 0 is fixed at 25.  But we don't know if that's the minimum for beta 0.  We don't know if 25 comma 0.65 minimizes the equation across all pairs.  
 
-[][****We could use trial and error, but it's really not going to work here.  Instead we will use calculus.****]  We'll take the ***partial derivatives***, set them equal to 0, and solve for beta 1 and beta 0.  Of course, if we have many parameters, these equations can get rather complex.  But there are functions in R that do these calculations for us.  We will learn these soon.  To learn the mathematics behind this, you can consult the book on linear models.  
+[][****We could use trial and error, but it's really not going to work here (` Why and How `).  Instead we will use calculus.****]  We'll take the ***partial derivatives***, set them equal to 0, and solve for beta 1 and beta 0.  Of course, if we have many parameters, these equations can get rather complex.  But there are functions in R that do these calculations for us.  We will learn these soon.  To learn the mathematics behind this, you can consult the book on linear models.  
 
 
 **quotation form the book:**
@@ -2314,8 +2314,7 @@ Code
 
 ```{r}
 library(HistData)
-library(dplyr)
-library(ggplot2)
+library(tidyverse)
 
 
 data("GaltonFamilies")
@@ -2330,17 +2329,22 @@ galton_heights <- GaltonFamilies %>%
   rename(son = childHeight)
 #https://bookdown.org/yih_huynh/Guide-to-R-Book/groupby.html
 
+
 rss <- function(beta0, beta1){
-    resid <- galton_heights$son - (beta0+beta1*galton_heights$father)
+    resid <- galton_heights$son - (beta0 + beta1 * galton_heights$father)
     return(sum(resid^2))
 }
 
 # plot RSS as a function of beta1 when beta0=25
 beta1 = seq(0, 1, len=nrow(galton_heights))
+
 results <- data.frame(beta1 = beta1,
                       rss = sapply(beta1, rss, beta0 = 25))
-results %>% ggplot(aes(beta1, rss)) + geom_line() + 
-  geom_line(aes(beta1, rss))
+                      # https://r-lang.com/r-sapply/
+
+results %>% 
+  ggplot(aes(beta1, rss)) + 
+  geom_line()
 
 ```
 
@@ -2366,9 +2370,11 @@ rss <- function(beta0, beta1, data){
 
 beta1 = seq(0, 1, len=nrow(galton_heights))
 results <- data.frame(beta1 = beta1, 
-                      rss = sapply(beta1, rss, beta0=25))
+                      rss = sapply(beta1, rss, beta0 = 25))
 
-results %>% ggplot2::ggplot(aes(beta1, rss)) + geom_line() +
+results %>% 
+  ggplot(aes(beta1, rss)) + 
+  #geom_line() +
   geom_line(aes(beta1, rss), col=2)
 ```
 
@@ -2383,10 +2389,11 @@ results %>% ggplot2::ggplot(aes(beta1, rss)) + geom_line() +
 
 
 
+
 # The lm Function
 
 
-[][**In r, we can obtain the least squares estimates using the lm function**].  To fit the following model where Yi is the son's height and Xi is the father height, we would write the following piece of code.  This gives us the least squares estimates, which we can see in the output of r.  The general way we use lm is by using the **tilde (~)** character to let lm know which is the value we're predicting that's on the left side of the tilde, and which variables we're using to predict-- those will be on the right side of the tilde.  The intercept is added automatically to the model.  So you don't have to include it when you write it.  
+[][**In r, we can obtain the least squares estimates using the lm function**].  To fit the following model where Yi is the son's height and Xi is the father height, we would write the following piece of code.  This gives us the least squares estimates, which we can see in the output of r.  The general way we use lm is by using the **tilde (~)** character to let lm know which is the value we're predicting that's on the left side of the tilde, and which variables we're using to predict--those will be on the right side of the tilde.  The intercept is added automatically to the model.  So you don't have to include it when you write it.  
 
 The object fit that we just computed includes more information about the least squares fit.  We can use the function summary to extract more of this information, like this.  **To understand some of the information included in this summary, we need to remember that the LSE are random variables.**  Mathematical statistics gives us some ideas of the distribution of these random variables.  And we'll learn some of that next.  End of transcript. Skip to the start.
 
@@ -2404,13 +2411,23 @@ https://rafalab.github.io/dsbook/linear-models.html#the-lm-function
 
 Code
 
+```{r}
+library(HistData)
+
+
+data("GaltonFamilies")
+galton_heights <- GaltonFamilies %>%
+  filter(childNum == 1 & gender == 'male') %>%
+  select(father, childHeight) %>%
+  rename(son=childHeight)
+
 # fit regression line to predict son's height from father's height
 fit <- lm(son ~ father, data = galton_heights)
 fit
 
 # summary statistics
 summary(fit)
-
+```
 
 ```{r}
 fit <- lm(son ~ father, data = galton_heights)
@@ -2436,12 +2453,11 @@ summary(fit)
 
 
 
+
 # LSE are Random Variables
 
 
-[][*The LSE are derived from the data, Y1 through Yn, which are random.  This implies that our estimates are random variables*].  **To see this, we can run a Monte Carlo simulation** (`  What would I do ???  `) in which we assume that the son and father height data that we have defines an entire population.  And we're going to take random samples of size 50 and compute the regression slope coefficient for each one.  We write this code, which gives us several estimates of the regression slope.  
-
-*We can see the variability of the estimates by plotting their distribution*.  Here you can see the histograms of the estimated beta 0's and the estimated beta 1's.  [][The reason these look normal is because the central limit theorem applies here as well.  For large enough N, the least squares estimates will be approximately normal with expected value beta 0 and beta 1 respectively].  
+[][*The LSE are derived from the data, Y1 through Yn, which are random.  This implies that our estimates are random variables*].  **To see this, we can run a Monte Carlo simulation** in which we assume that the son and father height data that we have defines an entire population.  And we're going to take random samples of size 50 and compute the regression slope coefficient for each one.  We write this code, which gives us several estimates of the regression slope.  *We can see the variability of the estimates by plotting their distribution*.  Here you can see the histograms of the estimated beta 0's and the estimated beta 1's.  [][The reason these look normal is because the central limit theorem applies here as well.  For large enough N, the least squares estimates will be approximately normal with expected value beta 0 and beta 1 respectively].  
 
 The standard errors are a bit complicated to compute, but mathematical theory does allow us to compute them, and they are included in the summary provided by the lm function.  Here are the estimated standard errors for one of our simulated data sets.  You could see them at the *second column in the coefficients table*.  [][*You can see that the standard errors estimates reported by the summary function are close to the standard errors that we obtain from our Monte Carlo simulation*].  
 
@@ -2451,7 +2467,7 @@ The 2p values are testing the null hypothesis that beta 0 is 0 and beta 1 is 0 r
 
 [Go read this book][**https://www.statisticshowto.com/probability-and-statistics/null-hypothesis/]
 
-[][***Note that as we described previously, for large enough N, the central limit works, and the t distribution becomes almost the same as a normal distribution.  So if either you assume the errors are normal and use the t distribution or if you assume that N is large enough to use the central limit theorem, you can construct confidence intervals for your parameters.***] (`  How to construct confidnece intervals for our parameters  `)  
+[][***Note that as we described previously, for large enough N, the central limit works, and the t distribution becomes almost the same as a normal distribution.  So if either you assume the errors are normal and use the t distribution or if you assume that N is large enough to use the central limit theorem, you can construct confidence intervals for your parameters.***] (*`  How to construct confidnece intervals for our parameters  `*)  
 
 We know here that although we will not show examples in this video, **hypothesis testing for regression models is very commonly used** in, for example, epidemiology and economics, **to make statements such as the effect of A and B was statistically significant after adjusting for X, Y, and Z**.  But it's very important to note that several assumptions--we just described some of them--have to hold for these statements to hold.  [][the effect of A and B was statistically significant after adjusting for X, Y, and Z]
 
@@ -2470,21 +2486,28 @@ https://rafalab.github.io/dsbook/linear-models.html#lse-are-random-variables
 
 Code
 
+```{r}
 # Monte Carlo simulation ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 B <- 1000
 N <- 50
+
 lse <- replicate(B, {
   sample_n(galton_heights, N, replace = TRUE) %>% 
     lm(son ~ father, data = .) %>% 
     .$coef 
 })
+
 lse <- data.frame(beta_0 = lse[1,], beta_1 = lse[2,]) 
+
 
 # Plot the distribution of beta_0 and beta_1
 library(gridExtra)
-p1 <- lse %>% ggplot(aes(beta_0)) + geom_histogram(binwidth = 5, color = "black") 
-p2 <- lse %>% ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.1, color = "black") 
+
+p1 <- lse %>% ggplot(aes(beta_0)) + geom_histogram(bins = 15, color = "black") 
+p2 <- lse %>% ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.05, color = "black") 
+
 grid.arrange(p1, p2, ncol = 2)
+
 
 # summary statistics
 sample_n(galton_heights, N, replace = TRUE) %>% 
@@ -2493,13 +2516,10 @@ sample_n(galton_heights, N, replace = TRUE) %>%
   .$coef
   
 lse %>% summarize(se_0 = sd(beta_0), se_1 = sd(beta_1))
-
+```
 
 
 ```{r}
-library(dplyr)
-
-
 B <- 1000
 N <- 50
 
@@ -2512,15 +2532,10 @@ lse <- replicate(B, {
 
 lse <- data.frame(beta_0 = lse[1, ], beta_1 = lse[2, ])
 
-lse
+head(lse)
 ```
 
 ```{r}
-library(dplyr)
-library(ggplot2)
-library(gridExtra)
-
-
 p1 <- lse %>% ggplot2::ggplot(aes(beta_0)) + geom_histogram(binwidth = 5, color = "black")
 p2 <- lse %>% ggplot2::ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.1, color = "black")
 
@@ -2529,7 +2544,8 @@ grid.arrange(p1, p2, ncol = 2)
 
 ```{r}
 sample_n(galton_heights, N, replace = TRUE) %>%
-  lm(son ~ father, data = .) %>% summary
+  lm(son ~ father, data = .) %>% 
+  summary
 ```
 
 ```{r}
@@ -2595,9 +2611,10 @@ lse %>% summarize(cor(beta_0, beta_1))
 B <- 1000
 N <- 50
 lse <- replicate(B, {
-      sample_n(galton_heights, N, replace = TRUE) %>%
-      mutate(father = father - mean(father)) %>%
-      lm(son ~ father, data = .) %>% .$coef 
+  sample_n(galton_heights, N, replace = TRUE) %>%
+    mutate(father = father - mean(father)) %>%
+    lm(son ~ father, data = .) %>% 
+    .$coef 
 })
 
 
@@ -2610,10 +2627,11 @@ cor(lse[1,], lse[2,])
 
 
 
+
 # Predicted Variables are Random Variables
 
 
-**Once we fit our model, we can obtain predictions of y by plugging the estimates (`he means the Beta0 and Beta1 and etc.`) into the regression model**.  For example, if the father's height is x, then our prediction for y--which we'll denote with a hat on top of the y--for the son's height will be the following.  We're just plugging in beta--the estimated betas into the equation.  If we plot y hat versus x, we'll see the regression line.  
+**Once we fit our model, we can obtain predictions of y by plugging the estimates (`the Beta0 and Beta1 and etc.`) into the regression model**.  For example, if the father's height is x, then our prediction for y--which we'll denote with a hat on top of the y--for the son's height will be the following.  We're just plugging in beta--the estimated betas into the equation.  If we plot y hat versus x, we'll see the regression line.  
 
 [][*Note that the prediction y hat is also a random variable, and mathematical theory tells us what the standard errors are*].  If we *assume* the errors are normal or have a large enough sample size to use the Central Limit Theorem, ***we can construct confidence intervals for our predictions***, as well.  In fact, the ggplot layer geom underscore smooth, when we set method equals to lm--we've previously shown this for several plots--plots confidence intervals around the predicted y hat.  Let's look at an example with this code.  You can see the regression line.  Those are the predictions, and you see a band around them.  Those are the confidence intervals.  
 
@@ -2640,15 +2658,20 @@ Code
 
 ```{r}
 # plot predictions and confidence intervals
-galton_heights %>% ggplot(aes(father, son)) +
+galton_heights %>% 
+  ggplot(aes(father, son)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(formula = y ~ x, method = "lm")
 ```
 
 ```{r}
 # predict Y directly
-fit <- galton_heights %>% lm(son ~ father, data = .) 
-Y_hat <- predict(fit, se.fit = TRUE)
+fit <- galton_heights %>% 
+  lm(son ~ father, data = .) 
+
+Y_hat <- predict(fit, se.fit = TRUE)    # https://stats.stackexchange.com/questions/86624/se-of-fit-versus-se-of-prediction
+Y_hat
+
 names(Y_hat)
 ```
 
@@ -2658,13 +2681,11 @@ galton_heights %>%
   mutate(Y_hat = predict(lm(son ~ father, data=.))) %>%
   ggplot(aes(father, Y_hat))+
   geom_line()
+
 ```
 
 
 ```{r}
-library(dplyr)
-library(ggplot2)
-
 galton_heights %>%
   ggplot(aes(son, father)) + 
   geom_point() +
@@ -2679,7 +2700,17 @@ galton_heights %>%
 ```
 
 ```{r}
-fit <- galton_heights %>% lm(formula = son ~ father, data = .)
+galton_heights_hat <- galton_heights %>%
+  mutate(Y_hat = predict(lm(son ~ father, data=.)))
+
+
+head(galton_heights_hat)
+```
+
+
+```{r}
+fit <- galton_heights %>% 
+  lm(formula = son ~ father, data = .)
 
 Y_hat <- predict(fit, se.fit = TRUE)
 names(Y_hat)
@@ -2714,12 +2745,17 @@ Comprehension Check due Jun 12, 2022 00:29 AWST
 
 The following code was used in the video to plot RSS with Beta_0 = 25.
 
-      beta1 = seq(0, 1, len=nrow(galton_heights))
+```{r}
+beta1 = seq(0, 1, len=nrow(galton_heights))
+
 results <- data.frame(beta1 = beta1,
                       rss = sapply(beta1, rss, beta0 = 25))
-results %>% ggplot(aes(beta1, rss)) + geom_line() + 
+
+results %>% 
+  ggplot(aes(beta1, rss)) + 
+  geom_line() + 
   geom_line(aes(beta1, rss), col=2)
-    
+```
 
 In a model for sons’ heights vs fathers’ heights, what is the least squares estimate (LSE) for Beta_1 if we assume Beta_0 hat is 36?
 
@@ -2749,7 +2785,9 @@ beta1 = seq(0, 1, len=nrow(galton_heights))
 results <- data.frame(beta1 = beta1,
                       rss = sapply(beta1, rss, beta0 = 36))
 
-results %>% ggplot(aes(beta1, rss)) + geom_line() + 
+
+results %>% 
+  ggplot(aes(beta1, rss)) + 
   geom_line(aes(beta1, rss), col=2)
 ```
 [][*Residual sum of squares (RSS) measures the distance between the true value and the predicted value given by the regression line. The values that minimize the RSS are called the least squares estimates (LSE)*]
@@ -2784,15 +2822,42 @@ Explanation
 The coefficient for bases on balls is 0.39; the coefficient for home runs is 1.56; the intercept is 1.74; the standard error for the BB coefficient is 0.027.
 
 ```{r}
-library(Lahman)
-library(broom)
+library(broom)   # tidy() function
 
-Teams_small <- Teams %>% filter(yearID %in% 1961:2001)
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
 
 Teams_small %>% 
   mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = HR/G) %>% 
   do(tidy(lm(R_per_game ~ BB_per_game + HR_per_game, data = .)))
 ```
+
+```{r}
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
+
+Teams_small %>% 
+  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = HR/G) %>% 
+  lm(R_per_game ~ BB_per_game + HR_per_game, data = .) %>%
+  #coef
+  summary      # Check here, why its different with/without %>% .$coef after summary
+```
+
+
+```{r}
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
+
+Teams_small %>% 
+  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = HR/G) %>% 
+  lm(R_per_game ~ BB_per_game + HR_per_game, data = .) %>%
+  summary %>%
+  .$coef
+```
+
 
 You have used 1 of 2 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
 Answers are displayed within the problem
@@ -2809,9 +2874,11 @@ B <- 1000
 N <- 100
 
 lse <- replicate(B, {
-    sample_n(galton_heights, N, replace = TRUE) %>% 
-    lm(son ~ father, data = .) %>% .$coef 
+  sample_n(galton_heights, N, replace = TRUE) %>%
+    lm(son ~ father, data = .) %>% 
+    .$coef 
 })
+
 
 lse <- data.frame(beta_0 = lse[1,], beta_1 = lse[2,]) 
 
@@ -2834,7 +2901,7 @@ Correct. With a large enough N (*`  So how much fit this large enough ?  Or shou
 Try again. For large enough N, the central limit theorem does apply.
 
 Explanation
-
+# ================================================================================================================================
 With a large enough N, the central limit theorem applies and tells us that the distributions of both beta_0 and beta_1 are approximately normal. [][*The expected (` Expected `) values of beta_0 and beta_1 are the true values of Beta_0 and Beta_1, assuming that the Galton heights data are a complete population.*]
 
 For hypothesis testing, we assume that the errors in the model are normally distributed.
@@ -2853,18 +2920,23 @@ Select ALL that apply.
 
 
 ```{r}
-galton_heights %>% ggplot(aes(father, son)) +
-  geom_point() +
+galton_heights %>% 
+  ggplot(aes(father, son)) +
+  geom_point(alpha = 0.3) +
   geom_smooth()
+# `geom_smooth()` using method = 'loess' and formula 'y ~ x' by default, 
+
+
+# scatterplot for each HR stratum
+#dat %>% 
+#  ggplot(aes(BB_per_game, R_per_game)) +  
+#  geom_point(alpha = 0.5) +
+#  geom_smooth(method = "lm") +
+#  facet_wrap( ~ HR_strata)
 ```
         
 
 ```{r}
-library(dplyr)
-library(ggplot2)
-library(HistData)
-
-
 data("GaltonFamilies")
 
 galton_heights <- GaltonFamilies %>%
@@ -2873,8 +2945,8 @@ galton_heights <- GaltonFamilies %>%
   rename(son = childHeight)
 
 
-
-galton_heights %>% ggplot(aes(father, son)) +
+galton_heights %>% 
+  ggplot(aes(father, son)) +
   geom_point() +
   geom_smooth(formula= y ~ x, method = "lm")
 ```
@@ -2882,8 +2954,12 @@ galton_heights %>% ggplot(aes(father, son)) +
 
 ```{r}
 model <- lm(son ~ father, data = galton_heights)
+
 predictions <- predict(model, interval = c("confidence"), level = 0.95)
-data <- as_tibble(predictions) %>% bind_cols(father = galton_heights$father)
+
+data <- as_tibble(predictions) %>% 
+  bind_cols(father = galton_heights$father)
+
 
 ggplot(data, aes(x = father, y = fit)) +
   geom_line(color = "blue", size = 1) +
@@ -2891,18 +2967,22 @@ ggplot(data, aes(x = father, y = fit)) +
   geom_point(data = galton_heights, aes(x = father, y = son))
 ```
         
-
-```{r}
+```{Not WOrking R Code Block}
 model <- lm(son ~ father, data = galton_heights)
-predictions <- predict(model)
-data <- as_tibble(predictions) %>% bind_cols(father = galton_heights$father)
+
+predictions <- predict(model, data = galton_heights)
+
+
+data <- as_tibble(predictions) %>% 
+  bind_cols(father = galton_heights$father)
 
 ggplot(data, aes(x = father, y = fit)) +
   geom_line(color = "blue", size = 1) +
   geom_point(data = galton_heights, aes(x = father, y = son))
 ```
 
-correct
+
+# =============================================================================================================================
 Answer
 Correct:
 Correct. This is one way to plot predictions and confidence intervals for a linear model of sons’ heights vs. fathers’ heights. This is one of two correct answers.
@@ -2917,110 +2997,6 @@ You have used 1 of 2 attempts Some
 
 
 
-```{r}
-library(Lahman)
-library(tidyverse)
-library(dslabs)
-ds_theme_set()
-
-Teams <- Teams %>% 
-  filter(yearID %in% 1961:2001) %>%
-  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = HR/G)
-
-
-rss <- function(beta0, beta1, beta2, data){
-  resid <- Teams$R_per_game - (beta0 + beta1 * Teasm$BB_per_game + beta2 * Teams$HR_per_game)
-  return(sum(resid^2))
-}
-# Why we are using above rss block here or when did we used it, for what purpose ???
-
-
-
-fit <- lm(R_per_game ~ BB_per_game + HR_per_game, data = Teams) 
-
-fit$coef
-```
-
-#########################################################################################################
-```{r}
-library(Lahman)
-library(broom)
-library(dplyr)
-
-
-Teams_small <- Teams %>% filter(yearID %in% 1961:2001)
-
-Teams_small %>% 
-  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = HR/G) %>% 
-  do(tidy(lm(R_per_game ~ BB_per_game + HR_per_game, data = .)))
-          
-```
-#########################################################################################################
-
-
-```{r}
-galton_heights %>% 
-    lm(son ~ father, data = .) %>% .$coef  
-# Now below is what we call Beta_0 and Beta_1, now you understand how thing going ???
-# And also the dot notation in R programming I suppose
-```
-
-
-```{r}
-library(dplyr)
-library(ggplot2)
-library(gridExtra)
-
-
-B <- 1000
-N <- 100
-lse <- replicate(B, {
-    sample_n(galton_heights, N, replace = TRUE) %>% 
-    lm(son ~ father, data = .) %>% .$coef    
-  # must understand this code, and break it into pieces using in other places
-})
-
-
-lse <- data.frame(beta_0 = lse[1,], beta_1 = lse[2,]) 
-
-
-lse
-
-
-
-p1 <- lse %>% ggplot2::ggplot(aes(beta_0)) + geom_histogram(binwidth = 5, color = "black")
-p2 <- lse %>% ggplot2::ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.1, color = "black")
-
-grid.arrange(p1, p2, ncol = 2)
-```
-
-```{r}
-library(dplyr)
-library(ggplot2)
-library(gridExtra)
-
-
-B <- 1000
-N <- 100
-lse <- replicate(B, {
-    sample_n(galton_heights, N, replace = TRUE) %>% 
-    lm(son ~ father, data = .) %>% .$coef 
-})
-
-
-lse <- data.frame(beta_0 = lse[1,], beta_1 = lse[2,]) 
-
-
-lse
-
-
-p1 <- lse %>% ggplot2::ggplot(aes(beta_0)) + geom_histogram(binwidth = 2, color = "black")
-p2 <- lse %>% ggplot2::ggplot(aes(beta_1)) + geom_histogram(binwidth = 0.02, color = "black")
-
-grid.arrange(p1, p2, ncol = 2)
-```
-
-
 
 
 
@@ -3028,14 +3004,43 @@ grid.arrange(p1, p2, ncol = 2)
 
 
 
+# Question 7
+
+2.0/2.0 points (graded)
+
+Fit a linear regression model predicting the mothers' heights using daughters' heights.
+What is the slope of the model?
+correct
+
+0.31
+Loading
+
+Explanation
+
+The following code can be used to determine the slope:
+```
+fit <- lm(mother ~ daughter, data = female_heights)
+fit$coef[2]
+```
+
+What the intercept of the model?
+correct
+
+44.2
+Loading
+
+Explanation
+
+The following code can be used to determine the intercept:
+```
+fit$coef[1]
+```
+
+# My solution I dive in the see and I get the big fish, only you create value in your learning journey
 [][****Think about this code, how to manage put them block by block and doing what we need****]
 ```{r}
 #set.seed(1989) #if you are using R 3.5 or earlier
 set.seed(1989, sample.kind="Rounding") #if you are using R 3.6 or later
-
-library(HistData)
-library(dplyr)
-
 
 data("GaltonFamilies")
 options(digits = 3)    # report 3 significant digits
@@ -3044,35 +3049,66 @@ female_heights <- GaltonFamilies %>%
   filter(gender == "female") %>%
   group_by(family) %>%
   sample_n(1) %>%
-  ungroup() %>%
+  ungroup() %>%     # Why we need the ungroup() here ???  I commented this code and below mutate() function failed
   select(mother, childHeight) %>%
   rename(daughter = childHeight)
 
 
-
 female_heights %>% 
-  do(tidy(lm(mother ~ daughter, data = .)))
-
+  #do(tidy(lm(mother ~ daughter, data = .)))   # same as below code pipes
+  lm(mother ~ daughter, data = .) %>%
+  summary %>% .$coef
 
 fit <- lm(formula = mother ~ daughter, data = female_heights)
 fit$coefficients
 
 
+female_heights_hat <- female_heights %>%
+  mutate(Y_hat = predict(lm(mother ~ daughter, data = .)))
 
-female_heights <- female_heights %>%
-  mutate(Y_hat = predict(lm(mother ~ daughter, data = .))) 
 
-
-head(female_heights)
+head(female_heights_hat)
 
 ```
 
+
+# Question 8
+
+2.0/2.0 points (graded)
+
+Predict mothers' heights using the model.
+What is the predicted height of the first mother in the dataset?
+correct
+
+65.6
+Loading
+
+Explanation
+
+The following code can be used to determine the height:
+```
+predict(fit)[1]
+```
+
+What is the actual height of the first mother in the dataset?
+correct
+
+67
+Loading
+
+Explanation
+
+The following code can be used to determine the height:
+
+```
+female_heights$mother[1]
+```
+
+
+# This is rearranged Solution code, my code see in above Question 7
 ```{r}
 #set.seed(1989) #if you are using R 3.5 or earlier
 set.seed(1989, sample.kind="Rounding") #if you are using R 3.6 or later
-
-library(HistData)
-library(dplyr)
 
 
 data("GaltonFamilies")
@@ -3101,13 +3137,56 @@ female_heights$mother[1]
 ```
 
 
+We have shown how BB and singles have similar predictive power for scoring runs. Another way to compare the usefulness of these baseball metrics is by assessing how stable they are across the years. Because we have to pick players based on their previous performances, we will prefer metrics that are more stable. In these exercises, we will compare the stability of singles and BBs.
+
+Before we get started, we want to generate two tables: one for 2002 and another for the average of 1999-2001 seasons. We want to define per plate appearance statistics, keeping only players with more than 100 plate appearances. Here is how we create the 2002 table:
+```
+library(Lahman)
+bat_02 <- Batting %>% filter(yearID == 2002) %>%
+  mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
+  filter(pa >= 100) %>%
+  select(playerID, singles, bb)
+```
 
 
+# Question 9
 
+2.0/2.0 points (graded)
 
+Now compute a similar table but with rates computed over 1999-2001. Keep only rows from 1999-2001 where players have 100 or more plate appearances, calculate each player's single rate and BB rate per stint (where each row is one stint - a player can have multiple stints within a season), then calculate the average single rate (mean_singles) and average BB rate (mean_bb) per player over the three year period.
+How many players had a single rate mean_singles of greater than 0.2 per plate appearance over 1999-2001?
+correct
+
+46
+Loading
+
+# Explanation
+The following code can be used to determine the number of players:
+```
+bat_99_01 <- Batting %>% filter(yearID %in% 1999:2001) %>%
+  mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
+  filter(pa >= 100) %>%
+  group_by(playerID) %>%
+  summarize(mean_singles = mean(singles), mean_bb = mean(bb))
+
+sum(bat_99_01$mean_singles > 0.2)
+```
+
+How many players had a BB rate mean_bb of greater than 0.2 per plate appearance over 1999-2001?
+correct
+
+3
+Loading
+
+# Explanation
+The following code can be used to determine the number of players:
+```
+sum(bat_99_01$mean_bb > 0.2)
+```
+
+# My solution, I dive in and I get teh fish
 ```{r}
 library(Lahman)
-#library(plyr)
 
 
 bat_02 <- Batting %>% filter(yearID == 2002) %>%
@@ -3120,9 +3199,7 @@ bat_01 <- Batting %>% filter(yearID %in% 1999:2001) %>%
   filter(pa >= 100) %>%
   select(playerID, singles, bb)
 
-
-bat_01
-
+length(bat_01[[1]])
 
 
 
@@ -3132,7 +3209,6 @@ bat_01_n1 <- bat_01 %>%
   summarise_at(vars(singles, bb), list(name = mean)) %>%
   filter(singles_name > 0.2)
 # https://www.statology.org/r-mean-by-group/
-
   
 bat_01_n1
 
@@ -3146,7 +3222,6 @@ bat_01_n2 <- bat_01 %>%
 # https://www.statology.org/r-mean-by-group/
 # I suppose Google worth half my brain, or my brain is not functional as it should thus need Google
 
-  
 bat_01_n2
 
 length(bat_01_n2[[1]])
@@ -3154,39 +3229,139 @@ length(bat_01_n2[[1]])
 ```
 
 
+# Question 10
 
+2.0/2.0 points (graded)
 
+Use inner_join() to combine the bat_02 table with the table of 1999-2001 rate averages you created in the previous question.
+What is the correlation between 2002 singles rates and 1999-2001 average singles rates?
+correct
 
+0.551
+Loading
+
+# Explanation
+The following code can be used to determine the correlation:
+```
+dat <- inner_join(bat_02, bat_99_01)w
+
+cor(dat$singles, dat$mean_singles)
+```        
+
+What is the correlation between 2002 BB rates and 1999-2001 average BB rates?
+correct
+
+0.717
+Loading
+
+# Explanation
+The following code can be used to determine the correlation:
+```
+cor(dat$bb, dat$mean_bb)
+```
+
+# My solution, I dive in and I get the fish
 ```{r}
-bat_01_n1 <- bat_01 %>%
+bat_01_avg <- bat_01 %>%
   group_by(playerID) %>% 
-  summarise_at(vars(singles, bb), list(name = mean))
+  summarise_at(vars(singles, bb), list(name = mean)) %>%
+  ungroup()
+
+head(inner_join(bat_02, bat_01_avg, by = 'playerID'))
+length(inner_join(bat_02, bat_01_avg, by = 'playerID')[[1]])
 
 
 
-inner_join(bat_02, bat_01_n1, by = 'playerID')
-
-
-
-inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
+inner_join(bat_02, bat_01_avg, by = 'playerID') %>% 
   summarise(cor(singles, singles_name)) 
 
-inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
+inner_join(bat_02, bat_01_avg, by = 'playerID') %>% 
   summarise(cor(bb, bb_name))
 
+```
 
 
+# Question 11
 
-inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
-  ggplot(aes(singles_name, singles)) + 
+1/1 point (graded)
+
+Make scatterplots of mean_singles versus singles and mean_bb versus bb.
+Are either of these distributions bivariate normal?
+Neither distribution is bivariate normal.
+singles and mean_singles are bivariate normal, but bb and mean_bb are not.
+bb and mean_bb are bivariate normal, but singles and mean_singles are not.
+Both distributions are bivariate normal.
+correct
+
+# Explanation
+Both distributions are bivariate normal, as can be seen in the scatter plots made using the following code:
+```
+dat %>%
+  ggplot(aes(singles, mean_singles)) +
+  geom_point()
+
+dat %>%
+  ggplot(aes(bb, mean_bb)) +
+  geom_point()
+```
+
+# My solution, I dive in and I get the fish
+```{r}
+inner_join(bat_02, bat_01_avg, by = 'playerID') %>% 
+  ggplot(aes(singles, singles_name)) + 
   geom_point(alpha = 0.3) 
 
 
-
-inner_join(bat_02, bat_01_n1, by = 'playerID') %>% 
-  ggplot(aes(bb_name, bb)) + 
+inner_join(bat_02, bat_01_avg, by = 'playerID') %>% 
+  ggplot(aes(bb, bb_name)) + 
   geom_point(alpha = 0.3) 
+```
 
+
+# Question 12
+
+2/2 points (graded)
+
+Fit a linear model to predict 2002 singles given 1999-2001 mean_singles.
+What is the coefficient of mean_singles, the slope of the fit?
+correct
+
+0.588
+Loading
+
+# Explanation
+The linear model and slope can be generated using the following code:
+```
+fit_singles <- lm(singles ~ mean_singles, data = dat)
+fit_singles$coef[2]
+```
+
+Fit a linear model to predict 2002 bb given 1999-2001 mean_bb.
+What is the coefficient of mean_bb, the slope of the fit?
+correct
+
+0.829
+Loading
+
+# Explanation
+```
+fit_bb <- lm(bb ~ mean_bb, data = dat)
+fit_bb$coef[2]
+```
+
+# My Solution, I dive in and I get the fish
+```{r}
+head(inner_join(bat_02, bat_01_avg, by = 'playerID'))
+
+
+inner_join(bat_02, bat_01_avg, by = 'playerID') %>%
+  lm(singles ~ singles_name, data = .) %>%
+  summary
+
+
+inner_join(bat_02, bat_01_avg, by = 'playerID') %>%
+  lm(bb ~ bb_name, data = .) %>%
+  summary
 ```
 
 
@@ -3195,7 +3370,10 @@ inner_join(bat_02, bat_01_n1, by = 'playerID') %>%
 
 
 
+## Course  /  Section 2: Linear Models  /  2.3: Tibbles, do, and broom
 
+
+# Advanced dplyr: Tibbles
 
 
 
