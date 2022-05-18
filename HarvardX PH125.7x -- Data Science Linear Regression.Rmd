@@ -3451,6 +3451,18 @@ dat %>%
   summarize(slope = cor(BB_per_game, R_per_game)*sd(R_per_game)/sd(BB_per_game))
 ```
 
+```{r}
+library(broom)   # tidy() function
+
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
+
+Teams_small %>% 
+  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = HR/G) %>% 
+  do(tidy(lm(R_per_game ~ BB_per_game + HR_per_game, data = .)))
+```
+
 
 ```{r}
 dat %>%
@@ -3508,9 +3520,13 @@ dat %>%
 # Tibbles: Differences from Data Frames
 
 
-In this video, we're going to describe some of the main differences between tibbles and data frames.  First, the print method for tibble is much more readable than that of a data frame.  To see this, type teams on your console after loading the Baseball Lahman Database.  And you will see a very, very long list of columns and rows.  It's barely readable.  Teams is a data frame with many rows and columns.  That's why you see that.  Nevertheless, the output just shows everything wraps around and is hard to read.  It is so bad that we don't even print it here.  We'll let you print it on your own screen.  Now if you convert this data frame to a tibble data frame, the output is much more readable.  Here's an example.  That's the first main difference between tibbles and data frames.  A second one is that if you subset the columns of a data frame, you may get back an object that is not a data frame.  
+In this video, we're going to describe some of the [][*main differences between tibbles and data frames*].  First, the print method for tibble is much more readable than that of a data frame.  To see this, type teams on your console after loading the Baseball Lahman Database.  And you will see a very, very long list of columns and rows.  It's barely readable.  Teams is a data frame with many rows and columns.  That's why you see that.  Nevertheless, the output just shows everything wraps around and is hard to read.  It is so bad that we don't even print it here.  We'll let you print it on your own screen.  Now if you convert this data frame to a tibble data frame, the output is much more readable.  Here's an example.  That's the first main difference between tibbles and data frames.  
 
+A second one is that if you subset the columns of a data frame, you may get back an object that is not a data frame.  With tibbles, this is not the case.  Here's an example.  If we subset a tibble, we get back a tibble.  **This is useful in the tidyverse since functions require data frames as input**.  Now whenever you want to access the original vector that defines a column in a table, for this, you actually have to use the accessor dollar sign.  A related feature to this is that tibbles will give you a warning if you try to access a column that does not exist.  That's not the case for data frames.  For example, if we accidentally write hr in lowercase instead of uppercase, with a data frame, all we get is a no.  No warning.  This can make it quite hard to debug code.  In contrast, if it's a tibble, and you try to access the lowercase hr column, which doesn't exist, you actually get a warning.  
 
+A third difference is that while columns of a data frame need to be a vector of number, strings or Boolean, tibbles can have more complex objects, such as lists or functions.  Also note that we can create tibbles with the tibble function.  So, look at this line of code.  We're creating a column that actually has functions in it.  You can see the output here.  
+
+Finally, the last difference we describe is that tibbles can be grouped.  The function group by returns a special kind of tibble, a grouped tibble.  This class stores information that lets you know which rows are in which groups.  The tidyverse functions, in particular [][*the summarize functions, are aware of the group information*].  In the example we showed, we saw that the lm function, which is not part of the tidyverse, does not know how to deal with group tibbles.  The object is basically converted to a regular data frame, and then the function runs ignoring the groups.  This is why we only get one pair of estimates, as we see here.  To make these non-tidyverse function better integrate with a tidyverse, we will learn a new function, the function do.  
 
 
 
@@ -3555,6 +3571,237 @@ tibble(Teams)$hello %>% class()
 ![](C:/Users/JJ/Pictures/this is why we only get one pair of estimates here.png)
 
 ![](C:/Users/JJ/Pictures/function do, which can handle with the tibble data structure, we used them before, recall it.png)
+
+
+
+
+
+```{r}
+library(tidyverse)
+library(Lahman)
+
+
+# stratify HR per game to nearest 10, filter out strata with few points
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR_strata = round(HR/G, 1), 
+         BB_per_game = BB / G,
+         R_per_game = R / G) %>%
+  select(HR_strata, BB_per_game, R_per_game) %>%      # Why doing select() here? 
+  filter(HR_strata >= 0.4 & HR_strata <=1.2)
+
+
+summary(lm(R_per_game ~ BB_per_game, data = dat))
+
+dat %>% 
+  group_by(HR_strata) %>%
+  do(aa = lm(R_per_game ~ BB_per_game, data = .)) %>%     # Think, Think, Think, Think, Think, Think
+  .$aa
+  #.$aa %>%$coefficients      Why we can't assess the wanted elements with this way?
+  #data.frame(slope = .$aa$coefficients[2])
+
+#  summary(slope = cor(BB_per_game, R_per_game)*sd(R_per_game)/sd(BB_per_game))
+```
+
+```{r}
+dat %>% 
+  group_by(HR_strata) %>%
+  do(data.frame(slope = lm(R_per_game ~ BB_per_game, data = .)$coefficients,     # Now you see why adding [2] after `$coefficients` ?
+                se = summary(lm(R_per_game ~ BB_per_game, data = .))$coefficients[2,2]))      
+
+
+
+# Whe you use `$coefficients` to access lm() object, the first one [1] is the Intercept, and second one [2] is slope
+# then how about the summarize(), think about how we can assess desired elements form it 
+
+```
+
+```  
+====This is the data structure of summary() object, we can assess `$coefficients` then apply [2, 2] second row and second column
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  2.19837    0.11349   19.37   <2e-16 ***
+BB_per_game  0.63788    0.03444   18.52   <2e-16 ***
+
+====================================================================================================================================
+``` 
+
+
+
+
+
+
+
+
+# do
+
+
+In this video, we'll describe the very useful do( ) function.  The tidyverse functions know how to interpret group tibbles.  Furthermore, to facilitate stringing commands through the pipe, tidyverse function consistently return data frames.  Since this assures that the output of 1 is accepted as the input of another.  ***But most our functions do not recognize group tibbles, nor do they return data frames***.  [][**The lm( ) function is an example.**]  
+
+The do( ) function serves as a bridge between our functions, such as lm( ) and the tidyverse.  The do( ) function understands group tibbles and always returns a data frame.  So let's try to use the do( ) function to fit a regression line to each home run strata.  We would do it like this.  Notice that [][*we did in fact fit a regression line to each strata*] (*when would we not ?*).  But the do( ) function would create a data frame with the first column being the strata value.  And a column named fit.  We chose that name.  It could be any name.  And that column will contain the result of the lm( ) call.  Therefore, the return tibbles has a column with lm( ) objects in the cells, which is not very useful.  Also note that if we do not name a column, then do( ) will return the actual output of lm( ), not a data frame.(*understand how R doing its job*)  And this will result in an error since do( ) is expecting a data frame as output.  
+
+If you write this, you will get the following error.  [][*For a useful data frame to be constructed, the output of the function, inside do( ), must be a data frame as well*]. (But we did stored lm object in one column before)  ***We could build a function that returns only what you want in the form of a data frame***. (that is if you know the data structure of outcome object well)  We could write for example, this function.  And then we use to do( ) without naming the output, since we are already getting a data frame.  We can write this very simple piece of code and now we get the expected result.  We get the slope for each strata and the standard error for that slope.  If we name the output, then we get a column containing the data frame.  So if we write this piece of code, now once again, we get one of these complex tibbles with a column having a data frame in each cell.  Which is again, not very useful.  
+
+All right.  Now we're going to cover one last feature of do( ).  If the data frame being returned has more than one row, these will be concatenated appropriately.  Here's **an example in which return both estimated parameters of each strata and their value and error**.  The slope and intercept.  We write this piece of code.  And now we use the do( ) function as we used it before, and get a very useful tibble, giving us the estimates of the slope and intercept, as well as the standard errors.  Now, if you think this is all a bit too complicated, you're not alone.  To simplify things, we're going to introduce the broom package, which was designed to facilitate the use of model fitting functions such as lm( ) with the tidyverse.  
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section discussing the do function.
+https://rafalab.github.io/dsbook/linear-models.html#linear-regression-in-the-tidyverse
+
+
+[][Key points]
+
+        The do() function serves as a bridge between R functions, such as lm(), and the tidyverse.
+        We have to specify a column when using the do() function, otherwise we will get an error.
+        If the data frame being returned has more than one row, the rows will be concatenated appropriately.
+
+Code
+
+```{r}
+# use do to fit a regression line to each HR stratum
+dat %>%  
+    group_by(HR_strata) %>%
+    do(fit = lm(R_per_game ~ BB_per_game, data = .))
+```
+
+```
+not working r
+# using do without a column name gives an error
+dat %>%
+    group_by(HR_strata) %>%
+    do(lm(R_per_game ~ BB_per_game, data = .))     # SO if you dont pass lm object to a variable, the data frame will not be build
+```
+
+    
+```{r}
+# define a function to extract slope from lm
+get_slope <- function(data){
+  fit <- lm(R_per_game ~ BB_per_game, data = data)
+  data.frame(slope = fit$coefficients[2], 
+             se = summary(fit)$coefficient[2,2])
+}
+
+# return the desired data frame
+dat %>%  
+  group_by(HR_strata) %>%
+  do(get_slope(.))
+```
+
+```{r}
+# not the desired output: a column containing data frames
+dat %>%  
+  group_by(HR_strata) %>%
+  do(slope = get_slope(.))
+```
+
+```{r}
+# data frames with multiple rows will be concatenated appropriately
+get_lse <- function(data){
+  fit <- lm(R_per_game ~ BB_per_game, data = data)
+  data.frame(term = names(fit$coefficients),
+    estimate = fit$coefficients, 
+    se = summary(fit)$coefficient[,2])
+}
+
+dat %>%  
+  group_by(HR_strata) %>%
+  do(get_lse(.))
+```
+
+
+
+
+![](C:/Users/JJ/Pictures/facilitate string command - the pipe in bash.png)
+
+![](C:/Users/JJ/Pictures/do function serve as a bridge between R functions such as lm function and the tidyverse.png)
+
+
+```{r}
+dat %>%
+  group_by(HR_strata) %>%
+  do(fit = lm(R_per_game ~ BB_per_game, data = .))
+```
+
+
+![the do function would create a data frame with the first column being strata value and a column named fit.png](C:/Users/JJ/Pictures/the do function would create a data frame with the first column being strata value and a column named fit.png)
+
+```{r}
+# Google R function() function, why we don't need to use comma between fit and data.frame() function
+get_slope <- function(data){
+  fit <- lm(R_per_game ~ BB_per_game, data = data)
+  data.frame(slope = fit$coefficients[2], 
+             se = summary(fit)$coefficient[2, 2])
+}
+
+
+
+
+# ================================================================================================================================= #
+# What we just did is a Magic
+dat %>%
+  group_by(HR_strata) %>%
+  do(get_slope(.))
+```
+
+```{r}
+# Google R function() function, why we don't need to use comma between fit and data.frame() function
+get_slope <- function(data){
+  fit <- lm(R_per_game ~ BB_per_game, data = data)
+  data.frame(items = names(fit$coefficients),
+             slope = fit$coefficients, 
+             se = summary(fit)$coefficient[, 2])    # Think about the data structure in R, and how to access the desired values #
+}
+# ================================================================================================================================= #
+
+
+
+# ================================================================================================================================= #
+# What we just did is a Magic
+dat %>%
+  group_by(HR_strata) %>%
+  do(get_slope(.))
+```
+
+
+
+![](C:/Users/JJ/Pictures/we could write for example this function.png)
+
+![](C:/users/JJ/Pictures/we can write this simple piece of code, and get the expected result.png)
+
+![](C:/Users/JJ/Pictures/if we use this code, we get the complexed tibbles with columns having data frames in each column.png)
+
+![](C:/Users/JJ/Pictures/Here's an example in which return both estimated parameters..png)
+
+![](C:/users/JJ/Pictures/now the broom package.png)
+
+
+
+
+
+
+
+# broom
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
