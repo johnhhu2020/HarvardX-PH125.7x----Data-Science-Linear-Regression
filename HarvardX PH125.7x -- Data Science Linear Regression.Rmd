@@ -3436,6 +3436,8 @@ dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
          R_per_game = R / G) %>%
   select(HR_strata, BB_per_game, R_per_game) %>%      # Why doing select() here? 
   filter(HR_strata >= 0.4 & HR_strata <=1.2)
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+# ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 # scatterplot for each HR stratum
@@ -3576,6 +3578,7 @@ tibble(Teams)$hello %>% class()
 
 
 
+
 ```{r}
 library(tidyverse)
 library(Lahman)
@@ -3607,6 +3610,8 @@ dat %>%
   group_by(HR_strata) %>%
   do(data.frame(slope = lm(R_per_game ~ BB_per_game, data = .)$coefficients,     # Now you see why adding [2] after `$coefficients` ?
                 se = summary(lm(R_per_game ~ BB_per_game, data = .))$coefficients[2,2]))      
+# =============================================================================================================================
+# Need to properly extract the desired value from the lm or other object ======================================================
 
 
 
@@ -3639,7 +3644,7 @@ In this video, we'll describe the very useful do( ) function.  The tidyverse fun
 
 The do( ) function serves as a bridge between our functions, such as lm( ) and the tidyverse.  The do( ) function understands group tibbles and always returns a data frame.  So let's try to use the do( ) function to fit a regression line to each home run strata.  We would do it like this.  Notice that [][*we did in fact fit a regression line to each strata*] (*when would we not ?*).  But the do( ) function would create a data frame with the first column being the strata value.  And a column named fit.  We chose that name.  It could be any name.  And that column will contain the result of the lm( ) call.  Therefore, the return tibbles has a column with lm( ) objects in the cells, which is not very useful.  Also note that if we do not name a column, then do( ) will return the actual output of lm( ), not a data frame.(*understand how R doing its job*)  And this will result in an error since do( ) is expecting a data frame as output.  
 
-If you write this, you will get the following error.  [][*For a useful data frame to be constructed, the output of the function, inside do( ), must be a data frame as well*]. (But we did stored lm object in one column before)  ***We could build a function that returns only what you want in the form of a data frame***. (that is if you know the data structure of outcome object well)  We could write for example, this function.  And then we use to do( ) without naming the output, since we are already getting a data frame.  We can write this very simple piece of code and now we get the expected result.  We get the slope for each strata and the standard error for that slope.  If we name the output, then we get a column containing the data frame.  So if we write this piece of code, now once again, we get one of these complex tibbles with a column having a data frame in each cell.  Which is again, not very useful.  
+If you write this, you will get the following error.  [][*For a useful data frame to be constructed, the output of the function, inside do( ), must be a data frame as well*]. (But we did stored lm object in one column before, using a variable)  ***We could build a function that returns only what you want in the form of a data frame***. (that is if you know the data structure of outcome object well)  We could write for example, this function.  And then we use to do( ) without naming the output, since we are already getting a data frame.  We can write this very simple piece of code and now we get the expected result.  We get the slope for each strata and the standard error for that slope.  If we name the output, then we get a column containing the data frame.  So if we write this piece of code, now once again, we get one of these complex tibbles with a column having a data frame in each cell.  Which is again, not very useful.  
 
 All right.  Now we're going to cover one last feature of do( ).  If the data frame being returned has more than one row, these will be concatenated appropriately.  Here's **an example in which return both estimated parameters of each strata and their value and error**.  The slope and intercept.  We write this piece of code.  And now we use the do( ) function as we used it before, and get a very useful tibble, giving us the estimates of the slope and intercept, as well as the standard errors.  Now, if you think this is all a bit too complicated, you're not alone.  To simplify things, we're going to introduce the broom package, which was designed to facilitate the use of model fitting functions such as lm( ) with the tidyverse.  
 
@@ -3700,8 +3705,8 @@ dat %>%
 get_lse <- function(data){
   fit <- lm(R_per_game ~ BB_per_game, data = data)
   data.frame(term = names(fit$coefficients),
-    estimate = fit$coefficients, 
-    se = summary(fit)$coefficient[,2])
+             estimate = fit$coefficients, 
+             se = summary(fit)$coefficient[,2])
 }
 
 dat %>%  
@@ -3787,6 +3792,59 @@ dat %>%
 
 
 
+
+```{r}
+library(broom)   # tidy() function
+
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
+small_dat <- Teams_small %>% 
+  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = round(HR/G, digits = 1)) %>% 
+  select(HR_per_game, R_per_game, BB_per_game) %>%
+  filter(HR_per_game > 0.5 & HR_per_game < 1.2)
+
+
+
+small_dat %>%
+  group_by(HR_per_game) %>%
+  do(tidy(lm(R_per_game ~ BB_per_game, data = .)))        # Can we apply filter() after this?  Say we want Intercept only
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+
+small_dat %>% 
+  group_by(HR_per_game) %>%
+  do(data.frame(name = names(lm(R_per_game ~ BB_per_game, data = .)$coefficient[1]),
+                value = tidy(lm(R_per_game ~ BB_per_game, data = .))$estimate, 
+                se = tidy(lm(R_per_game ~ BB_per_game, data = .))$std.error))
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+```
+
+```{r}
+library(tidyverse)
+library(Lahman)
+
+
+# stratify HR per game to nearest 10, filter out strata with few points
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR_strata = round(HR/G, 1), 
+         BB_per_game = BB / G,
+         R_per_game = R / G) %>%
+  select(HR_strata, BB_per_game, R_per_game) %>%      # Why doing select() here? 
+  filter(HR_strata >= 0.4 & HR_strata <=1.2)
+
+
+summary(lm(R_per_game ~ BB_per_game, data = dat))
+
+dat %>% 
+  group_by(HR_strata) %>%
+  #do(data.frame(aa = lm(R_per_game ~ BB_per_game, data = .)))      # Think, Think, Think, Think, Think, Think
+  do(aa = lm(R_per_game ~ BB_per_game, data = .))
+
+```
 
 
 
