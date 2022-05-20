@@ -3792,7 +3792,72 @@ dat %>%
 
 
 
+![](C:/users/JJ/Pictures/now the broom package.png)
 
+![](C:/Users/JJ/Pictures/3 Broom function extract information from object return by lm function.png)
+
+![](C:/Users/JJ/Pictures/The tidy function returns estimates and related information as a data frame.png)
+
+```{r}
+library(broom)   # tidy() function
+library(tidyverse)
+library(Lahman)
+
+
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
+small_dat <- Teams_small %>% 
+  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = round(HR/G, digits = 1)) %>% 
+  select(HR_per_game, R_per_game, BB_per_game) %>%
+  filter(HR_per_game > 0.5 & HR_per_game < 1.2)
+
+
+
+s_dat <- small_dat %>%
+  group_by(HR_per_game)
+
+fit <- lm(R_per_game ~ BB_per_game, data = s_dat)
+tidy(fit)
+
+tidy(fit, conf.int = TRUE)     # Adding cofidence intervals
+  #do(tidy(lm(R_per_game ~ BB_per_game, data = .))) %>%
+```
+
+```{r}
+small_dat %>%
+  group_by(HR_per_game) %>%
+  do(tidy(lm(R_per_game ~ BB_per_game, data = .), conf.int = TRUE))     # Now can you recall how can we access the slope only ???
+
+
+small_dat %>%
+  group_by(HR_per_game) %>%
+  do(tidy(lm(R_per_game ~ BB_per_game, data = .), conf.int = TRUE)) %>%
+  filter(term == "BB_per_game")
+
+```
+
+```{r}
+small_dat %>%
+  group_by(HR_per_game) %>%
+  do(tidy(lm(R_per_game ~ BB_per_game, data = .), conf.int = TRUE)) %>%
+  filter(term == "BB_per_game") %>%
+  
+  ggplot(aes(HR_per_game, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_errorbar() +
+  geom_point()
+# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
+```
+
+![confidence intervals overlaps](C:/Users/JJ/Pictures/confidence intervals overlaps.png)
+
+![](C:/Users/JJ/Pictures/Glance and augment relate to model specific and observation.png)
+
+![](C:/Users/JJ/Pictures/this is what glance function returns, you can take a try on augment.png)
+
+
+
+# Below are my own code before the course, in order to do something and keep the momentum of my learning
 ```{r}
 library(broom)   # tidy() function
 
@@ -3808,7 +3873,9 @@ small_dat <- Teams_small %>%
 
 small_dat %>%
   group_by(HR_per_game) %>%
-  do(tidy(lm(R_per_game ~ BB_per_game, data = .)))        # Can we apply filter() after this?  Say we want Intercept only
+  #do(tidy(lm(R_per_game ~ BB_per_game, data = .)))         ### Can we apply filter() after this?  Say we want Intercept only
+  do(tidy(lm(R_per_game ~ BB_per_game, data = .))) %>%
+  filter(., term != "BB_per_game")
 # \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 
@@ -3817,10 +3884,12 @@ small_dat %>%
 small_dat %>% 
   group_by(HR_per_game) %>%
   do(data.frame(name = names(lm(R_per_game ~ BB_per_game, data = .)$coefficient[1]),
-                value = tidy(lm(R_per_game ~ BB_per_game, data = .))$estimate, 
-                se = tidy(lm(R_per_game ~ BB_per_game, data = .))$std.error))
+                value = tidy(lm(R_per_game ~ BB_per_game, data = .))$estimate[1], 
+                se = tidy(lm(R_per_game ~ BB_per_game, data = .))$std.error[1]))
 # //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+# Should we BoxPlot it?  And see the 
 ```
 
 ```{r}
