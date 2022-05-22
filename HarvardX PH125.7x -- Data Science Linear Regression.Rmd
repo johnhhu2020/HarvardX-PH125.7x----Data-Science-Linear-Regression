@@ -263,10 +263,11 @@ library(tidyverse)
 library(dslabs)
 ds_theme_set()
 
-Teams %>% filter(yearID %in% 1961:2001) %>%
-    mutate(HR_per_game = HR / G, R_per_game = R / G) %>%
-    ggplot(aes(HR_per_game, R_per_game)) + 
-    geom_point(alpha = 0.5)
+Teams %>% 
+  filter(yearID %in% 1961:2001) %>%
+  mutate(HR_per_game = HR / G, R_per_game = R / G) %>%
+  ggplot(aes(HR_per_game, R_per_game)) + 
+  geom_point(alpha = 0.5)
 ```
 
 ```{r}
@@ -442,9 +443,13 @@ There is no clear relationship between runs and at bats per game.
 **As the number of at bats per game increases, the number of runs per game tends to increase.**
 As the number of at bats per game increases, the number of runs per game tends to decrease.
 
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
-> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
-> R_per_game)) + + geom_point(alpha = 0.5)
+```{r}
+Teams %>% 
+  filter(yearID %in% 1961:2001 ) %>%  
+  mutate(AB_per_game = AB/G, R_per_game = R/G) %>% 
+  ggplot(aes(AB_per_game, R_per_game)) + 
+  geom_point(alpha = 0.5)
+```
 
 
 # Question 7
@@ -465,14 +470,16 @@ library(Lahman)  # this is for Teams
 
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
   mutate(number_of_wins_per_game = W/G, fielding_errors_per_game = E/G) %>%
-  ggplot(aes(number_of_wins_per_game, fielding_errors_per_game)) + geom_point(alpha = 0.3) 
+  ggplot(aes(number_of_wins_per_game, fielding_errors_per_game)) + 
+  geom_point(alpha = 0.3) 
 ```
 # Explanation
 
 When you examine the scatterplot, you can see a clear trend towards decreased win rate with increasing number of errors per game (`  before I wa using big scatter markersize  `). The following code can be used to make the scatterplot:
 
 ```{r}
-Teams %>% filter(yearID %in% 1961:2001) %>%
+Teams %>% 
+  filter(yearID %in% 1961:2001) %>%
   mutate(win_rate = W / G, E_per_game = E / G) %>%
   ggplot(aes(win_rate, E_per_game)) + 
   geom_point(alpha = 0.5)
@@ -482,7 +489,8 @@ Teams %>% filter(yearID %in% 1961:2001) %>%
 
 
 ```{r}
-Teams %>% summarise(cor(W/G, E/G))
+Teams %>% 
+  summarise(cor(W/G, E/G))
 ```
 # Can we really call this as a relationship ??? Really???   Trying smaller markersize and small alpha
 
@@ -492,10 +500,13 @@ Teams %>% summarise(cor(W/G, E/G))
 
 Use the filtered Teams data frame from Question 6. Make a scatterplot of triples (X3B) per game versus doubles (X2B) per game. Which of the following is true? **There is no clear relationship between doubles per game and triples per game.** As the number of doubles per game increases, the number of triples per game tends to increase. As the number of doubles per game increases, the number of triples per game tends to decrease.
 
-> Teams %>% filter(yearID %in% 1961:2001 ) %>%
-+ mutate(triple_per_game = X3B/G, double_per_game = X2B/G) %>%
-+ ggplot(aes(triple_per_game, double_per_game)) + 
-+ geom_point(alpha = 0.5)
+```{r}
+Teams %>% 
+  filter(yearID %in% 1961:2001 ) %>%
+  mutate(triple_per_game = X3B/G, double_per_game = X2B/G) %>%
+  ggplot(aes(triple_per_game, double_per_game)) + 
+  geom_point(alpha = 0.5)
+```
 
 
 
@@ -701,7 +712,8 @@ galton_heights <- GaltonFamilies %>%
   select(father, childHeight) %>%
   rename(son = childHeight)
 
-galton_heights %>% summarise(cor(father, son))
+galton_heights %>% 
+  summarise(cor(father, son))
 ```
 
 ![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient08.png)
@@ -1818,6 +1830,7 @@ Some reminders:
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  Linear Models Overview
 
 
@@ -1844,6 +1857,7 @@ We encourage you to use R to interactively test out your answers and further you
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  2.1: Introduction to Linear Models
 
 
@@ -1863,10 +1877,12 @@ library(Lahman)
 library(tidyverse)
 #library(dslabs)
 
+
 Teams %>% 
   filter(yearID %in% 1961:2001) %>%
   mutate(Singles = (H - HR - X2B - X3B)/G, BB = BB/G, HR = HR/G) %>%
   summarize(cor(BB, HR), cor(Singles, HR), cor(BB, Singles))
+
 ```
 
 
@@ -1892,6 +1908,7 @@ Teams %>%
 ![](C:/Users/JJ/Pictures/pitchers avoid strike to home runners, thus .png)
 
 ![](C:/Users/JJ/Pictures/bb are condounded with hr.png)
+
 
 
 
@@ -2039,6 +2056,7 @@ dat %>%
 ![](C:/users/JJ/Pictures/bb slope id adjusted for hr effect, the confunding one.png)
 
 ![](C:/users/JJ/Pictures/thus confounding has been accounted for.png)
+
 
 
 
@@ -2278,6 +2296,7 @@ Some reminders:
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  2.2: Least Squares Estimates
 
 
@@ -2454,6 +2473,7 @@ summary(fit)
 
 
 
+
 # LSE are Random Variables
 
 
@@ -2572,6 +2592,7 @@ lse %>% summarise(se_0 = sd(beta_0), se_1 = sd(beta_1))
 ![](C:/Users/JJ/Pictures/the 2p values are testing the null hypothesis that beta0 is 0 and beta1 is 0 respectively.png)
 
 ![hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png](C:/Users/JJ/Pictures/hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png)
+
 
 
 
@@ -2967,7 +2988,8 @@ ggplot(data, aes(x = father, y = fit)) +
   geom_point(data = galton_heights, aes(x = father, y = son))
 ```
         
-```{Not WOrking R Code Block}
+```
+# Not WOrking R Code Block
 model <- lm(son ~ father, data = galton_heights)
 
 predictions <- predict(model, data = galton_heights)
@@ -2994,6 +3016,7 @@ If using the geom_smooth command, you need to specify that method = “lm” in 
 
 If using the predict command, you need to include the confidence intervals on your figure by first specifying that you want confidence intervals in the predict command, and then adding them to your figure as a geom_ribbon.
 You have used 1 of 2 attempts Some
+
 
 
 
@@ -3163,11 +3186,13 @@ Loading
 # Explanation
 The following code can be used to determine the number of players:
 ```
-bat_99_01 <- Batting %>% filter(yearID %in% 1999:2001) %>%
+bat_99_01 <- Batting %>% 
+  filter(yearID %in% 1999:2001) %>%
   mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
   filter(pa >= 100) %>%
   group_by(playerID) %>%
   summarize(mean_singles = mean(singles), mean_bb = mean(bb))
+
 
 sum(bat_99_01$mean_singles > 0.2)
 ```
@@ -3189,12 +3214,14 @@ sum(bat_99_01$mean_bb > 0.2)
 library(Lahman)
 
 
-bat_02 <- Batting %>% filter(yearID == 2002) %>%
+bat_02 <- Batting %>% 
+  filter(yearID == 2002) %>%
   mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
   filter(pa >= 100) %>%
   select(playerID, singles, bb)
 
-bat_01 <- Batting %>% filter(yearID %in% 1999:2001) %>%
+bat_01 <- Batting %>% 
+  filter(yearID %in% 1999:2001) %>%
   mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
   filter(pa >= 100) %>%
   select(playerID, singles, bb)
@@ -3518,6 +3545,7 @@ dat %>%
 ![](C:/Users/JJ/Pictures/they preserve the class of the input.png)
 
 ![](C:/Users/JJ/Pictures/tibbles are the default data frame for tidyverse.png)
+
 
 
 
@@ -4306,6 +4334,284 @@ dat %>%
 
 
 # Assessment: Tibbles, do, and broom, part 2
+
+
+Comprehension Check due Jun 12, 2022 00:29 AWST
+We have investigated the relationship between fathers' heights and sons' heights. But what about other parent-child relationships? Does one parent's height have a stronger association with child height? How does the child's gender affect this relationship in heights? Are any differences that we observe statistically significant?
+
+The galton dataset is a sample of one male and one female child from each family in the GaltonFamilies dataset. The pair column denotes whether the pair is father and daughter, father and son, mother and daughter, or mother and son.
+
+Create the galton dataset using the code below:
+
+```{r}
+library(tidyverse)
+library(HistData)
+library(broom)
+
+
+data("GaltonFamilies")
+#set.seed(1) # if you are using R 3.5 or earlier
+set.seed(1, sample.kind = "Rounding") # if you are using R 3.6 or later
+
+head(GaltonFamilies)     # First thing is to look at your data, understand the structure of it
+
+
+galton <- GaltonFamilies %>%
+  group_by(family, gender) %>%
+  sample_n(1) %>%
+  ungroup() %>% 
+  gather(parent, parentHeight, father:mother) %>%
+  mutate(child = ifelse(gender == "female", "daughter", "son")) %>%
+  unite(pair, c("parent", "child"))
+
+
+galton
+
+```
+
+
+# Question 8
+2.0/2.0 points (graded)
+Group by pair and summarize the number of observations in each group.
+
+How many father-daughter pairs are in the dataset?
+176
+  correct 
+ 
+How many mother-son pairs are in the dataset?
+179
+  correct 
+ 
+SaveSave your answer
+Show answer
+Submit
+You have used 2 of 10 attempts
+
+
+# Question 9
+2.0/2.0 points (graded)
+Calculate the correlation coefficients for fathers and daughters, fathers and sons, mothers and daughters and mothers and sons.
+
+Which pair has the strongest correlation in heights?
+
+fathers and daughters
+fathers and sons
+mothers and daughters
+mothers and sons
+correct
+
+Which pair has the weakest correlation in heights?
+
+fathers and daughters
+fathers and sons
+mothers and daughters
+mothers and sons
+correct
+Show answer
+Submit
+You have used 2 of 2 attempts
+
+
+Question 10 has two parts. The information here applies to both parts.
+
+Use lm() and the broom package to fit regression lines for each parent-child pair type. Compute the least squares estimates, standard errors, confidence intervals and p-values for the parentHeight coefficient for each pair.
+
+
+# Question 10a
+2/2 points (graded)
+What is the estimate of the father-daughter coefficient?
+0.345
+  correct 0.345
+ 
+Explanation
+
+The estimate can be calculated using the following code:
+
+```
+library(broom)
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  filter(term == "parentHeight", pair == "father_daughter") %>%
+  pull(estimate)
+```
+        
+For every 1-inch increase in mother's height, how many inches does the typical son's height increase?
+Give your answer as a number with no units.
+
+0.381
+  correct 0.381
+ 
+Explanation
+
+The following code will give the decrease in height:
+
+```
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  filter(term == "parentHeight", pair == "mother_son") %>%
+  pull(estimate)
+```
+
+SaveSave your answer
+Show answer
+Submit
+You have used 1 of 10 attempts
+
+
+# Question 10b
+2/2 points (graded)
+Which sets of parent-child heights are significantly correlated at a p-value cut off of .05?
+Select ALL that apply.
+
+father-daughter
+father-son
+mother-daughter
+mother-son
+correct
+
+When considering the estimates, which of the following statements are true?
+Select ALL that apply.
+
+All of the confidence intervals overlap each other.
+At least one confidence interval covers zero.
+The confidence intervals involving mothers' heights are larger than the confidence intervals involving fathers' heights.
+The confidence intervals involving daughters' heights are larger than the confidence intervals involving sons' heights.
+The data are consistent with inheritance of height being independent of the child's gender.
+The data are consistent with inheritance of height being independent of the parent's gender.
+correct
+Answer
+Correct:
+Correct. The confidence intervals all overlap.
+Correct. The std.error values are higher for mothers than fathers, resulting in larger confidence intervals.
+Correct. The confidence intervals overlap.
+Correct. The confidence intervals overlap.
+SaveSave your answer
+Show answer
+Submit
+You have used 1 of 3 attemptsSome problems have options such as save, reset, hints, or show answer. These options follow the Submit button.Correct (2/2 points)
+
+
+
+# below are my code when solving the questions
+```{r}
+galton %>%
+  #group_by(pair) %>%
+  filter(.$pair == "father_daughter") %>%
+  summarize(.$parentHeight)
+
+
+galton %>%
+  #group_by(pair) %>%
+  filter(.$pair == "mother_son") %>%
+  summarize(.$parentHeight)
+```
+
+```{r}
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data =.)))
+
+# FD,345, FS,443, MD,394, MS, 381       # Why correlation changed between lm() function and just cor() 
+
+
+galton %>%
+  filter(pair == "father_daughter") %>%
+  summarise(cor(childHeight, parentHeight))
+# FD 401
+
+galton %>%
+  filter(pair == "father_son") %>%
+  summarise(cor(childHeight, parentHeight))
+# FS 430
+
+galton %>%
+  filter(pair == "mother_daughter") %>%
+  summarise(cor(childHeight, parentHeight))
+# MD 383
+
+galton %>%
+  filter(pair == "mother_son") %>%
+  summarise(cor(childHeight, parentHeight))
+# MS 343
+```
+
+
+
+
+```{r}
+galton %>%
+  group_by(pair) %>%
+  #cor(childHeight, parentHeight) %>%   # This line not working
+  summarize(cor = cor(parentHeight, childHeight)) 
+```
+
+
+```
+# Q9 lm() cor() outcome difference, please help
+question posted 40 minutes ago by john_hhu2020
+
+I naturally thought using lm() function to solve it would be a good idea, but it seems not.
+
+Comparison between lm() and cor() - the results are not corresponding. Is that because in lm() we used LSE and in cor() it calculate correlation based on the definition formula? Please enlight me
+
+https://sites.utexas.edu/sos/guided/inferential/numeric/bivariate/cor/
+
+
+Is that because of the Correlation measure if two variable are y = x relationship? As you mentioned the variable_a's correlation to itself is 1 (thus the slope should be 1? so the value of Correlation represent the difference to this dream line?). And the Slope in lm() function represent the influence variable can apply onto another? Please enlight me about this topic. Please please
+
+And I Googled some statement saying this but I really don't think I understand it enough:
+
+"Correlation look at trends shared between two variables, and regression look at relation between a predictor (independent variable) and a response (dependent) variable."
+
+rho = 1/n * SUM(i_1-n) (x_i - mu_x)/Sigma_x * (y_i -mu_y)/Sigma_y
+```
+
+
+
+
+```{r}
+galton %>%
+  group_by(pair) %>%
+  #do(tidy(lm(childHeight ~ parentHeight, data = .)))
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE))
+```
+
+
+```{r}
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  #filter(term == "parentHeight", pair == "mother_son") %>%
+  pull(estimate)
+
+```
+
+
+```{r}
+galton %>%
+  group_by(pair) %>%
+  do(tidy(lm(childHeight ~ parentHeight, data = .), conf.int = TRUE)) %>%
+  filter(term == "parentHeight") %>%
+  
+  ggplot(aes(pair, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_errorbar() +
+  geom_point()
+```
+
+
+
+
+
+
+## Course  /  Section 2: Linear Models  /  2.4: Regression and Baseball
+
+
+# Building a Better Offensive Metric for Baseball
+
+
+
 
 
 
