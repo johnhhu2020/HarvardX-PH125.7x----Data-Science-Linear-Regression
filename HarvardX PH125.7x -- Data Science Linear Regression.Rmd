@@ -3370,6 +3370,7 @@ inner_join(bat_02, bat_01_avg, by = 'playerID') %>%
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  2.3: Tibbles, do, and broom
 
 
@@ -3481,7 +3482,11 @@ dat %>%
 ```
 
 
-![](C:/Users/JJ/Pictures/the lm function ignore the group_by.png)
+![](C:/Users/JJ/Pictures/we first constracted a data frame similar to this.png)
+
+![](C:/Users/JJ/Pictures/since we dont know the lm function back then we used the formula directly like this.png)
+
+![first note if we try to use lm function to get the estimates we dont get what we want](C:/Users/JJ/Pictures/the lm function ignore the group_by.png)
 
 
 ![](C:/Users/JJ/Pictures/tibble of tidyverse.png)
@@ -3529,6 +3534,37 @@ A second one is that if you subset the columns of a data frame, you may get back
 A third difference is that while columns of a data frame need to be a vector of number, strings or Boolean, tibbles can have more complex objects, such as lists or functions.  Also note that we can create tibbles with the tibble function.  So, look at this line of code.  We're creating a column that actually has functions in it.  You can see the output here.  
 
 Finally, the last difference we describe is that tibbles can be grouped.  The function group by returns a special kind of tibble, a grouped tibble.  This class stores information that lets you know which rows are in which groups.  The tidyverse functions, in particular [][*the summarize functions, are aware of the group information*].  In the example we showed, we saw that the lm function, which is not part of the tidyverse, does not know how to deal with group tibbles.  The object is basically converted to a regular data frame, and then the function runs ignoring the groups.  This is why we only get one pair of estimates, as we see here.  To make these non-tidyverse function better integrate with a tidyverse, we will learn a new function, the function do.  
+
+
+[][Key points]
+Tibbles are more readable than data frames.
+If you subset a data frame, you may not get a data frame. If you subset a tibble, you always get a tibble.
+Tibbles can hold more complex objects such as lists or functions.
+Tibbles can be grouped.
+
+
+[][Code]
+# inspect data frame and tibble
+Teams
+as_tibble(Teams)
+# Note that the function was formerly called as.tibble()
+
+# subsetting a data frame sometimes generates vectors
+class(Teams[,20])
+
+# subsetting a tibble always generates tibbles
+class(as_tibble(Teams[,20]))
+
+# pulling a vector out of a tibble
+class(as_tibble(Teams)$HR)
+
+# access a non-existing column in a data frame or a tibble
+Teams$hr
+as_tibble(Teams)$HR
+
+# create a tibble with complex objects
+tibble(id = c(1, 2, 3), func = c(mean, median, sd))
+
 
 
 
@@ -3642,7 +3678,7 @@ BB_per_game  0.63788    0.03444   18.52   <2e-16 ***
 
 In this video, we'll describe the very useful do( ) function.  The tidyverse functions know how to interpret group tibbles.  Furthermore, to facilitate stringing commands through the pipe, tidyverse function consistently return data frames.  Since this assures that the output of 1 is accepted as the input of another.  ***But most our functions do not recognize group tibbles, nor do they return data frames***.  [][**The lm( ) function is an example.**]  
 
-The do( ) function serves as a bridge between our functions, such as lm( ) and the tidyverse.  The do( ) function understands group tibbles and always returns a data frame.  So let's try to use the do( ) function to fit a regression line to each home run strata.  We would do it like this.  Notice that [][*we did in fact fit a regression line to each strata*] (*when would we not ?*).  But the do( ) function would create a data frame with the first column being the strata value.  And a column named fit.  We chose that name.  It could be any name.  And that column will contain the result of the lm( ) call.  Therefore, the return tibbles has a column with lm( ) objects in the cells, which is not very useful.  Also note that if we do not name a column, then do( ) will return the actual output of lm( ), not a data frame.(*understand how R doing its job*)  And this will result in an error since do( ) is expecting a data frame as output.  
+The do( ) function serves as a bridge between our functions, such as lm( ) and the tidyverse.  **The do( ) function understands group tibbles and always returns a data frame**.  So let's try to use the do( ) function to fit a regression line to each home run strata.  We would do it like this.  Notice that [][*we did in fact fit a regression line to each strata*] (*when would we not ?*).  But the do( ) function would create a data frame with the first column being the strata value.  And a column named fit.  We chose that name.  It could be any name.  And that column will contain the result of the lm( ) call.  Therefore, the return tibbles has a column with lm( ) objects in the cells, which is not very useful.  Also note that if we do not name a column, then do( ) will return the actual output of lm( ), not a data frame.(*understand how R doing its job*)  And this will result in an error since do( ) is expecting a data frame as output.  
 
 If you write this, you will get the following error.  [][*For a useful data frame to be constructed, the output of the function, inside do( ), must be a data frame as well*]. (But we did stored lm object in one column before, using a variable)  ***We could build a function that returns only what you want in the form of a data frame***. (that is if you know the data structure of outcome object well)  We could write for example, this function.  And then we use to do( ) without naming the output, since we are already getting a data frame.  We can write this very simple piece of code and now we get the expected result.  We get the slope for each strata and the standard error for that slope.  If we name the output, then we get a column containing the data frame.  So if we write this piece of code, now once again, we get one of these complex tibbles with a column having a data frame in each cell.  Which is again, not very useful.  
 
@@ -3789,6 +3825,54 @@ dat %>%
 # broom
 
 
+The original task we ask for in a previous video was to *provide an estimate and a confidence interval for the slope estimates of each strata* ( Do you remember how this question was raised?? ).  The broom package will make this quite easy.  [][*Broom has three main functions all of which extract information from the object returned by the function lm(), and return it in a tidy verse friendly data frame*].  These functions are **tidy, glance and augment**.  The tidy function returns estimates and related information as a data frame.  Here's an example.  We can add other important summaries, such as confidence intervals, using arguments like this.  Because the outcome is a data frame, we can immediately use it with do() function to string together the commands that produce the table we are after.  So this piece of code will generate what we wanted to see.  
+
+Because a data frame is returned, we can filter and select the rows and columns we want.  So this simple piece of code gives us exactly the table we asked for.  We have filtered away the intercept rows, and only show the columns we care about, the estimate and the confidence intervals. Furthermore, [][*a table like this makes visualization with ggplot quite easy*].  So this piece of code produces this nice plot, which provides very useful information.  Now we return to discussing our original task of determining if slopes change.  The plot we just made using do and broom shows that the confidence intervals overlap, which provides a nice visual confirmation that our assumption that the slopes do not change with home run strata, is relatively safe.  Earlier we mentioned two other functions from the broom package, glance and augment. Glance and augment relate to model specific and observation specific outcomes, respectively.  Here we can see the model fit summary the glance returns.  You can learn more about these summaries in any regression textbook.  We'll see an example of augment in a future video.  
+
+
+[][Textbook link]
+This video corresponds to the textbook section on the broom package.
+https://rafalab.github.io/dsbook/linear-models.html#the-broom-package
+
+
+[][Key points]
+The broom package has three main functions, all of which extract information from the object returned by lm and return it in a tidyverse friendly data frame.
+The tidy() function returns estimates and related information as a data frame.
+The functions glance() and augment() relate to model specific and observation specific outcomes respectively.
+
+
+[][Code]
+```
+# use tidy to return lm estimates and related information as a data frame
+library(broom)
+
+
+fit <- lm(R ~ BB, data = dat)
+tidy(fit)
+
+# add confidence intervals with tidy
+tidy(fit, conf.int = TRUE)
+
+# pipeline with lm, do, tidy
+dat %>%  
+  group_by(HR) %>%
+  do(tidy(lm(R ~ BB, data = .), conf.int = TRUE)) %>%
+  filter(term == "BB") %>%
+  select(HR, estimate, conf.low, conf.high)
+  
+# make ggplots
+dat %>%  
+  group_by(HR) %>%
+  do(tidy(lm(R ~ BB, data = .), conf.int = TRUE)) %>%
+  filter(term == "BB") %>%
+  select(HR, estimate, conf.low, conf.high) %>%
+  ggplot(aes(HR, y = estimate, ymin = conf.low, ymax = conf.high)) +
+  geom_errorbar() +
+  geom_point()
+  
+# inspect with glance
+glance(fit)
+```
 
 
 
@@ -3859,7 +3943,10 @@ small_dat %>%
 
 # Below are my own code before the course, in order to do something and keep the momentum of my learning
 ```{r}
+library(tidyverse)
 library(broom)   # tidy() function
+library(Lahman)
+
 
 Teams_small <- Teams %>% 
   filter(yearID %in% 1961:2001)
@@ -3893,10 +3980,6 @@ small_dat %>%
 ```
 
 ```{r}
-library(tidyverse)
-library(Lahman)
-
-
 # stratify HR per game to nearest 10, filter out strata with few points
 dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
   mutate(HR_strata = round(HR/G, 1), 
@@ -3916,6 +3999,313 @@ dat %>%
 ```
 
 
+
+
+
+
+
+# Assessment: Tibbles, do, and broom, part 1
+
+
+Comprehension Check due Jun 12, 2022 00:29 AWST
+# Question 1
+1/1 point (graded)
+
+As seen in the videos, what problem do we encounter when we try to run a linear model on our baseball data, grouping by home runs?
+
+There is not enough data in some levels to run the model.
+**The lm() function does not know how to handle grouped tibbles.**   [][*The key is to read, to think, thus proving answer here is bad*]
+The results of the lm() function cannot be put into a tidy format.
+correct
+Explanation
+
+The lm() function does not know how to handle grouped tibbles, so we can't simply run a linear model on the baseball data grouped by home runs. We need something to bridge between the grouped tibble and the lm() function.
+
+Show answer
+Submit
+You have used 1 of 1 attemptSome
+
+
+# Question 2
+1/1 point (graded)
+Tibbles are similar to what other class in R?
+
+Vectors
+Matrices
+Data frames
+Lists
+correct
+Explanation
+
+Tibbles are essentially modern versions of data frames.
+
+
+# Question 3
+1/1 point (graded)
+What are some advantages of tibbles compared to data frames?
+Select ALL that apply.
+
+
+Tibbles display better.
+If you subset a tibble, you always get back a tibble.
+Tibbles can have complex entries.
+Tibbles can be grouped.
+correct
+Answer
+Correct:
+Correct, this is one advantage of a tibble. There are several other correct answers listed here.
+Correct, this is one advantage of a tibble. There are several other correct answers listed here.
+Correct, this is one advantage of a tibble. There are several other correct answers listed here.
+Correct, this is one advantage of a tibble. There are several other correct answers listed here.
+Explanation
+
+All of the listed answers are advantages of tibbles when compared to data frames: tibbles display better, they always return tibbles when subsetted, they can have complex entries, and they can be grouped.
+
+SaveSave your answer
+Show answer
+Submit
+You have used 1 of 2 attempts
+
+
+# Question 4
+1/1 point (graded)
+What are two advantages of the do() command, when applied to the tidyverse?
+Select TWO.
+
+It is faster than normal functions.
+It returns useful error messages.
+It understands grouped tibbles.
+It always returns a data.frame.
+correct
+Answer
+Correct:
+Correct. The do function can understand grouped tibbles.
+Correct. The do function always returns a data.frame.
+Explanation
+
+The do function serves as a useful bridge between base R functions and the tidyverse. It understands grouped tibbles and always returns a data.frame.
+
+SaveSave your answer
+Show answer
+Submit
+You have used 1 of 2 attempts
+
+
+# Question 5
+1/1 point (graded)
+You want to take the tibble dat, which we used in the video on the do() function, and run the linear model R ~ BB for each strata of HR. Then you want to add three new columns to your grouped tibble: the coefficient, standard error, and p-value for the BB term in the model.
+
+You’ve already written the function get_slope(), shown below.
+
+```{r}
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR = round(HR/G, 1), 
+         BB = BB / G,
+         R = R / G) %>%
+  select(HR, BB, R) %>%      # Why doing select() here? 
+  filter(HR >= 0.4 & HR <=1.2)
+
+
+get_slope <- function(data) {
+  fit <- lm(R ~ BB, data = data)
+  sum.fit <- summary(fit)
+  
+  data.frame(slope = sum.fit$coefficients[2, "Estimate"], 
+             se = sum.fit$coefficients[2, "Std. Error"],
+             pvalue = sum.fit$coefficients[2, "Pr(>|t|)"])
+}
+
+```
+
+    
+What additional code could you write to accomplish your goal?
+
+```
+dat %>% 
+  group_by(HR) %>% 
+  do(get_slope)
+        
+
+dat %>% 
+  group_by(HR) %>% 
+  do(get_slope(.))
+        
+
+dat %>% 
+  group_by(HR) %>% 
+  do(slope = get_slope(.))
+        
+
+dat %>% 
+  do(get_slope(.))
+
+```
+
+correct
+Answer
+Correct:Correct. This will create a tibble with four columns: HR, slope, se, and pvalue for each level of HR.
+Explanation
+
+```{r}
+dat %>% 
+  group_by(HR) %>% 
+  do(get_slope(.))
+```
+        
+This is the only command that correctly creates a tibble with four columns: HR, slope, se, and pvalue for each level of HR. The data frame must be passed to get_slope() using .. If you name the results of the do() command such as in the code do(slope = get_slope(.)), that will save all results in a single column called slope. If you forget group_by(), then the results will be a model on the data as a whole, rather than on the data stratified by home runs.
+
+SaveSave your answer
+Show answer
+Submit
+You have used 1 of 2 attempts
+
+
+# Question 6
+1/1 point (graded)
+The output of a broom function is always what?
+
+A data.frame
+A list
+A vector
+correct
+Explanation
+
+The broom functions always output data.frame.
+
+
+# Question 7
+1/1 point (graded)
+You want to know whether the relationship between home runs and runs per game varies by baseball league. You create the following dataset:
+
+```{r}
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR = HR/G,
+         R = R/G) %>%
+  select(lgID, HR, BB, R) 
+
+```
+
+    
+What code would help you quickly answer this question?
+
+```{r}
+dat %>% 
+  group_by(lgID) %>% 
+  do(tidy(lm(R ~ HR, data = .), conf.int = T)) %>% 
+  filter(term == "HR") 
+        
+
+dat %>% 
+  group_by(lgID) %>% 
+  do(glance(lm(R ~ HR, data = .)))
+        
+
+dat %>% 
+  do(tidy(lm(R ~ HR, data = .), conf.int = T)) %>% 
+  filter(term == "HR")
+        
+
+dat %>% 
+  group_by(lgID) %>% 
+  do(mod = lm(R ~ HR, data = .))
+
+```
+
+correct
+Answer
+Correct:Correct. This is a good application of the command tidy(), from the broom package.
+Explanation
+
+```
+dat %>% 
+  group_by(lgID) %>% 
+  do(tidy(lm(R ~ HR, data = .), conf.int = T)) %>% 
+  filter(term == "HR")
+```
+
+This code is a good application of the command tidy(), from the broom package.
+
+The glance() function provides data on model fit rather than on effect estimates and confidence intervals. If you forget the line group_by(lgID), your code will give you a single estimate for the entire dataset because you have not grouped the data by league ID.
+
+```
+dat %>% 
+  group_by(lgID) %>% 
+  do(mod = lm(R ~ HR, data = .))
+```
+
+This code gives get a data.frame with the column mod, which contains the linear model results. While it is possible to then extract effect estimates and confidence intervals from this model, it is not nearly as easy as using the tidy function.
+
+SaveSave your answer
+Show answer
+Submit
+You have used 1 of 2 attempts
+
+
+
+
+# Below are my code during testing
+```{r}
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR = round(HR/G, 1), 
+         BB = BB / G,
+         R = R / G) %>%
+  select(HR, BB, R) %>%      # Why doing select() here? 
+  filter(HR >= 0.4 & HR <=1.2)
+
+
+get_slope <- function(data) {
+  fit <- lm(R ~ BB, data = data)
+  sum.fit <- summary(fit)
+
+  data.frame(slope = sum.fit$coefficients[2, "Estimate"], 
+             se = sum.fit$coefficients[2, "Std. Error"],
+             pvalue = sum.fit$coefficients[2, "Pr(>|t|)"])
+}
+
+
+
+dat %>% 
+  group_by(HR) %>% 
+  do(get_slope(.))
+```
+
+
+
+```{r}
+dat <- Teams %>% filter(yearID %in% 1961:2001) %>%
+  mutate(HR = HR/G,
+         R = R/G) %>%
+  select(lgID, HR, BB, R) 
+
+
+
+dat %>% 
+  group_by(lgID) %>% 
+  do(tidy(lm(R ~ HR, data = .), conf.int = T)) %>% 
+  filter(term == "HR") 
+
+
+dat %>% 
+  group_by(lgID) %>% 
+  do(glance(lm(R ~ HR, data = .)))
+
+
+dat %>% 
+  do(tidy(lm(R ~ HR, data = .), conf.int = T)) %>% 
+  filter(term == "HR")
+
+
+dat %>% 
+  group_by(lgID) %>% 
+  do(mod = lm(R ~ HR, data = .))
+```
+
+
+
+
+
+
+# Assessment: Tibbles, do, and broom, part 2
 
 
 
