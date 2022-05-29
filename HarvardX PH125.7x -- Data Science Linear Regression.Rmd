@@ -3,14 +3,15 @@ title: 'HarvardX PH125.7x -- Data Science: Linear Regression'
 author: "JJ"
 date: '2022-05-02'
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 editor_options:
   markdown: null
 wrap: 72
 ---
 
-```{r setup, include=FALSE}
+```
+{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -4818,7 +4819,7 @@ head(players)
 ```
 
 
-![](C:/Users/JJ/Pictures/next we'll add  defence position.png)
+![](C:/Users/JJ/Pictures/next well add defence position.png)
 
 ![](C:/Users/JJ/Pictures/top_n function.png)
 
@@ -5009,6 +5010,26 @@ players %>%
 
 
 # On Base Plus Slugging (OPS)
+
+
+
+Since the 1980s sabermetricians have used a summary statistic different from batting average to evaluate players.  They realized walks were important, and that doubles, triples, and home runs should be weighted much more than singles, and proposed the following metric.  They call this on-base-percentage plus slugging percentage, or OPS.  Today, this statistic has caught on, and you see it in ESPN and other sports networks.  Although the sabermetricians are probably not using regression, this metric is impressively close to what one gets with regression to the summary statistic that we created.  Here is the plot.  They're very correlated.
+
+
+![](C:/Users/JJ/Pictures/people realize bb were important, and other runs shoule be weighted more that singles.png)
+
+![](C:/Users/JJ/Pictures/this is the plot comparing our R_hat with they simple On Base Plus Slugging, there are very correlated.png)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
