@@ -3,8 +3,8 @@ title: 'HarvardX PH125.7x -- Data Science: Linear Regression'
 author: "JJ"
 date: '2022-05-02'
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 editor_options:
   markdown: null
 wrap: 72
@@ -642,9 +642,7 @@ galton_heights %>%
 # Correlation Coefficient
 
 
-**The correlation coefficient is defined for a list of pairs--x1, y1 through xn, yn**--
-with the following formula.  Here, mu x and mu y are the averages of x and y, respectively.
-And sigma x and sigma y are the standard deviations.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.  Soon, we will learn about the connection between correlation and regression.  [][*To understand why this equation does, in fact, summarize how two variables move together*], **consider the i-th entry of x is xi minus mu x divided by sigma x SDs away from the average**.  Similarly, the yi-- which is paired with the xi--is yi minus mu y divided by sigma y SDs away from the average y.  
+**The correlation coefficient is defined for a list of pairs--x1, y1 through xn, yn**--with the following formula.  Here, mu_x and mu_y are the averages of x and y, respectively.  And sigma_x and sigma_y are the standard deviations.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.  Soon, we will learn about the connection between correlation and regression.  [][*To understand why this equation does, in fact, summarize how two variables move together*], **consider the i-th entry of x is xi minus mu_x divided by sigma_x SDs away from the average**.  Similarly, the yi--which is paired with the xi--is yi minus mu_y divided by sigma_y SDs away from the average y.  
 
 If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  [][*This will average to about 0*.  **The correlation is this average.**]
 
@@ -671,11 +669,10 @@ https://rafalab.github.io/dsbook/regression.html#the-correlation-coefficient
         
             ((x_i - mu_x)/Sigma_x) * ((y_i - mu_y)/Sigma_y)
 
-        .
         The correlation coefficient essentially conveys how two variables move together.
         The correlation coefficient is always between -1 and 1.
 
-Code
+[][Code]
 
 rho <- mean(scale(x)*scale(y))
 galton_heights %>% summarize(r = cor(father, son)) %>% pull(r)
@@ -794,6 +791,7 @@ data.frame(R) %>%
 
 ```{r}
 library(dplyr)
+library(ggplot2)
 library(Lahman)
 library(HistData)
 
@@ -820,7 +818,7 @@ R <- replicate(B, {
     summarize(r = cor(father, son)) %>%
     pull(r)
 })
-qplot(R, geom = "histogram", bins = 5, color = I("black"))
+qplot(R, geom = "histogram", bins = 15, color = I("black"))
 
 # expected value and standard error
 mean(R)
@@ -2690,6 +2688,7 @@ galton_heights %>%
 fit <- galton_heights %>% 
   lm(son ~ father, data = .) 
 
+
 Y_hat <- predict(fit, se.fit = TRUE)    # https://stats.stackexchange.com/questions/86624/se-of-fit-versus-se-of-prediction
 Y_hat
 
@@ -4549,7 +4548,7 @@ galton %>%
 
 
 ```
-# Q9 lm() cor() outcome difference, please help
+# Q9 lm() cor() outcome difference, please help ====================================================================================
 question posted 40 minutes ago by john_hhu2020
 
 I naturally thought using lm() function to solve it would be a good idea, but it seems not.
@@ -4566,6 +4565,35 @@ And I Googled some statement saying this but I really don't think I understand i
 "Correlation look at trends shared between two variables, and regression look at relation between a predictor (independent variable) and a response (dependent) variable."
 
 rho = 1/n * SUM(i_1-n) (x_i - mu_x)/Sigma_x * (y_i -mu_y)/Sigma_y
+
+
+
+
+nickbirk (Staff)
+about 9 hours ago
+
+Vote for this post, there are currently 0 votes
+Mark as Answer
+
+The output of lm() does not display the correlation. Recall that the formula of the regression slope for an equation with just one predictor is:
+
+slope = rho*(sd_y/sd_x)
+
+So, the correlation is used to calculate the slope, but is not itself the slope. Indeed, it is possible that one equation may have a larger slope, but a smaller correlation, based on the value of the standard deviation of y. That is, if x has a very large standard deviation as compared to y, the slope will be quite small even with a high correlation. For example, if we had two variables with a correlation of 0.9, but with a standard deviation of y of 1 and a standard deviation of x of 100, our slope would be = 0.9*(1/100) = 0.009. The slope is small, but the correlation is still high.
+
+One way to think about the difference between slope and correlation could be the relationship between height in centimeters and height in inches. Since one is directly computed from the other, the correlation will be exactly 1. However, if we wish to predict height in inches given height in centimeters, the formula would be (height in inches) = 0.3937*(height in centimeters). That is, the slope is less than 1, but the correlation is still 1.
+
+Very thank you for the explanation, I think the center of your statement is based on the equation: slope = rho*(sd_y/sd_x). Whereas I don't know where does that comes from, or how can we prove it. Need help here
+
+How about standalize the variables (mu_var = 0 and SD_var = 1), then the slope would be equal to correlation, I think we have learned that before. With the same SD and mu of var pairs, the equation becomes: rho = (1/n) SUM(i:1-n) x_i * y_i, ~ And ???
+
+I just re-read the Section 1 Introduction to Regression / 1.2 Correlation / Correlation Coefficient part.
+--The Correlation is the Avg of dot product SUM of var_i and mu_var distance divide by SD(var) of each var (x_i, y_i) pair, or rho = (1/n) SUM(i: 1-n) (x_i - mu_x)/SD_x * (y_i - mu_y)/SD_y.
+--And if we think it as the SD away form mu_var which was mentioned in course statement, we can think it as the distance away from the center point of scatters, it can be further think as a measurement of un-roundness of the scatters.
+--But I don't know where does the equation comes from: slope = rho*(sd_y/sd_x), and I don't think we have talked about this topic in the videos or coursework, where does it comes from and others
+
+
+posted less than a minute ago by john_hhu2020
 ```
 
 
@@ -4602,6 +4630,30 @@ galton %>%
 
 
 
+```{r}
+library(tidyverse)
+library(broom)
+
+head(dat)
+
+
+
+cor(dat$BB, dat$R)
+
+
+
+cor(dat$BB, dat$R)**2
+
+summary(lm(BB ~ R, data = dat))
+
+
+tidy(lm(BB ~ R, data = dat))
+```
+
+
+
+
+
 
 
 
@@ -4611,11 +4663,352 @@ galton %>%
 # Building a Better Offensive Metric for Baseball
 
 
+In trying to answer how well bases on balls predict runs, data exploration led us to this model.  Here, the data is approximately normal.  And conditional distributions were also normal.  Thus, we're justified to pose a linear model like this.  With Yi, the runs per game.  X1, BB per game.  And x2, home runs per game.  To use lm here, we need to let it know that we have two predictor variables.  So we use the plus (+) symbol as follows.  Here's the code that fits that multiple regression model.  Now, we can use the tidy() function to see the nice summary.  When we fit the model with only one variable without the adjustment, the estimated slopes were 0.735 and 1.844 for bases on ball and home runs, respectively.  But note that when we fit the multivariate model, both these slopes go down with the bases on balls effect decreasing much more.  
+
+Now, if we want to construct a metric to pick players, we need to consider singles, doubles, and triples as well.  Can we build a model that predicts runs based on all these outcomes?  Now, we're going to **take somewhat of a leap of faith and assume that these five variables are jointly normal**.  This means that if we pick any one of them and hold the other four fixed, the relationship with the outcome--in this case, runs per game--is linear.  And the slopes for this relationship do not depend on the other four values that were held constant.  If this is true, if this model holds true, then a linear model for our data is the following.  With x1, x2, x3, x4, x5 representing bases on balls per game, singles per game, doubles per game, triples per game, and home runs per game, respectively.  Using lm, we can quickly find the least squared errors for the parameters using this relatively simple piece of code.  
+
+We can again use the tidy() function to see the [][*coefficients*], the standard errors, and confidence intervals.  To see how well our metric actually predicts runs, we can predict the number of runs for each team in 2002 using the function predict() to make the plot.  Note that we did not use the 2002 year to create this metric.  We used data from years previous to 2002.  And here is the plot.  Our model does quite a good job, as demonstrated by the fact that points from the observed versus predicted plot fall close to the identity line.  So instead of using batting average or just the number of home runs as a measure for picking players, we can use our fitted model to form a more informative metric that relates more directly to run production.  [][*Specifically, to define a metric for player A, we imagine a team made up of players just like player A and use our fitted regression model to predict how many runs this team would produce8].  The formula would look like this.  We're basically sticking in the estimated coefficients into the regression formula.  However, to define a player-specific metric, we have a bit more work to do.  
+
+**Our challenge here is that we have derived the metrics for teams based on team-level summary statistics**.  For example, the home run value that is entered into the equation is home runs per game for the entire team.  If you compute the home runs per game for a player, it will be much lower.  As the total is accumulated by nine batters, not just one.  Furthermore, if a player only plays part of the game and gets less opportunity than average, it's still considered a game played.  So this means that their rates will be lower than they should be.  [][*For players, a rate that takes into account opportunities is a per-plate-appearance rate*].  To make the per-game team rate comparable to the per-plate-appearance player rate, we compute the average number of team plate appearances per game using this simple piece of code.  
+
+Now, we're ready to use our metric.  We're going to compute the per-plate-appearance rates for players available in 2002.  But we're going to use data from 1999-2001.  Because remember, we are picking players in 2002.  We don't know what has happened yet.  To avoid small sample artifacts, we're going to filter players with few plate appearances.  Here is the calculation of what we want to do in one long line of code using tidyverse.  So we fit our model.  And we have player-specific metrics.  **The player-specific predicted runs computer here can be interpreted as the number of runs we would predict a team to score if this team was made up of just that player, if that player batted every single time**.  The distribution shows that there's wide variability across players, as we can see here.  To actually build the teams, we will need to know the players' salaries, since we have a limited budget.  Remember, we are pretending to be the Oakland A's in 2002 with only a $40 million budget.  We also need to know the players' position.  Because we're going to need one shortstop, one second baseman, one third baseman, et cetera.  
+
+For this, we're going to have to do a little bit of data wrangling to combine information that is contained in different tables from the Lehman library.  OK, so here we go.  We start by adding the 2002 salaries for each player using this code.  Next, we're going to add the defensive position.  This is a little bit complicated, because players play more than one position each year.  So here, we're going to pick the one position most played by each player using the top_n function.  And to make sure that we only pick one position in the case of ties, we're going to take the first row if there is a tie.  We also remove the OF position.  Because this stands for outfielder, which is a generalization of three positions-- left field, center field, right field.  We also remove pitchers, as they don't bat in the league that the Athletics play.  Here is the code that does that.  Finally, we add their names and last names so we know who we're talking about.  And here's a code that does that.  So now, we have a table with our predicted run statistic, some other statistics, the player's name, their position, and their salary.  If we look at the top 10 players based on our run production statistic, you're going to recognize some names if you're a baseball fan.  Note the very high salaries of these players in the top 10.  In fact, we see that players with high metrics have high salaries.  We can see that by making a plot we do see some low-cost players with very high metrics.  These would be great for our team.  Unfortunately, these are likely young players that have not yet been able to negotiate a salary and are not going to be available in 2002.  For example, the lowest earner on our top 10 list is Albert Pujols, who was a rookie in 2001.  Here's a plot with players that debuted before 1997.  This removes all the young players.  We can now search for good deals by looking at players that produce many more runs and others with similar salaries.  We can use this table to decide what players to pick and keep our total salary below the $40 million Billy Beane had to work with.  End of transcript. Skip to the start.  
+
+
+
+![](C:/Users/JJ/Pictures/here the data is approximately normal and conditional distribution is also normal.png)
+
+![](C:/Users/JJ/Pictures/if bivariate normal condition is met we are justified to pose a linear model like this.png)
+
+![](C:/Users/JJ/Pictures/When we fit the model with only one variable without the adjustment, the estimated bb and hr slope.png)
+
+![](C:/Users/JJ/Pictures/when we fit the multivariate model, both slopes go down.png)
+
+
+```{r}
+library(tidyverse)
+library(Lahman)
+library(broom)
+
+
+fit <- Teams %>%
+  filter(yearID %in% 1961:2001) %>%
+  mutate(BB = BB/G, HR = HR/G, R = R/G) %>%
+  lm(R ~ BB + HR, data = .)
+
+
+tidy(fit, conf.int = T)
+```
+
+```{r}
+library(tidyverse)
+library(Lahman)
+library(broom)
+library(ggplot2)
+
+
+fit <- Teams %>%
+  filter(yearID %in% 1961:2001) %>%
+  mutate(BB = BB/G, 
+         singles = (H-X2B-X3B-HR)/G,
+         doubles = X2B/G,
+         triples = X3B/G,
+         HR = HR/G, 
+         R = R/G) %>%
+  lm(R ~ BB + singles + doubles + triples + HR, data = .)
+
+
+tidy(fit, conf.int = T)
+
+
+
+Teams %>%
+  filter(yearID %in% 2002) %>%
+  mutate(BB = BB/G, 
+         singles = (H-X2B-X3B-HR)/G, 
+         doubles = X2B/G, 
+         triples = X3B/G, 
+         HR = HR/G, 
+         R = R/G) %>%
+  mutate(R_hat = predict(fit, newdata = .)) %>%
+  #select(R, R_hat) %>%
+  ggplot(aes(R_hat, R)) + 
+  geom_point() + 
+  geom_abline() + 
+  geom_text(aes(label = teamID))
+  #geom_label(aes(label = teamID, size = NULL), nudge_y = 0.1)
+```
+
+![](C:/Users/JJ/Pictures/plot of lm predicted r_hat comparing with r in 2002.png)
+
+![](C:/Users/JJ/Pictures/the formula would look like this.png)
+
+![so you need to make the per game team rate comparable to the per plat appearance player rate](C:/Users/JJ/Pictures/for players, a rate that takes into account opportunities is per plat appearance.png)
+
+![](C:/Users/JJ/Pictures/make the per game team rate comparable to the per plat appearance player rate.png)
+
+```{r}
+pa_per_game <- Batting %>%
+  filter(yearID == 2002) %>%
+  group_by(teamID) %>%
+  summarize(pa_per_game = sum(AB+BB)/max(G)) %>%
+  .$pa_per_game %>%
+  mean
+
+
+pa_per_game
+```
+
+```{r}
+Batting %>%
+  filter(yearID == 2002) %>%
+  group_by(teamID) %>%
+  summarize(pa_per_game = sum(AB+BB)/max(G))
+```
+
+![](C:/Users/JJ/Pictures/Here is the calculation of what we want to do in one long line of code.png)
+
+```{r}
+#head(Batting)
+```
+
+```{r}
+library(Lahman)
+
+
+players <- Batting %>%
+  filter(yearID %in% 1999:2001) %>%
+  group_by(playerID) %>%
+  mutate(PA = BB + AB) %>%
+  summarize(G = sum(PA)/pa_per_game, 
+            BB = sum(BB)/G, 
+            singles = sum(H-X2B-X3B-HR)/G,
+            doubles = sum(X2B)/G,
+            triples = sum(X3B)/G,
+            HR = sum(HR)/G,
+            AVG = sum(H)/sum(AB),
+            PA = sum(PA)) %>%
+  filter(PA >= 300) %>%
+  select(-G) %>%
+  mutate(R_hat = predict(fit, newdata = .))
+
+
+head(players)
+
+players %>%
+  ggplot(aes(R_hat)) +
+  geom_histogram(bins = 20, color = "black")
+```
+
+![](C:/Users/JJ/Pictures/The player-specific predicted runs computer here can be interpreted as the number of runs we would predict team.png)
+
+![](C:/Users/JJ/Pictures/2002 salaries for each player.png)
+
+![](C:/Users/JJ/Pictures/data wrangling acoss table add information we needed, this is salary.png)
+
+```{r}
+players <- Salaries %>%
+  filter(yearID == 2002) %>%
+  select(playerID, salary) %>%
+  right_join(players, by = "playerID")
+
+
+head(players)
+```
+
+
+![](C:/Users/JJ/Pictures/next we'll add  defence position.png)
+
+![](C:/Users/JJ/Pictures/top_n function.png)
+
+![](C:/Users/JJ/Pictures/need to remove OF position, check baseball knowledge with google.png)
+
+![](C:/Users/JJ/Pictures/baseball LF, CF, RF position.png)
+
+![](C:/Users/JJ/Pictures/also remove pitchers.png)
+
+![](C:/Users/JJ/Pictures/and here is the code doing all above data wrangling.png)
+
+![](C:/Users/JJ/Pictures/finally we add they names of these players.png)
+
+```{r}
+players <- Fielding %>%
+  filter(yearID == 2002) %>%
+  filter(!POS %in% c("OF", "P")) %>%
+  group_by(playerID) %>%
+  top_n(1, G) %>%
+  filter(row_number(G) == 1) %>%
+  ungroup() %>%
+  select(playerID, POS) %>%
+  right_join(players, by = "playerID")  %>%  
+  filter(!is.na(POS) & !is.na(salary))
+
+
+head(players)
+
+players <- People %>%
+  select(playerID, nameFirst, nameLast, debut) %>%
+  right_join(players, by = "playerID")
+
+
+head(players)
+
+players %>%
+  select(nameFirst, nameLast, POS, salary, R_hat) %>%
+  arrange(desc(R_hat)) %>%
+  top_n(10)
+```
+
+```{r}
+#Fielding
+```
+
+
+```{r}
+#head(People)
+```
+
+
+
+![](C:/Users/JJ/Pictures/and here is the outcome, now we have a table with our predicted run statistic.png)
+
+![](C:/Users/JJ/Pictures/plot our outcome, and think about it.png)
+
+```{r}
+players %>%
+  ggplot(aes(salary, R_hat, color = POS)) +
+  geom_point() +
+  scale_x_log10()
+```
+
+![](C:/Users/JJ/Pictures/and here is the plot with players that debuted before 1997, remore young players.png)
+
+```{r}
+players %>%
+  filter(debut < 1998) %>%
+  ggplot(aes(salary, R_hat, color = POS)) +
+  geom_point() +
+  scale_x_log10()
+```
 
 
 
 
 
+# Below is my own code studying before the course
+```{r}
+library(tidyverse)
+library(broom)   # tidy() function
+library(Lahman)
+
+
+Teams_small <- Teams %>% 
+  filter(yearID %in% 1961:2001)
+
+small_dat <- Teams_small %>% 
+  mutate(R_per_game = R/G, BB_per_game = BB/G, HR_per_game = round(HR/G, digits = 1)) %>% 
+  select(HR_per_game, R_per_game, BB_per_game) %>%
+  filter(HR_per_game > 0.5 & HR_per_game < 1.2)
+
+
+
+small_dat %>%
+  group_by(HR_per_game) %>%
+  #do(tidy(lm(R_per_game ~ BB_per_game, data = .)))         ### Can we apply filter() after this?  Say we want Intercept only
+  do(tidy(lm(R_per_game ~ BB_per_game, data = .))) %>%
+  filter(., term != "BB_per_game")
+# \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+
+
+small_dat %>% 
+  group_by(HR_per_game) %>%
+  do(data.frame(name = names(lm(R_per_game ~ BB_per_game, data = .)$coefficient[1]),
+                value = tidy(lm(R_per_game ~ BB_per_game, data = .))$estimate[1], 
+                se = tidy(lm(R_per_game ~ BB_per_game, data = .))$std.error[1]))
+# //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+par(mfrow=c(2,2))
+
+plot(lm(R_per_game ~ BB_per_game, data = small_dat))
+
+
+
+summary(lm(R_per_game ~ BB_per_game, data = small_dat))
+```
+
+
+
+
+
+
+
+# Building a Better Offensive Metric for Baseball: Linear Programming
+
+
+A way to actually pick the players for the team can be done using what computer scientists call linear programming. Although we don't go into this topic in detail in this course, we include the code anyway:
+
+```
+library(reshape2)
+library(lpSolve)
+library(tidyverse)
+
+
+players <- players %>% 
+  filter(debut <= "1997-01-01" & debut > "1988-01-01")
+
+constraint_matrix <- acast(players, POS ~ playerID, fun.aggregate = length)
+
+npos <- nrow(constraint_matrix)
+
+constraint_matrix <- rbind(constraint_matrix, salary = players$salary)
+
+constraint_dir <- c(rep("==", npos), "<=")
+
+constraint_limit <- c(rep(1, npos), 50*10^6)
+
+lp_solution <- lp("max", players$R_hat,
+                  constraint_matrix, constraint_dir, constraint_limit,
+                  all.int = TRUE) 
+```
+
+```
+# This algorithm chooses these 9 players:
+our_team <- players %>%
+  filter(lp_solution$solution == 1) %>%
+  arrange(desc(R_hat))
+our_team %>% 
+  select(nameFirst, nameLast, POS, salary, R_hat)
+```
+
+```
+# We note that these players all have above average BB and HR rates while the same is not true for singles.
+my_scale <- function(x) (x - median(x))/mad(x)
+players %>% 
+  mutate(BB = my_scale(BB), 
+         singles = my_scale(singles),
+         doubles = my_scale(doubles),
+         triples = my_scale(triples),
+         HR = my_scale(HR),
+         AVG = my_scale(AVG),
+         R_hat = my_scale(R_hat)) %>%
+  filter(playerID %in% our_team$playerID) %>%
+  select(nameFirst, nameLast, BB, singles, doubles, triples, HR, AVG, R_hat) %>%
+  arrange(desc(R_hat))
+```
+
+
+
+
+
+
+
+
+# On Base Plus Slugging (OPS)
 
 
 
