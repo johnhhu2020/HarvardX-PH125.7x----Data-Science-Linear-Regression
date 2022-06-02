@@ -4668,13 +4668,18 @@ In trying to answer how well bases on balls predict runs, data exploration led u
 
 Now, if we want to construct a metric to pick players, we need to consider singles, doubles, and triples as well.  Can we build a model that predicts runs based on all these outcomes?  Now, we're going to **take somewhat of a leap of faith and assume that these five variables are jointly normal**.  This means that if we pick any one of them and hold the other four fixed, the relationship with the outcome--in this case, runs per game--is linear.  And the slopes for this relationship do not depend on the other four values that were held constant.  If this is true, if this model holds true, then a linear model for our data is the following.  With x1, x2, x3, x4, x5 representing bases on balls per game, singles per game, doubles per game, triples per game, and home runs per game, respectively.  Using lm, we can quickly find the least squared errors for the parameters using this relatively simple piece of code.  
 
-We can again use the tidy() function to see the [][*coefficients*], the standard errors, and confidence intervals.  To see how well our metric actually predicts runs, we can predict the number of runs for each team in 2002 using the function predict() to make the plot.  Note that we did not use the 2002 year to create this metric.  We used data from years previous to 2002.  And here is the plot.  Our model does quite a good job, as demonstrated by the fact that points from the observed versus predicted plot fall close to the identity line.  So instead of using batting average or just the number of home runs as a measure for picking players, we can use our fitted model to form a more informative metric that relates more directly to run production.  [][*Specifically, to define a metric for player A, we imagine a team made up of players just like player A and use our fitted regression model to predict how many runs this team would produce8].  The formula would look like this.  We're basically sticking in the estimated coefficients into the regression formula.  However, to define a player-specific metric, we have a bit more work to do.  
+We can again use the tidy() function to see the [][*coefficients*], the standard errors, and confidence intervals.  To see how well our metric actually predicts runs, we can predict the number of runs for each team in 2002 using the function predict() to make the plot.  Note that we did not use the 2002 year to create this metric.  We used data from years previous to 2002.  And here is the plot.  Our model does quite a good job, as demonstrated by the fact that points from the observed versus predicted plot fall close to the identity line.  So instead of using batting average or just the number of home runs as a measure for picking players, we can use our fitted model to form a more informative metric that relates more directly to run production.  [][*Specifically, to define a metric for player A, we imagine a team made up of players just like player A and use our fitted regression model to predict how many runs this team would produce8].  The formula would look like this.  We're basically sticking in the estimated coefficients (*now I dont fully understand the coefficients and many related terms from summary() function or we learned in above courses, need to go back restudy it*) into the regression formula.  However, to define a player-specific metric, we have a bit more work to do.  
 
-**Our challenge here is that we have derived the metrics for teams based on team-level summary statistics**.  For example, the home run value that is entered into the equation is home runs per game for the entire team.  If you compute the home runs per game for a player, it will be much lower.  As the total is accumulated by nine batters, not just one.  Furthermore, if a player only plays part of the game and gets less opportunity than average, it's still considered a game played.  So this means that their rates will be lower than they should be.  [][*For players, a rate that takes into account opportunities is a per-plate-appearance rate*].  To make the per-game team rate comparable to the per-plate-appearance player rate, we compute the average number of team plate appearances per game using this simple piece of code.  
+**Our challenge here is that we have derived the metrics for teams based on team-level summary statistics**.  For example, the home run value that is entered into the equation is home runs per game for the entire team.  If you compute the home runs per game for a player, it will be much lower.  As the total is accumulated by nine batters, not just one.  Furthermore, if a player only plays part of the game and gets less opportunity than average, it's still considered a game played.  So this means that their rates will be lower than they should be.  [][*For players, a rate that takes into account opportunities is a per-plate-appearance rate*].  *To make the per-game team rate comparable to the per-plate-appearance player rate, we compute the average number of team plate appearances per game using this simple piece of code*.  
 
-Now, we're ready to use our metric.  We're going to compute the per-plate-appearance rates for players available in 2002.  But we're going to use data from 1999-2001.  Because remember, we are picking players in 2002.  We don't know what has happened yet.  To avoid small sample artifacts, we're going to filter players with few plate appearances.  Here is the calculation of what we want to do in one long line of code using tidyverse.  So we fit our model.  And we have player-specific metrics.  **The player-specific predicted runs computer here can be interpreted as the number of runs we would predict a team to score if this team was made up of just that player, if that player batted every single time**.  The distribution shows that there's wide variability across players, as we can see here.  To actually build the teams, we will need to know the players' salaries, since we have a limited budget.  Remember, we are pretending to be the Oakland A's in 2002 with only a $40 million budget.  We also need to know the players' position.  Because we're going to need one shortstop, one second baseman, one third baseman, et cetera.  
+Now, we're ready to use our metric.  We're going to compute the per-plate-appearance rates for players available in 2002 (*you mean 2001 and before? as its not 2002 yet*).  But we're going to use data from 1999-2001.  Because remember, we are picking players in 2002.  We don't know what has happened yet.  To [][***avoid small sample artifacts***], we're going to filter players with few plate appearances.  Here is the calculation of what we want to do in one long line of code using tidyverse.  
 
-For this, we're going to have to do a little bit of data wrangling to combine information that is contained in different tables from the Lehman library.  OK, so here we go.  We start by adding the 2002 salaries for each player using this code.  Next, we're going to add the defensive position.  This is a little bit complicated, because players play more than one position each year.  So here, we're going to pick the one position most played by each player using the top_n function.  And to make sure that we only pick one position in the case of ties, we're going to take the first row if there is a tie.  We also remove the OF position.  Because this stands for outfielder, which is a generalization of three positions-- left field, center field, right field.  We also remove pitchers, as they don't bat in the league that the Athletics play.  Here is the code that does that.  Finally, we add their names and last names so we know who we're talking about.  And here's a code that does that.  So now, we have a table with our predicted run statistic, some other statistics, the player's name, their position, and their salary.  If we look at the top 10 players based on our run production statistic, you're going to recognize some names if you're a baseball fan.  Note the very high salaries of these players in the top 10.  In fact, we see that players with high metrics have high salaries.  We can see that by making a plot we do see some low-cost players with very high metrics.  These would be great for our team.  Unfortunately, these are likely young players that have not yet been able to negotiate a salary and are not going to be available in 2002.  For example, the lowest earner on our top 10 list is Albert Pujols, who was a rookie in 2001.  Here's a plot with players that debuted before 1997.  This removes all the young players.  We can now search for good deals by looking at players that produce many more runs and others with similar salaries.  We can use this table to decide what players to pick and keep our total salary below the $40 million Billy Beane had to work with.  End of transcript. Skip to the start.  
+
+So we fit our model.  And we have player-specific metrics.  **The player-specific predicted runs computer here can be interpreted as the number of runs we would predict a team to score if this team was made up of just that player, if that player batted every single time**.  The distribution shows that there's wide variability across players, as we can see here.  To actually build the teams, we will need to know the players' salaries, since we have a limited budget.  Remember, we are pretending to be the Oakland A's in 2002 with only a $40 million budget.  We also need to know the players' position.  Because we're going to need one shortstop, one second baseman, one third baseman, et cetera.  
+
+For this, we're going to have to do a little bit of data wrangling to combine information that is contained in different tables from the Lehman library.  OK, so here we go.  We start by adding the 2002 salaries for each player using this code ([][*`If we are really doing it, the only info we have would be salary in 2001 and per plat appearance in 2001 too`*]).  Next, we're going to add the defensive position.  This is a little bit complicated, because players play more than one position each year.  So here, *we're going to pick the one position most played by each player using the top_n function???????*  [][******I assume this part is under updating, which means we can rewrite new code here and really doing it******].  And to make sure that we only pick one position in the case of ties, we're going to take the first row if there is a tie.  We also remove the OF position.  Because this stands for outfielder, which is a generalization of three positions--left field, center field, right field.  We also remove pitchers, as they don't bat in the league that the Athletics play.  Here is the code that does that.  Finally, we add their names and last names so we know who we're talking about.  And here's a code that does that ([][********need to understand how the code follow above instructions********]).  
+
+So now, we have a table with our predicted run statistic, some other statistics, the player's name, their position, and their salary.  If we look at the top 10 players based on our run production statistic, you're going to recognize some names if you're a baseball fan.  Note the very high salaries of these players in the top 10.  In fact, we see that players with high metrics have high salaries.  We can see that by making a plot we do see some low-cost players with very high metrics.  These would be great for our team.  Unfortunately, these are likely young players that have not yet been able to negotiate a salary and are not going to be available in 2002.  For example, the lowest earner on our top 10 list is Albert Pujols, who was a rookie in 2001.  Here's a plot with players that debuted before 1997.  This removes all the young players.  We can now search for good deals by looking at players that produce many more runs and others with similar salaries.  We can use this table to decide what players to pick and keep our total salary below the $40 million Billy Beane had to work with.  End of transcript. Skip to the start.  
 
 
 [][Textbook link]
@@ -4864,7 +4869,7 @@ Teams %>%
 
 ![so you need to make the per game team rate comparable to the per plat appearance player rate](C:/Users/JJ/Pictures/for players, a rate that takes into account opportunities is per plat appearance.png)
 
-![](C:/Users/JJ/Pictures/make the per game team rate comparable to the per plat appearance player rate.png)
+![why you are picking 2002?  in this model, we dont have information of 2002](C:/Users/JJ/Pictures/make the per game team rate comparable to the per plat appearance player rate.png)
 
 ```{r}
 pa_per_game <- Batting %>%
@@ -4890,6 +4895,29 @@ Batting %>%
 ```{r}
 #head(Batting)
 ```
+
+```{r}
+# Do not run this, its meant to check the PA, why we are choosing 300 as limit
+# Need to understand how baseball games runs, why choosing 300?
+
+
+players <- Batting %>%
+  filter(yearID %in% 1999:2001) %>%
+  group_by(playerID) %>%
+  mutate(PA = BB + AB) %>%
+  summarize(G = sum(PA)/pa_per_game, 
+            BB = sum(BB)/G, 
+            singles = sum(H-X2B-X3B-HR)/G,
+            doubles = sum(X2B)/G,
+            triples = sum(X3B)/G,
+            HR = sum(HR)/G,
+            AVG = sum(H)/sum(AB),
+            PA = sum(PA)) 
+
+
+players
+```
+
 
 ```{r}
 library(Lahman)
@@ -4942,7 +4970,7 @@ head(players)
 
 ![](C:/Users/JJ/Pictures/need to remove OF position, check baseball knowledge with google.png)
 
-![](C:/Users/JJ/Pictures/baseball LF, CF, RF position.png)
+![OF positions are outer fields players, they must runs a lot](C:/Users/JJ/Pictures/baseball LF, CF, RF position.png)
 
 ![](C:/Users/JJ/Pictures/also remove pitchers.png)
 
@@ -5068,7 +5096,7 @@ summary(lm(R_per_game ~ BB_per_game, data = small_dat))
 # Building a Better Offensive Metric for Baseball: Linear Programming
 
 
-A way to actually pick the players for the team can be done using what computer scientists call linear programming. Although we don't go into this topic in detail in this course, we include the code anyway:
+A way to actually pick the players for the team can be done using what computer scientists call [][***linear programming***]. Although we don't go into this topic in detail in this course, we include the code anyway:
 
 ```
 library(reshape2)
@@ -5149,20 +5177,276 @@ Since the 1980s sabermetricians have used a summary statistic different from bat
 
 
 
-# Regression Fallacy
+# Regression Fallacy     
+
+[][*(This course is not long, but its hell important, do read it again and again.  I think the instructor want to say correlation is not causation potentially here, as not all the `2014` dots are under save level of `2013` dot )*]
+
+
+Wikipedia defines the [][*sophomore slump*] in the following way.  A sophomore slump or sophomore jinx or sophomore jitters refers to an instance in which a second, or sophomore, effort fails to live up to the standard of the first effort.  It is commonly used to refer to the apathy of students--second year of high school, college, university--the performance of athletes-- second season of play--singers/bands-- second album-- television shows-- second season--and movies-- sequels or prequels.  We hear about the sophomore slump often in Major League Baseball.  This is because in Major League Baseball, the Rookie of the Year--this is an award that's given to the first year player that is judged to have performed the best--usually does not perform as well during their second year.  
+
+Therefore they call this the sophomore slump.  Know, for example, that in a recent Fox Sports article they asked, will MLB's tremendous rookie class of 2015 suffer a sophomore slump.  **Now does the data confirm the existence of a sophomore slump?** ([][*If you are Data Scientist, better preparing such questions, CEO and CFO will definitelly asking you such questions, and when you are not 100% prepared*])  Let's take a look and *examine the data for batting averages to see if the observation holds true*.  
+
+The data is available in the Lehman Library, but we have to do some work to create a table with the statistics for all the rookies of the year.  Let's go through them (*Harvard instituters helps you go through different questions and solving them one by one, do learnt something, dont waste they kindness and time*).  First, we create a table with player ID, their names and their most played position, using this code.  Now we will create a table with only the Rookie of the Year Award winners and add their batting statistics.  We're going to filter out pitchers since pitchers are not given awards for batting.  And we're going to focus on offense.  Specifically, we'll focus on batting average since it is the summary that most pundits talk about when discussing the sophomore slump.  
+
+So we write this piece of code to do this.  Now we'll keep only the rookie and sophomore seasons and remove players that did not play a sophomore season.  And remember, now we're only looking at players that won the Rookie of the Year Award.  This code achieves what we want.  Finally, we will use the [][**spread() function*] (*do you remember how we wrote a function to do such job? and do you recall how we perform such task under Pandas package, need to restudy such topic*) to have one column for the rookie and another column for the sophomore years' batting averages.  For that we use this simple line of code.  
+
+Now we can see the top performers in their first year.  These are the Rookie of the Year Award winners.  And we're showing their rookie season batting average and their sophomore season batting average.  Look closely and you will see the sophomore slump (*what you saw is likely not true, say  here the instructor applied > comparison without a fixing boundary setting here, which is absolutely not properly, and maybe the fittling are not appropriate as well, go through all the code and doing your own version later*).  It definitely appears to be real.  In fact, the proportion of players that have a lower batting average their sophomore years is 68%.  So is it jitters?  Is it a jinx?  
+
+[][*To answer this question, let's turn our attention to all players*] (*comparing if this is full player level phenomenal*).  We're going to look at the 2013 season and 2014 season.  And we're going to look at players that batted at least 130 times.  This is a minimum needed to win the Rookie of the Year.  We're going to perform a similar operation as we did before to construct this data set.  Here is the code.  Now let's look at the top performers of 2013 and then look at their performance in 2014.  [][*Note that the same pattern arises when we look at the top performers*].  Batting averages go down for the top performers.  But these are not rookies.  So this can't be explained with a sophomore slump.  
+
+Also know what happens to the worst performers of 2013.  Here they are.  Their batting averages go up in their second season in 2014.  Is this some sort of reverse sophomore slump?  It is not.  There is no such thing as a sophomore slump.  This is all explained with a simple statistical fact.  [][***The correlation of performance in two separate years is high but not perfect**] (*what will happened if we saw a perfect correlation here? all dot dropped on the regression line?*).  Here is the data for 2013 performance and 2014 performance.  You can see it's correlated.  But it's not perfectly correlated.  **The correlation is 0.46**.  The data look very much like a [][*bivariate normal distribution*] (*american football shape, do you remember*), which means that if we were to predict the 2014 batting average, let's call it y, for any given player that had a 2013 batting average of x, we would use the regression equation, which would be this.  
+
+Because a correlation is not perfect, regression tells us that on average, we expect high performers from 2013 to do a little bit worse in 2014.  This regression to the mean.  It's not a jinx.  It's just due to chance.  The rookies of the year are selected from the top values of x.  So it is expected that their y will regress to the mean.
+
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on regression fallacy.
+https://rafalab.github.io/dsbook/linear-models.html#the-regression-fallacy
+
+
+[][Key points]
+
+        Regression can bring about errors in reasoning, especially when interpreting individual observations.
+        The example showed in the video demonstrates that the "sophomore slump" observed in the data is caused by regressing to the mean.
+
+Code
+The code to create a table with player ID, their names, and their most played position:
+
+library(Lahman)
+playerInfo <- Fielding %>%
+    group_by(playerID) %>%
+    arrange(desc(G)) %>%
+    slice(1) %>%
+    ungroup %>%
+    left_join(Master, by="playerID") %>%
+    select(playerID, nameFirst, nameLast, POS)
+
+The code to create a table with only the ROY award winners and add their batting statistics:
+
+ROY <- AwardsPlayers %>%
+    filter(awardID == "Rookie of the Year") %>%
+    left_join(playerInfo, by="playerID") %>%
+    rename(rookie_year = yearID) %>%
+    right_join(Batting, by="playerID") %>%
+    mutate(AVG = H/AB) %>%
+    filter(POS != "P")
+
+The code to keep only the rookie and sophomore seasons and remove players who did not play sophomore seasons:
+
+ROY <- ROY %>%
+    filter(yearID == rookie_year | yearID == rookie_year+1) %>%
+    group_by(playerID) %>%
+    mutate(rookie = ifelse(yearID == min(yearID), "rookie", "sophomore")) %>%
+    filter(n() == 2) %>%
+    ungroup %>%
+    select(playerID, rookie_year, rookie, nameFirst, nameLast, AVG)
+
+The code to use the spread function to have one column for the rookie and sophomore years batting averages:
+
+ROY <- ROY %>% spread(rookie, AVG) %>% arrange(desc(rookie))
+ROY
+
+#> # A tibble: 99 x 6
+#>   playerID  rookie_year nameFirst nameLast rookie sophomore
+#>   <chr>           <int> <chr>     <chr>     <dbl>     <dbl>
+#> 1 mccovwi01        1959 Willie    McCovey   0.354     0.238
+#> 2 suzukic01        2001 Ichiro    Suzuki    0.350     0.321
+#> 3 bumbral01        1973 Al        Bumbry    0.337     0.233
+#> 4 lynnfr01         1975 Fred      Lynn      0.331     0.314
+#> 5 pujolal01        2001 Albert    Pujols    0.329     0.314
+#> 6 troutmi01        2012 Mike      Trout     0.326     0.323
+#> # ... with 93 more rows
+
+The code to calculate the proportion of players who have a lower batting average their sophomore year:
+
+mean(ROY$sophomore - ROY$rookie <= 0)
+
+#> [1] 0.677
+
+
+The code to do the similar analysis on all players that played the 2013 and 2014 seasons and batted more than 130 times (minimum to win Rookie of the Year):
+
+two_years <- Batting %>%
+    filter(yearID %in% 2013:2014) %>%
+    group_by(playerID, yearID) %>%
+    filter(sum(AB) >= 130) %>%
+    summarize(AVG = sum(H)/sum(AB)) %>%
+    ungroup %>%
+    spread(yearID, AVG) %>%
+    filter(!is.na(`2013`) & !is.na(`2014`)) %>%
+    left_join(playerInfo, by="playerID") %>%
+    filter(POS!="P") %>%
+    select(-POS) %>%
+    arrange(desc(`2013`)) %>%
+    select(nameFirst, nameLast, `2013`, `2014`)
+two_years
+
+#> # A tibble: 312 x 4
+#>   nameFirst nameLast `2013` `2014`
+#>   <chr>     <chr>     <dbl>  <dbl>
+#> 1 Miguel    Cabrera   0.348  0.313
+#> 2 Hanley    Ramirez   0.345  0.283
+#> 3 Michael   Cuddyer   0.331  0.332
+#> 4 Scooter   Gennett   0.324  0.289
+#> 5 Joe       Mauer     0.324  0.277
+#> 6 Mike      Trout     0.323  0.287
+#> # ... with 306 more rows
+
+The code to see what happens to the worst performers of 2013:
+
+arrange(two_years, `2013`)
+
+#> # A tibble: 312 x 4
+#>   nameFirst nameLast `2013` `2014`
+#>   <chr>     <chr>     <dbl>  <dbl>
+#> 1 Danny     Espinosa  0.158  0.219
+#> 2 Dan       Uggla     0.179  0.149
+#> 3 Jeff      Mathis    0.181  0.2  
+#> 4 Melvin    Upton     0.184  0.208
+#> 5 Adam      Rosales   0.190  0.262
+#> 6 Aaron     Hicks     0.192  0.215
+#> # ... with 306 more rows
+
+The code to see  the correlation for performance in two separate years:
+
+qplot(`2013`, `2014`, data = two_years)
+
+summarize(two_years, cor(`2013`,`2014`))
+#> # A tibble: 1 x 1
+#>   `cor(\`2013\`, \`2014\`)`
+#>                       <dbl>
+#> 1                     0.460
+
+
+
+
+
+```{r}
+library(Lahman)
+
+playerinfo <- Fielding %>%
+  group_by(playerID) %>%
+  arrange(desc(G)) %>%
+  slice(1) %>%
+  #ungroup() %>%
+  left_join(People, by="playerID") %>%
+  select(playerID, nameFirst, nameLast, POS)
+
+
+head(playerinfo)
+```
+
+```{r}
+ROY <- AwardsPlayers %>%
+  filter(awardID == "Rookie of the Year") %>%
+  left_join(playerinfo, by = "playerID") %>%
+  rename(rookie_year = yearID) %>%
+  right_join(Batting, by = "playerID") %>%
+  mutate(AVG = H/AB) %>%
+  filter(POS != "P")
+
+
+head(ROY)
+
+
+
+
+ROY <- ROY %>%
+  filter(yearID == rookie_year | yearID == rookie_year+1) %>%
+  group_by(playerID) %>%
+  mutate(rookie = ifelse(yearID == min(yearID), "Rookie", "Sophomore")) %>%
+  filter(n() == 2) %>%
+  ungroup() %>%
+  select(playerID, rookie_year, rookie, nameFirst, nameLast, AVG)
+
+ROY
+
+# Now Think How to make this happens, and do your own test, and master it ############################################################
+```
+
+```{r}
+library(tidyr)
+
+
+ROY <- ROY %>%
+  spread(rookie, AVG) %>%
+  arrange(desc(Rookie))    # Because we've pulled value as variables now 
+
+
+ROY
+
+
+
+
+ROY <- ROY %>%
+  mutate(flag = ifelse(Sophomore-Rookie>=0.005, 1, 0))
+
+sum(ROY$flag)/length(ROY$Rookie)
+```
+
+```{r}
+two_years <- Batting %>%
+  filter(yearID %in% 2013:2014) %>%
+  group_by(playerID, yearID) %>%
+  filter(sum(AB)>130) %>%
+  summarize(AVG=sum(H)/sum(AB)) %>%
+  ungroup %>%
+  spread(yearID, AVG) %>%
+  filter(!is.na(`2013`) & !is.na(`2014`)) %>%     # using ` to referring column name is kind of like SQL
+  left_join(playerinfo, by="playerID") %>%
+  filter(POS != "P") %>%
+  select(-POS) %>%
+  arrange(desc('2013')) %>%
+  select(nameFirst, nameLast, `2013`, `2014`)
+
+
+two_years
+```
+
+```{r}
+two_years %>%
+  ggplot(aes(`2013`, `2014`)) +
+  geom_point(alpha=0.3)
+
+
+summarise(two_years, cor(`2013`, `2014`))
+
+# |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||\
+# Weve see a high "correlation" (share we call it that name?) here, but there are not 
+```
 
 
 
 
 ![](C:/Users/JJ/Pictures/sophomore slump.png)
 
+![](C:/Users/JJ/Pictures/rookie of the year is the award given to the first year player that judged to have performed the best.png)
+
+![+++ be curiosity +++, does the data confirm the existance of a sophomore slump ???](C:/Users/JJ/Pictures/fox new articles.png)
+
+![](C:/Users/JJ/Pictures/create a table with such statistics of all the rookies of the year players.png)
+
+![since batting average is what people talked about when discussing sophomore slump](C:/Users/JJ/Pictures/specifically we will focus on batting averages.png)
+
+![](C:/Users/JJ/Pictures/rookies of the year experienced sophomore slump is 68%, now how can we calculate that value.png)
+
+![](C:/Users/JJ/Pictures/now lets check rockie of the year and sophomore slump again with this code.png)
+
+![we see same patterns here batting averages slump in these players, but ther are not reworded as rookies of the year.png](C:/Users/JJ/Pictures/we see same patterns here batting averages slump in these players, but ther are not reworded as rookies of the year.png)
+
+![](C:/Users/JJ/Pictures/and now checking the worse performers, they batting averages goes up in sophomore, so its really just regression I assume.png)
+
+![correlation for performance in 2 separate years is high but not perfect.png](C:/Users/JJ/Pictures/correlation for performance in 2 separate years is high but not perfect.png)
+
+![](C:/Users/JJ/Pictures/and this is our equation to predict 2014 from 2013.png)
 
 
 
 
 
-
-
+# Measurement Error Models
 
 
 
