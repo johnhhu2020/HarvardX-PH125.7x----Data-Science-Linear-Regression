@@ -564,7 +564,7 @@ Up to now in this series, we have focused mainly on univariate variables.  Howev
 
 We'll create a data set with the heights of fathers and the first sons.  The actual data Galton used to discover and define regression.  So we have the father and son height data.  Suppose we were to summarize these data.  **Since both distributions are well approximated by normal distributions, we can use the two averages and two standard deviations as summaries**.  Here they are.
 
-**However, this summary fails to describe a very important characteristic of the data that you can see in this figure.  The trend that the taller the father, the taller the son, is not described by the summary statistics of the average and the standard deviation. We will learn that the correlation coefficient is a summary of this trend**.(`Interesting here how the instructor jumped in the topic of his teaching`)
+[][**However, this summary fails to describe a very important characteristic of the data that you can see in this figure.  The trend that the taller the father, the taller the son, is not described by the summary statistics of the average and the standard deviation. We will learn that the correlation coefficient is a summary of this trend**].(`Interesting here how the instructor jumped in the topic of his teaching`)
 
 
 [][Textbook link]
@@ -578,6 +578,7 @@ https://rafalab.github.io/dsbook/regression.html#case-study-is-height-hereditary
         Galton tried to predict sons' heights based on fathers' heights.
         The mean and standard errors are insufficient for describing an important characteristic of the data: the trend that the taller the father, the taller the son.
         The correlation coefficient is an informative summary of how two variables move together that can be used to predict one variable using the other.
+
 
 Code
 
@@ -662,7 +663,7 @@ https://rafalab.github.io/dsbook/regression.html#the-correlation-coefficient
 
 [][Key points]
 
-        The correlation coefficient is defined for a list of pairs 
+[][*        The correlation coefficient (rho) is defined for a list of pairs *]
         
             (x_1, y_1), ..., (x_n, y_n)
         
@@ -670,10 +671,11 @@ https://rafalab.github.io/dsbook/regression.html#the-correlation-coefficient
         
             ((x_i - mu_x)/Sigma_x) * ((y_i - mu_y)/Sigma_y)
 
-        The correlation coefficient essentially conveys how two variables move together.
-        The correlation coefficient is always between -1 and 1.
+[][*        The correlation coefficient essentially conveys how two variables move together.*]
+[][*        The correlation coefficient is always between -1 and 1.*]
 
-[][Code]
+
+Code
 
 rho <- mean(scale(x)*scale(y))
 galton_heights %>% summarize(r = cor(father, son)) %>% pull(r)
@@ -1097,7 +1099,7 @@ Correlation is not always a good summary of the relationship between two variabl
 
 [][*Suppose we are asked to guess the height of a randomly selected son*].  Because of the distribution of the son height is approximately normal, we know that the average height of 70.5 inches is a value with the highest proportion and would be the prediction with the chances of minimizing the error.  [][*But what if we are told that the father is 72 inches?*]  Do we still guess 70.5 inches for the son?  The father is taller than average, specifically he is 1.14 standard deviations taller than the average father.  So shall we predict that the son is also 1.14 standard deviations taller than the average son?  It turns out that this would be an overestimate.  
 
-To see this, we look at all the sons with fathers who are about 72 inches.  We do this by stratifying the father's height.  We call this a **conditional average**, since we are computing the average son height conditioned on the father being 72 inches tall.  A challenge when using this approach in practice is that *we don't have many fathers that are exactly 72*.  In our data set, we only have eight.  If we change the number to 72.5, we would only have one father who is that height.  This would result in averages with large standard errors, and they won't be useful for prediction for this reason.  But for now, what we'll do is we'll take an approach of creating strata of fathers with very similar heights.  Specifically, we will round fathers' heights to the nearest inch.  This gives us the following prediction for the son of a father that is approximately 72 inches tall.  We can use this code and get our answer, which is 71.84.  This is 0.54 standard deviations larger than the average son, a smaller number than the 1.14 standard deviations taller that the father was above the average father.  Stratification followed by _box plots_ lets us see the distribution of each group.  Here is that plot.  
+To see this, we look at all the sons with fathers who are about 72 inches.  We do this by stratifying the father's height.  We call this a **conditional average**, since we are computing the average son height conditioned on the father being 72 inches tall.  A challenge when using this approach in practice is that *we don't have many fathers that are exactly 72*.  In our data set, we only have eight.  If we change the number to 72.5, we would only have one father who is that height.  This would result in averages with large standard errors, and they won't be useful for prediction for this reason.  But for now, what we'll do is we'll take an approach of creating strata of fathers with very similar heights.  Specifically, we will round fathers' heights to the nearest inch.  This gives us the following prediction for the son of a father that is approximately 72 inches tall.  We can use this code and get our answer, which is 71.84.  This is 0.54 standard deviations larger than the average son, a smaller number than the 1.14 standard deviations taller that the father was above the average father.  Stratification followed by box plots lets us see the distribution of each group.  Here is that plot.  
 
 We can see that the centers of these groups are increasing with height, not surprisingly.  *The means of each group appear to follow a linear relationship* (`  then why we supposed to use a scatter plot to explore relationship between two variales in Exploratory Data Analysis in Python DataCamp course ?  I mean many dots covering on each other, Using a boxplot would avoid this condition ???  `).  We can make that plot like this, with this code.  See the plot and notice that this appears to follow a line.  The slope of this line appears to be about 0.5, which happens to be the correlation between father and son heights.  **This is not a coincidence**.  To see this connection, let's plot the **standardized heights** (`  Why??? standardize?  can we just use the boxplot or the grouped mean?  `) against each other, son versus father, with a line that has a slope equal to the correlation.  (` Think, Think, Think `)   [][****Read the important comments in below standardized plot, and think about how its all related to each other****]  
 
@@ -1124,10 +1126,10 @@ There are three links to relevant sections of the textbook for this video:
 
 [][Key points]
 
-        Correlation is not always a good summary of the relationship between two variables.
+[][*        Correlation is not always a good summary of the relationship between two variables.*]
         The general idea of conditional expectation is that we stratify a population into groups and compute summaries in each group.
         A practical way to improve the estimates of the conditional expectations is to define strata of with similar values of x.
-        If there is perfect correlation, the regression line predicts an increase that is the same number of SDs for both variables. If there is 0 correlation, then we don’t use x at all for the prediction and simply predict the average . For values between 0 and 1, the prediction is somewhere in between. If the correlation is negative, we predict a reduction instead of an increase.
+        If there is perfect correlation, the regression line predicts an increase that is the same number of SDs for both variables. If there is 0 correlation, then we don’t use x at all for the prediction and simply predict the average.  For values between 0 and 1, the prediction is somewhere in between. If the correlation is negative, we predict a reduction instead of an increase.
 
 Code
 
@@ -1269,7 +1271,7 @@ galton_heights %>%
   geom_point() +
   geom_abline(intercept = 35.5, slope = r)
 
-# So the reason for standardize is the intercept is easy to define, or we have to guess until its 35 or something,  and also the two plot seems different, this one and the standardized one.  Recall how correlation is calculated, and how scale() function standardizing the data: (x - mean(x)) / sd(x)
+# So the reason for standardize is the intercept would be easy to define, otherwise we have to guess until its 35 or something,  and also the two plot seems different, this one and the standardized one.  Recall how correlation is calculated, and how scale() function standardizing the data: (x - mean(x)) / sd(x)
 ```
 
 ![image here](C:/Users/JJ/Pictures/Correlation_Coefficient.png)
@@ -1433,7 +1435,7 @@ galton_heights %>%
 
 ```The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance. **The variance is the standard deviation squared**. See the notes below the video for more clarification.```
 ![Variance is standard deviation squared](C:/Users/JJ/Pictures/variance and standard deviation.png)
-(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var (`  Correction: The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance  `) of Y given X equals sigma y times the square root of 1 minus rho squared.  This is where statements like x explains such and such percent of the variation in y comes from.  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y**.  So from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%.  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is  by a bivariate normal distribution.  
+(The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var (`  Correction: The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance  `) of Y given X equals sigma y times the square root of 1 minus rho squared.  This is where statements like x explains such and such percent of the variation in y comes from.  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y**.  So from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%.  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is by a bivariate normal distribution.  
 
 [][Read all the course material and thinking, then trying to answer your questions, its a good way of learning, and thinking]
 
@@ -5446,10 +5448,345 @@ summarise(two_years, cor(`2013`, `2014`))
 
 
 
+
+
 # Measurement Error Models
 
 
+Up until now, all our linear regression examples have been applied to two or more random variables.  **We assume the pairs are bivariate normal and use this to motivate a linear model**.  This approach covers most of real life examples where linear regression is used.  [][The other major application comes from measurement error models].  In these applications, it is common to have a nonrandom covariates, such as time.  And randomness is introduced from measurement error, rather than sampling or natural variability.  To understand these models, we're going to use a motivation example related to physics.  
 
+Imagine you are Galileo in the 16th century trying to describe the velocity of a falling object.  An assistant climbs the Tower of Pisa and drops a ball.  While several other assistants record the position at different times.  The falling object data set contains an example of what that data would look like.  The assistant hands the data to Galileo and this is what he sees.  He uses ggplot to make a plot.  Here we see the distance in meters that has dropped on the y-axis and time on the x-axis.  Galileo does not know the exact equation, but from data exploration, by looking at the plot, he deduces that the position should follow a parabola, which we can write like this.  The data does not fall exactly on a [][*parabola*], but Galileo knows that this is due to measurement error.  
+
+His helpers make mistakes when measuring the distance the ball has fallen.  To account for this, we write this model.  Here, y represents the distance the ball is dropped in meters.  Xi represents time in seconds.  And *epsilon* represents measurement error.  [][**The measurement error is assumed to be random, independent from each other and having the same distribution from each eye**].  We also assume that there is ***no bias, which means that the expected value of epsilon is 0***.  Note that this is a linear model because it is a linear combination of known quantities.  X and x squared are known and unknown parameters, the betas.  Unlike our previous example, the x's are fixed quantities.  This is just time.  We're not conditioning.  Now to pose a new physical theory and start making predictions about other falling objects, Galileo needs actual numbers, rather than the unknown parameters.  
+
+***The least squares estimates seem like a reasonable approach***.  So how do we find the least squares estimates?  [][***Note that the LSE calculations do not require the errors to be approximately normal***].  The lm( ) function will find the betas that minimize the residual sum of squares, which is what we want.  So we use this code to obtain our estimated parameters.  To check if the estimated parabola fits the data, the broom function augment( ) lets us do this easily.  Using this code, we can make the following plot.  Note that the predicted values go right through the points.  Now, thanks to my high school physics teacher, I know that the equation for the trajectory of a falling object is the following.  With h0 and v0, the starting height and starting velocity respectively.  The data we use follow this equation and added measurement error to simulate and observations.  
+
+Dropping the ball, that means the starting velocity is 0 because we start just by dropping it from the Tower of Pisa, which has a height of about 56.67 meters.  These known quantities are consistent with the parameters that we estimated, which we can see using the tidy function.  Here they are.  The Tower of Pisa height is within the confidence interval for beta 0.  The initial velocity of 0 is in the confidence interval for beta 1.  [][*Note that the p value is larger than 0.05, which means we wouldn't reject the hypothesis that the starting velocity is 0*].  And finally, the acceleration constant is in the confidence intervals for negative 2 times beta 2.  
+
+
+
+![](C:/Users/JJ/Pictures/The other major application comes from measurement error models.png)
+
+![](C:/Users/JJ/Pictures/falling_object dataset.png)
+
+![](C:/Users/JJ/Pictures/a prabola.png)
+
+![](C:/Users/JJ/Pictures/prabola relationship.png)
+
+![measurement error](C:/Users/JJ/Pictures/we weite this model to include the variables and errors.png)
+
+![we also assume there is no bias, which means the expected value of epsilion is 0.png](C:/Users/JJ/Pictures/we also assume there is no bias, which means the expected value of epsilion is 0.png)
+
+[][*the LSE seems like a reasonal approach, NOTE the LSE calculation does not require the error to be approximately normal*]
+![the LSE seems like a reasonal approach, NOTE the LSE calculation does not require the error to be approximately normal](C:/Users/JJ/Pictures/the lease square estimates, do you remember them.png)
+
+[][*the lm function will find the betas that minimize the residual sum of squares.png*]
+![](C:/Users/JJ/Pictures/the lm function will find the betas that minimize the residual sum of squares.png)
+
+![](C:/Users/JJ/Pictures/broom function augment helps us check if our estimated parabola fit the data.png)
+
+![](C:/Users/JJ/Pictures/high school physical knowledge gives us this equation.png)
+
+
+
+```{r}
+library(ggplot2)
+library(Lahman)
+library(tidyverse)
+library(dslabs)
+
+
+falling_object <- rfalling_object()
+
+
+falling_object %>%
+  ggplot(aes(time, observed_distance)) +
+  geom_point() +
+  ylab("Distance in meters") +
+  xlab("Time in seconds")
+
+```
+
+```{r}
+library(broom)
+
+
+head(falling_object)
+
+
+fit <- falling_object %>%
+  mutate(time_sq = time^2, y = observed_distance) %>%
+  lm(y ~ time + time_sq, data =.)
+
+
+tidy(fit)
+```
+
+```{r}
+augment(fit) %>%
+  ggplot() +
+  geom_point(aes(time, y)) +
+  geom_line(aes(time, .fitted))
+```
+
+
+
+
+
+
+
+
+# Assessment: Regression and Baseball, part 1
+
+
+
+
+Comprehension Check due Jun 12, 2022 00:29 AWST
+## Question 1
+1/1 point (graded)
+What is the final linear model (in the video "Building a Better Offensive Metric for Baseball") we used to predict runs scored per game?
+
+          lm(R ~ BB + HR)
+        
+
+          lm(HR ~ BB + singles + doubles + triples)
+        
+
+          lm(R ~ BB + singles + doubles + triples + HR)
+        
+
+          lm(R ~ singles + doubles + triples + HR)
+        
+
+correct
+Answer
+Correct: Correct.
+
+Explanation
+lm(R ~ BB + singles + doubles + triples + HR) is the only one of the models above that predicts runs scored based on all of the following: BBs, singles, doubles, triples, and HRs.
+You have used 1 of 2 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 2
+1/1 point (graded)
+
+We want to estimate runs per game scored by individual players, not just by teams. What summary metric do we calculate to help estimate this?
+
+Look at the code from the video "Building a Metter Offensive Metric for Baseball" for a hint:
+
+      pa_per_game <- Batting %>% 
+  filter(yearID == 2002) %>% 
+  group_by(teamID) %>%
+  summarize(pa_per_game = sum(AB+BB)/max(G)) %>% 
+  .$pa_per_game %>% 
+  mean
+    
+
+The summary metric used is:
+pa_per_game: the mean number of plate appearances per team per game for each team
+pa_per_game: the mean number of plate appearances per game for each player
+pa_per_game: the number of plate appearances per team per game, averaged across all teams
+correct
+
+Explanation
+pa_per_game is the number of plate appearances per team per game averaged across all teams. We initially calculated the pa_per_game grouped by teams but then took the means across all teams to get one summary metric.
+You have used 1 of 1 attempt Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 3
+1/1 point (graded)
+
+Imagine you have two teams. Team A is comprised of batters who, on average, get two bases on balls, four singles, one double, no triples, and one home run. Team B is comprised of batters who, on average, get one base on balls, six singles, two doubles, one triple, and no home runs.
+Which team scores more runs, as predicted by our model?
+Team A
+Team B
+Tie
+Impossible to know
+correct
+Answer
+Correct: Correct.
+
+Explanation
+
+By using the coefficients from the linear model to predict the number of runs scored by each team, you find that Team B is expected to score more runs on average.
+You have used 1 of 2 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 4
+1/1 point (graded)
+The on-base-percentage plus slugging percentage (OPS) metric gives the most weight to:
+Singles
+Doubles
+Triples
+Home Runs
+correct
+Answer
+Correct: Correct.
+
+Explanation
+
+By looking at the equation for OPS, you can tell that the OPS metric weights home runs most heavily.
+
+You have used 1 of 2 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 5
+1/1 point (graded)
+What statistical concept properly explains the “sophomore slump”?
+Regression to the mean
+Law of averages
+Normal distribution
+correct
+
+Explanation
+
+Regression to the mean is what explains the sophomore slump. The correlation for performance in two separate years is high but not perfect, so high performers will tend to perform slightly worse in the following year (and low performers will tend to perform slightly better in the following year).
+You have used 1 of 1 attempt Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 6
+1/1 point (graded)
+In our model of time vs. observed_distance in the video "Measurement Error Models", the randomness of our data was due to:
+sampling
+natural variability
+measurement error
+correct
+
+Explanation
+
+Measurement error models look at applications where randomness is introduced from measurement error instead of sampling or natural variability.
+You have used 1 of 1 attempt Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 7
+1/1 point (graded)
+Which of the following are important assumptions about the measurement errors in the experiment presented in the video "Measurement Error Models"?
+
+Select ALL that apply.
+The measurement error is random
+The measurement error is independent
+The measurement error has the same distribution for each time
+correct
+
+Explanation
+
+In this model, we asumed that the measurement errors were random, independent from each other, and had the same distribution for each time i.
+
+We also assumed that there was no bias, which means that
+
+.
+You have used 1 of 2 attempts Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem
+
+
+## Question 8
+0/1 point (graded)
+Which of the following scenarios would violate an assumption of our measurement error model?
+The experiment was conducted on the moon.
+There was one position where it was particularly difficult to see the dropped ball.
+correct
+The experiment was only repeated 10 times, not 100 times.
+incorrect
+
+Explanation
+
+If there were one position where it was particularly difficult to see the dropped ball, that would violate the assumption of randomness. If the experiment were conducted on the moon, that would simply predict a different gravitational constant. Repeating the experiment 10 instead of 100 times would not matter because we do not need a large sample for our assumptions to be valid in this model.
+You have used 1 of 1 attempt Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+Answers are displayed within the problem 
+
+
+
+```{r}
+library(tidyverse)
+library(Lahman)
+library(broom)
+library(ggplot2)
+
+
+fit <- Teams %>%
+  filter(yearID %in% 1961:2001) %>%
+  mutate(BB = BB/G, 
+         singles = (H-X2B-X3B-HR)/G,
+         doubles = X2B/G,
+         triples = X3B/G,
+         HR = HR/G, 
+         R = R/G) %>%
+  lm(R ~ BB + singles + doubles + triples + HR, data = .)
+
+
+tidy(fit, conf.int = T)
+
+
+
+team_a <- data.frame(BB=2, singles=4, doubles=1, triples=0, HR=1)
+team_b <- data.frame(BB=1, singles=6, doubles=2, triples=1, HR=0)
+# https://www.guru99.com/r-data-frames.html
+
+predict(fit,  newdata = team_a)
+predict(fit, newdata = team_b)
+```
+
+
+
+
+
+
+
+
+# Assessment: Regression and baseball, part 2
+
+
+
+```{r}
+library(Lahman)
+library(broom)
+
+
+n_teams1971 <- Teams %>%
+  filter(yearID == 1971) %>%
+  mutate(R = R/G, BB = BB/G, HR = HR/G) %>%
+  lm(R ~ BB + HR, data = .)
+  
+  
+tidy(n_teams1971, conf.int = T)
+  
+```
+
+
+```{r}
+library(Lahman)
+library(broom)
+
+
+n_teams1971 <- Teams %>%
+  filter(yearID %in% 1961:2018) %>%
+  mutate(R = R/G, BB = BB/G, HR = HR/G) %>%
+  group_by(yearID) %>%
+  do(data.frame(term = names(lm(R ~ BB + HR, data = .)$coefficients),
+                estimate = lm(R ~ BB + HR, data = .)$coefficients)) %>%
+  filter(term == "BB") 
+
+
+  
+  
+n_teams1971
+
+
+n_teams1971 %>%
+  ggplot(aes(yearID, estimate)) +
+  geom_point()
+
+
+n_teams1971 %>% 
+  lm(estimate ~ yearID, data = .) %>%
+  tidy
+```
 
 
 
