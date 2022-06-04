@@ -1,3 +1,2 @@
-# Using R is waste time, just go Python and never come back
-
+# Its a great course, you can learn a lot in it
 
