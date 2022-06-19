@@ -10,103 +10,6 @@ editor_options:
 wrap: 72
 ---
 
-```
-{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax
-for authoring HTML, PDF, and MS Word documents. For more details on
-using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that
-includes both content as well as the output of any embedded R code
-chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to
-prevent printing of the R code that generated the plot.
-
-# Course preparements, install libraaries and plot exercises
-library(dslabs)
-
-> installed.packages()
-
-> library(dslabs) data(Teams) Warning message: In data(Teams) : data set
-> 'Teams' not found data(teams) Warning message: In data(teams) : data
-> set 'teams' not found data(murders) population Error: object
-> 'population' not found murders\$population
-
-> pop \<-
-> murders$population length(pop) [1] 51 class(pop) [1] "numeric" class(murders$state)
-> [1] "character"
-
-> library(Lahman) Error in library(Lahman) : there is no package called
-> 'Lahman' install.packages("Lahman")
-
-> install.packages("tidyverse")
-
-> library(Lahman) library(tidyverse)
-
-> Teams %\>% filter(yearID %in% 1961:2001) %\>% + mutate(HR_per_game =
-> HR/G, R_per_game = R/G) %\>% + lm(R_per_game \~ BB, .)
-
-Call: lm(formula = R_per_game \~ BB, data = .)
-
-Coefficients: (Intercept) BB\
-2.582186 0.003396
-
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
-> AB/G, R_per_game = R/G) %\>% + ggplot(aes(R_per_game,
-> AB_per_game)) + + geom_point()
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
-> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
-> R_per_game)) + + geom_line()
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
-> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
-> R_per_game)) + + geom_point(alpha = 0.5)
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + ggplot(aes(AB,
-> R)) + + geom_point(alpha = 0.5)
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
-> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
-> R_per_game)) + + geom_point(alpha = 0.5)
->
-> ?Teams
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% + mutate(AB_per_game =
-> AB/G, R_per_game = R/G) %\>% + ggplot(aes(AB_per_game,
-> R_per_game)) + + geom_point(alpha = 0.5)
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% +
-> mutate(number_of_wins_per_game = W/G, fielding_errors_per_game = E/G)
-> %\>% + ggplot(aes(number_of_wins_per_game,
-> fielding_errors_per_game)) + + geom_point(alpha = 0.5)
->
-> Teams %\>% filter(yearID %in% 1961:2001) %\>% + mutate(win_rate = W /
-> G, E_per_game = E / G) %\>% + ggplot(aes(win_rate, E_per_game)) + +
-> geom_point(alpha = 0.5)
->
-> Teams %\>% filter(yearID %in% 1961:2001 ) %\>% +
-> mutate(triple_per_game = X3B/G, double_per_game = X2B/G) %\>% +
-> ggplot(aes(triple_per_game, double_per_game)) + + geom_point(alpha =
-> 0.5)
 
 
 
@@ -139,17 +42,19 @@ https://rafalab.github.io/dsbook/linear-models.html#case-study-moneyball
 
 
 
-![image here](C:/Users/JJ/Pictures/yankees 2002.png)
+![image here](C:/Users/qp/Pictures/yankees 2002.png)
 
-![image here](C:/Users/JJ/Pictures/oakland a 2002.png)
+![image here](C:/Users/qp/Pictures/oakland a 2002.png)
 
-![](C:/Users/JJ/Pictures/other statistics in baseball.png)
+![](C:/Users/qp/Pictures/other statistics in baseball.png)
 
-![](C:/Users/JJ/Pictures/scoring runs and ignore pitching and fielding.png)
+![](C:/Users/qp/Pictures/scoring runs and ignore pitching and fielding.png)
 
-![](C:/Users/JJ/Pictures/determine which recorded player-specific.png)
+![](C:/Users/qp/Pictures/determine which recorded player-specific.png)
 
-![](C:/Users/JJ/Pictures/examine if players were undervalued.png)
+![](C:/Users/qp/Pictures/examine if players were undervalued.png)
+
+
 
 
 
@@ -158,14 +63,13 @@ https://rafalab.github.io/dsbook/linear-models.html#case-study-moneyball
 
 # Baseball Basics
 
-We actually don't need to understand all the details about the game of baseball, which has over 100 rules, to see how regression will help us find undervalued players.  Here, we distill the sport to the basic knowledge one needs to know to effectively attack the data science challenge.  Let's get started.
-[][The goal of a baseball game is to score more runs, they're like points, than the other team].  Each team has _nine batters_ that bat in a predetermined order.  After the ninth batter hits, we start with the first again.  Each time they come to bat, we call it a _plate appearance, PA_.  At each plate appearance, the _other team's pitcher_ throws the ball and you try to hit it.  The plate appearance ends with a binary outcome--you either make an _out_, that's a failure and sit back down, or you don't, that's a success and you get to _run around the bases and potentially score a run_ (`  So a run means batter from Home base to 2ed base or something??? `).  Each team gets nine tries, referred to as innings, to score runs.  Each inning ends after three outs, after you've failed three times.  
+We actually don't need to understand all the details about the game of baseball, which has over 100 rules, to see how regression will help us find undervalued players.  Here, we distill the sport to the basic knowledge one needs to know to effectively attack the data science challenge.  Let's get started.  [][The goal of a baseball game is to score more runs, they're like points, than the other team].  Each team has nine batters that bat in a predetermined order.  After the ninth batter hits, we start with the first again.  Each time they come to bat, we call it a *plate appearance, PA*.  At each plate appearance, the other team's pitcher throws the ball and you try to hit it.  The plate appearance ends with a binary outcome--you either make an out, that's a failure and sit back down, or you don't, that's a success and you get to run around the bases and potentially score a run.  Each team gets nine tries, referred to as innings, to score runs.  Each inning ends after three outs, after you've failed three times.  
 
-From these examples, we see how luck is involved in the process.  When you bat you want to hit the ball hard.  If you hit it hard enough, it's a home run, the best possible outcome as you get at least one automatic run.  But sometimes, due to chance, you hit the ball very hard and a defender (`  who is this defender???  `) catches it, which makes it an out, a failure.  In contrast, sometimes you hit the ball softly but it lands just in the right place.  You get a hit which is a success.  The fact that there is chance involved hints at why probability models will be involved in all this.  Now there are [][several ways to succeed].  **Understanding this distinction will be important for our analysis**.  
+From these examples, we see how luck is involved in the process.  When you bat you want to hit the ball hard.  If you hit it hard enough, it's a home run, the best possible outcome as you get at least one automatic run.  But sometimes, due to chance, you hit the ball very hard and a defender catches it, which makes it an out, a failure.  In contrast, sometimes you hit the ball softly but it lands just in the right place.  You get a hit which is a success.  The fact that there is chance involved hints at why probability models will be involved in all this.  Now there are [][several ways to succeed].  **Understanding this distinction will be important for our analysis**.  
 
-[][When you hit the ball you want to pass as many bases as possible].  There are four bases with the fourth one called home plate.  Home plate is where you start, where you try to hit.  So the bases form a cycle.  [][If you get home, you score a run] (`  does this means you passes 4 bases one by one under one batter???  `).  We're simplifying a bit.  But there are **five ways you can succeed**.  In other words, not making an out.  First one is called a **base on balls**.  [][This is when the pitcher does not pitch well and you get to go to first base].  A single is when you hit the ball and you get to first base.  A double is when you hit the ball and you go past first base to second.  **Triple** is when you do that but get to third.  And [][a home run is when you hit the ball and go all the way home and score a run].  [][If you get to a base, you still have a chance of getting home and scoring a run if the next batter hits successfully].  While you are on base, you can also try to [][steal a base].  If you run fast enough, you can try to go from first to second or from second to third without the other team tagging you. 
+When you hit the ball you want to pass as many bases as possible.  There are four bases with the fourth one called home plate.  Home plate is where you start, where you try to hit.  So the bases form a cycle.  [][If you get home, you score a run].  We're simplifying a bit.  But there are **five ways you can succeed**.  In other words, not making an out.  First one is called a base on balls.  This is when the pitcher does not pitch well and you get to go to first base.  A single is when you hit the ball and you get to first base.  A double is when you hit the ball and you go past first base to second.  Triple is when you do that but get to third.  And a home run is when you hit the ball and go all the way home and score a run.  If you get to a base, you still have a chance of getting home and scoring a run if the next batter hits successfully.  While you are on base, you can also try to [][steal a base].  If you run fast enough, you can try to go from first to second or from second to third without the other team tagging you.  
 
-All right.  Now historically, the **batting average** has been considered the most important offensive statistic.  To define this average, we define a [][hit] and an [][at bat].  **Singles, doubles, triples, and home runs are **[][hits].  But remember, there's a fifth way to be successful, the **base on balls**.  That is not a hit.  [][An at bat] **is the number of times you either get a hit or make an out**, bases on balls are excluded.  The batting average is simply hits divided by at bats.  And it is considered the main measure of a success rate.  Today, in today's game, this success rates ranges from player to player from about 20% to 38%.  We refer to the batting average in thousands.  So for example, if your success rate is 25% we say you're batting 250.  
+All right.  Now historically, the **batting average** has been considered the most important offensive statistic.  To define this average, we define a hit and an at bat.  Singles, doubles, triples, and home runs are hits.  But remember, there's a fifth way to be successful, the **base on balls**.  That is not a hit.  An at bat **is the number of times you either get a hit or make an out**, bases on balls are excluded.  The batting average is simply hits divided by at bats.  And it is considered the main measure of a success rate.  Today, in today's game, this success rates ranges from player to player from about 20% to 38%.  We refer to the batting average in thousands.  So for example, if your success rate is 25% we say you're batting 250.  
 
 One of Bill James' first important insights is that the [][batting average ignores bases on balls but bases on balls is a success].  So a player that gets many more bases on balls than the average player might not be recognized if he does not excel in batting average.  But is this player not helping produce runs?  No award is given to the player with the most bases on balls.  In contrast, the total number of stolen bases are considered important and an award is given out to the player with the most.  But players with high totals of stolen bases also make outs as they do not always succeed.  
 
@@ -198,37 +102,39 @@ https://rafalab.github.io/dsbook/linear-models.html#baseball-basics
 
 
 
-![image here](C:/Users/JJ/Pictures/baseball goal.png)
+![image here](C:/Users/qp/Pictures/baseball goal.png)
 
-![image here](C:/Users/JJ/Pictures/9 order predetermined batters.png)
+![image here](C:/Users/qp/Pictures/9 order predetermined batters.png)
 
-![plate appearance](C:/Users/JJ/Pictures/plate appearance.png)
+![plate appearance](C:/Users/qp/Pictures/plate appearance.png)
 
-![image here](C:/Users/JJ/Pictures/inning ends after 3 outs.png)
+![image here](C:/Users/qp/Pictures/inning ends after 3 outs.png)
 
 **In baseball, a home run (abbreviated HR) is scored when the ball is hit in such a way that the batter is able to circle the bases and reach home safely **
 
-![image here](C:/Users/JJ/Pictures/4 bases in baseball field.png)
+![image here](C:/Users/qp/Pictures/4 bases in baseball field.png)
 
-![image here](C:/Users/JJ/Pictures/if you get home base you hit a run.png)
+![image here](C:/Users/qp/Pictures/if you get home base you hit a run.png)
 
-![Base on ball](C:/Users/JJ/Pictures/base on ball, you get go first base.png)
+![Base on ball](C:/Users/qp/Pictures/base on ball, you get go first base.png)
 
-![A single is you hit the ball and get to first base](C:/Users/JJ/Pictures/a single is you hit the ball and you get to 1 base.png)
+![A single is you hit the ball and get to first base](C:/Users/qp/Pictures/a single is you hit the ball and you get to 1 base.png)
 
-![image here](C:/Users/JJ/Pictures/a double is you hit the ball and pass through first to second base.png)
+![image here](C:/Users/qp/Pictures/a double is you hit the ball and pass through first to second base.png)
 
-![image here](C:/Users/JJ/Pictures/a triple is you hit ball and get to third base.png)
+![image here](C:/Users/qp/Pictures/a triple is you hit ball and get to third base.png)
 
-![baseball home run, go all the way home and score a run](C:/Users/JJ/Pictures/home run is you hit the ball and go all the way home and score a run.png)
+![baseball home run, go all the way home and score a run](C:/Users/qp/Pictures/home run is you hit the ball and go all the way home and score a run.png)
 
-![baseball steal a base](C:/Users/JJ/Pictures/baseball steal a base.png)
+![baseball steal a base](C:/Users/qp/Pictures/baseball steal a base.png)
 
-![Image here](C:/Users/JJ/Pictures/batting average considered as most important.png)
+![Image here](C:/Users/qp/Pictures/batting average considered as most important.png)
 
-![batting average equation](C:/Users/JJ/Pictures/baseball batting average equation.png)
+![batting average equation](C:/Users/qp/Pictures/baseball batting average equation.png)
 
-![image here](C:/Users/JJ/Pictures/base on abll or stolen base.png)
+![image here](C:/Users/qp/Pictures/base on abll or stolen base.png)
+
+
 
 
 
@@ -239,11 +145,11 @@ https://rafalab.github.io/dsbook/linear-models.html#baseball-basics
 
 Let's start looking at some baseball data and try to answer your questions using these data.  First one, do teams that hit more home runs score more runs?  We know what the answer to this will be, but let's look at the data anyways.  We're going to examine data from 1961 to 2001.  We end at 2001 because, remember, we're back in 2002, getting ready to build a team.  
 
-We started in 1961, because that year, the league changed from 154 games to 162 games.  _The visualization of choice when exploring the relationship between two variables like home runs and runs is a scatterplot_ (`  So we can do what we prefer I suppose  `).  The following code shows you how to make that scatterplot.  We start by loading the Lahman library that has all these baseball statistics.  And then we simply make a scatterplot using 2d plot.  Here's a plot of runs per game versus home runs per game.  
+We started in 1961, because that year, the league changed from 154 games to 162 games.  The visualization of choice when exploring the relationship between two variables like home runs and runs is a scatterplot.  The following code shows you how to make that scatterplot.  We start by loading the Lahman library that has all these baseball statistics.  And then we simply make a scatterplot using 2d plot.  Here's a plot of runs per game versus home runs per game.  
 
 The plot shows a very strong association--teams with more home runs tended to score more runs.  Now, let's examine the relationship between stolen bases and wins.  Here are the runs per game plotted against stolen bases per game.  Here, the relationship is not as clear.  Finally, let's examine the relationship between bases on balls and runs.  Here are runs per game versus bases on balls per game.  Although the relationship is not as strong as it was for home runs, we do see a pretty strong relationship here.  
 
-We know that, by definition, home runs cause runs, because when you hit a home run, at least one run will score. [][Need to stufy how baseball rules the scores or runs, is Runs and Scores the same stuff in baseball game ???]  Now it could be that home runs also cause the bases on balls (`  How ???  `  **base on balls. This is when the pitcher does not pitch well and you get to go to first base**).  If you understand the game, you will agree with me that that could be the case.  [][So it might appear that a base on ball is causing runs, when in fact, it's home runs that's causing both].  This is called [][confounding].  An important concept you will learn about.  Linear regression will help us parse all this out and quantify the associations.  This will then help us determine what players to recruit.  Specifically, we will try to predict things like how many more runs will the team score if we increase the number of bases on balls but keep the home runs fixed.  Regression will help us answer this question, as well.
+We know that, by definition, home runs cause runs, because when you hit a home run, at least one run will score.  Now it could be that home runs also cause the bases on balls.  If you understand the game, you will agree with me that that could be the case.  [][So it might appear that a base on ball is causing runs, when in fact, it's home runs that's causing both].  This is called [][confounding].  An important concept you will learn about.  Linear regression will help us parse all this out and quantify the associations.  This will then help us determine what players to recruit.  Specifically, we will try to predict things like how many more runs will the team score if we increase the number of bases on balls but keep the home runs fixed.  Regression will help us answer this question, as well.
 
 
 [][Textbook link]
@@ -290,7 +196,7 @@ Teams %>% filter(yearID %in% 1961:2001) %>%
 ```
 
 
-![Image here](C:/Users/JJ/Pictures/baseball more home runs get more runs.png)
+![Image here](C:/Users/qp/Pictures/baseball more home runs get more runs.png)
 
 ```{r}
 library(Lahman)
@@ -305,31 +211,17 @@ Teams %>%
   geom_point(alpha=0.5)
 ```
 
-![Image here](C:/Users/JJ/Pictures/plot of runs per game vs home runs per game.png)
+![Image here](C:/Users/qp/Pictures/plot of runs per game vs home runs per game.png)
 
-![Image here](C:/Users/JJ/Pictures/runs per game vs stolen bases.png)
+![Image here](C:/Users/qp/Pictures/runs per game vs stolen bases.png)
 
-![image here](C:/Users/JJ/Pictures/runs per game vs base on balls.png)
+![image here](C:/Users/qp/Pictures/runs per game vs base on balls.png)
 
-![caused the both](C:/Users/JJ/Pictures/confounding.png)
+![caused the both](C:/Users/qp/Pictures/confounding.png)
 
-![image here](C:/Users/JJ/Pictures/linear regression will help us parse all out and quantify the associations.png)
-
-
+![image here](C:/Users/qp/Pictures/linear regression will help us parse all out and quantify the associations.png)
 
 
-
-[][Textbook link]
-
-This video corresponds to the base on balls or stolen bases textbook section.
-https://rafalab.github.io/dsbook/linear-models.html#base-on-balls-or-stolen-bases
-
-
-[][Key points]
-
-    The visualization of choice when exploring the relationship between two variables like home runs and runs is a scatterplot.
-
-Code: Scatterplot of the relationship between HRs and wins
 
 ```{r}
 library(Lahman)
@@ -358,6 +250,9 @@ Teams %>% filter(yearID %in% 1961:2001) %>%
     geom_point(alpha = 0.5)
 
 ```
+
+
+
 
 
 
@@ -512,6 +407,9 @@ Teams %>%
 
 
 
+
+
+
 # Questions About Baseball as a Motivating Example?
 
 Ask your questions or make your comments about Baseball as a Motivating Example here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course). 
@@ -522,6 +420,8 @@ Search the discussion board before posting to see if someone else has asked the 
 Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
 Posting snippets of code is okay, but posting full code solutions is not.
 If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+
 
 
 
@@ -557,14 +457,18 @@ galton_heights %>%
 
 
 
+
+
+
+
 # Correlation
 
 
-Up to now in this series, we have focused mainly on univariate variables.  However, **in data science application it is very common to be interested in the relationship between two or more variables**. (`Google this topic and explore a case study`)   We saw this in our baseball example in which we were interested in the relationship, for example, between bases on balls and runs.  we'll come back to this example, but we introduce the concepts of correlation and regression using a simpler example.
+Up to now in this series, we have focused mainly on univariate variables.  However, **in data science application it is very common to be interested in the relationship between two or more variables**. (`Google this topic and explore a case study`)   We saw this in our baseball example in which we were interested in the relationship, for example, between bases on balls and runs.  we'll come back to this example, but we introduce the concepts of correlation and regression using a simpler example.  
 
-We'll create a data set with the heights of fathers and the first sons.  The actual data Galton used to discover and define regression.  So we have the father and son height data.  Suppose we were to summarize these data.  **Since both distributions are well approximated by normal distributions, we can use the two averages and two standard deviations as summaries**.  Here they are.
+We'll create a data set with the heights of fathers and the first sons.  The actual data Galton used to discover and define regression.  So we have the father and son height data.  Suppose we were to summarize these data.  **Since both distributions are well approximated by normal distributions, we can use the two averages and two standard deviations as summaries**.  Here they are.  
 
-[][**However, this summary fails to describe a very important characteristic of the data that you can see in this figure.  The trend that the taller the father, the taller the son, is not described by the summary statistics of the average and the standard deviation. We will learn that the correlation coefficient is a summary of this trend**].(`Interesting here how the instructor jumped in the topic of his teaching`)
+[][**However, this summary fails to describe a very important characteristic of the data that you can see in this figure.  The trend that the taller the father, the taller the son, is not described by the summary statistics of the average and the standard deviation.  We will learn that the correlation coefficient is a summary of this trend**].  
 
 
 [][Textbook link]
@@ -641,14 +545,17 @@ galton_heights %>%
 
 
 
+
+
+
 # Correlation Coefficient
 
 
 **The correlation coefficient is defined for a list of pairs--x1, y1 through xn, yn**--with the following formula.  Here, mu_x and mu_y are the averages of x and y, respectively.  And sigma_x and sigma_y are the standard deviations.  The Greek letter rho is commonly used in the statistics book, to denote this correlation.  The reason is that rho is the Greek letter for r, the first letter of the word regression.  Soon, we will learn about the connection between correlation and regression.  [][*To understand why this equation does, in fact, summarize how two variables move together*], **consider the i-th entry of x is xi minus mu_x divided by sigma_x SDs away from the average**.  Similarly, the yi--which is paired with the xi--is yi minus mu_y divided by sigma_y SDs away from the average y.  
 
-If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  [][*This will average to about 0*.  **The correlation is this average.**]
+If x and y are unrelated, then the product of these two quantities will be positive.  That happens when they are both positive or when they are both negative as often as they will be negative.  That happens when one is positive and the other is negative, or the other way around.  One is negative and the other one is positive.  [][*This will average to about 0.  The correlation is this average.*]  
 
-**And therefore, unrelated variables will have a correlation of about 0** (`  Why ??? Sorry I didn't get it`  ).  If instead the quantities vary together, then we are averaging mostly positive products.  Because they're going to be either positive times positive or negative times negative.  And we get a positive correlation.  If they vary in opposite directions, we get a negative correlation.
+**And therefore, unrelated variables will have a correlation of about 0**.  If instead the quantities vary together, then we are averaging mostly positive products.  Because they're going to be either positive times positive or negative times negative.  And we get a positive correlation.  If they vary in opposite directions, we get a negative correlation.
 
 Another thing to know is that we can show mathematically that the correlation is always between negative 1 and 1.  To see this, consider that we can have higher correlation than when we compare a list to itself.  That would be perfect correlation.  In this case, the correlation is given by this equation, which we can show is equal to 1.  A similar argument with x and its exact opposite, negative x, proves that the correlation has to be greater or equal to negative 1.  So it's between minus 1 and 1.  
 
@@ -681,23 +588,23 @@ rho <- mean(scale(x)*scale(y))
 galton_heights %>% summarize(r = cor(father, son)) %>% pull(r)
 
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient.png)
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient02.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient02.png)
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient03.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient03.png)
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient04.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient04.png)
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient05.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient05.png)
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient06.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient06.png)
 
-![alt text here.](C:/Users/JJ/Pictures/variance and standard deviation.png)
+![alt text here.](C:/Users/qp/Pictures/variance and standard deviation.png)
 
 # https://www.mathsisfun.com/data/standard-deviation.html
 
-![alt text here.](C:/Users/JJ/Pictures/standard deviation and variabce relationship.png)
+![alt text here.](C:/Users/qp/Pictures/standard deviation and variabce relationship.png)
 
 
 ```{r}
@@ -716,7 +623,11 @@ galton_heights %>%
   summarise(cor(father, son))
 ```
 
-![alt text here.](C:/Users/JJ/Pictures/Correlation_Coefficient08.png)
+![alt text here.](C:/Users/qp/Pictures/Correlation_Coefficient08.png)
+
+
+
+
 
 
 
@@ -725,9 +636,9 @@ galton_heights %>%
 # Sample Correlation is a Random Variable
 
 
-Before we continue describing regression, let's go over a reminder about **random variability**.  In most data science applications, we do not observe the population, but rather a sample.  As with the average and standard deviation, the sample correlation is the most commonly used estimate of the population correlation.  **This implies that the correlation we compute and use as a summary is a random variable** (`  So What ???  `).  As an illustration, let's assume that the 179 pairs of fathers and sons is our entire population.  A less fortunate geneticist can only afford to take a random sample of 25 pairs.  The sample correlation for this random sample can be computed using this code.  **Here, the variable R is the random variable**.  
+Before we continue describing regression, let's go over a reminder about **random variability**.  In most data science applications, we do not observe the population, but rather a sample.  As with the average and standard deviation, the sample correlation is the most commonly used estimate of the population correlation.  **This implies that the correlation we compute and use as a summary is a random variable**.  As an illustration, let's assume that the 179 pairs of fathers and sons is our entire population.  A less fortunate geneticist can only afford to take a random sample of 25 pairs.  The sample correlation for this random sample can be computed using this code.  **Here, the variable R is the random variable**.  
 
-[][*We can run a monte-carlo simulation to see the distribution of this random variable*].  Here, we recreate R 1000 times, and plot its histogram.  We see that the **expected value is the population correlation**, the mean of these Rs is 0.5, and that it has a relatively high standard error relative to its size, SD 0.147.  This is something to keep in mind when interpreting correlations.  [][**It is a random variable, and it can have a pretty large standard error**].  Also note that **because the sample correlation is an average of independent draws** (` independent? average? how? `), the Central Limit Theorem actually applies.  [][*Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal*].  
+We can run a monte-carlo simulation to see the distribution of this random variable.  Here, we recreate R 1000 times, and plot its histogram.  We see that the **expected value is the population correlation**, the mean of these Rs is 0.5, and that it has a relatively high standard error relative to its size, SD 0.147.  This is something to keep in mind when interpreting correlations.  [][**It is a random variable, and it can have a pretty large standard error**].  Also note that **because the sample correlation is an average of independent draws** (` independent? average? how? `), the Central Limit Theorem actually applies.  [][*Therefore, for a large enough sample size N, the distribution of these Rs is approximately normal*].  
 
 The expected value we know is the population correlation.  The standard deviation is somewhat more complex to derive, but this is the actual formula here.  In our example, N equals to 25, does not appear to be large enough to make the approximation a good one (`  how to identify a good one ???  Should the standard deviation equal to a normal distribution or something ???  `), as we see in this QQ-plot.  
 
@@ -903,23 +814,23 @@ R <- sample_n(galton_heights, 25, replace=TRUE) %>%
 R
 ```
 
-![](C:/Users/JJ/Pictures/in most data science application what we do observe is a sample.png)
+![](C:/Users/qp/Pictures/in most data science application what we do observe is a sample.png)
 
-![](C:/Users/JJ/Pictures/thus the sample correlation is most commonly used to estimate population correlation.png)
+![](C:/Users/qp/Pictures/thus the sample correlation is most commonly used to estimate population correlation.png)
 
-![this implies that the correlation we compte and used as a summary is a random variable.png](C:/Users/JJ/Pictures/this implies that the correlation we compte and used as a summary is a random variable.png)
+![this implies that the correlation we compte and used as a summary is a random variable.png](C:/Users/qp/Pictures/this implies that the correlation we compte and used as a summary is a random variable.png)
 
-![](C:/Users/JJ/Pictures/here the variable r is a random variable.png)
+![](C:/Users/qp/Pictures/here the variable r is a random variable.png)
 
-![because the sample correlation is an average of independent draws, the centeral limit theorem applies.png](C:/Users/JJ/Pictures/because the sample correlation is an average of independent draws, the centeral limit theorem applies.png)
+![because the sample correlation is an average of independent draws, the centeral limit theorem applies.png](C:/Users/qp/Pictures/because the sample correlation is an average of independent draws, the centeral limit theorem applies.png)
 
 [][**Read this and think**]
-![Sample Correlation is a Random Variable.png](C:/Users/JJ/Pictures/therefore for a large enough sample size N the distribution of these Rs is approximately normal, the expected value we know is the population correlation, thesd is somewhat more complex to derive, but here is the formula.png)
+![Sample Correlation is a Random Variable.png](C:/Users/qp/Pictures/therefore for a large enough sample size N the distribution of these Rs is approximately normal, the expected value we know is the population correlation, thesd is somewhat more complex to derive, but here is the formula.png)
 
 
-![alt text here.](C:/Users/JJ/Pictures/Sample Correlation is a Random Variable.png)
+![alt text here.](C:/Users/qp/Pictures/Sample Correlation is a Random Variable.png)
 
-![alt text here](C:/Users/JJ/Pictures/Sample Correlation is a Random Variable02.png)
+![alt text here](C:/Users/qp/Pictures/Sample Correlation is a Random Variable02.png)
 
 
 
@@ -953,7 +864,7 @@ correct
 Below is a scatter plot showing the relationship between two variables, x and y.
 Scatter plot of relationship between x (plotted on the x-axis) and y (plotted on the y-axis). y-axis values range from -3 to 3; x-axis values range from -3 to 3. Points are fairly well distributed in a tight band with a range from approximately (-2, 2) to (3, -3).
 
-![Question 3 image here](C:/Users/JJ/Pictures/7_6_1_assessment_IDS.png)
+![Question 3 image here](C:/Users/qp/Pictures/7_6_1_assessment_IDS.png)
 From this figure, the correlation between x and y appears to be about:
 **-0.9**
 -0.2
@@ -1066,6 +977,7 @@ library(tidyverse)
 Teams %>% filter(yearID %in% 1961:2001 ) %>% 
   summarize(cor(X2B/G, X3B/G))
 ```
+
 
 
 
@@ -1192,19 +1104,19 @@ galton_heights %>%
 ```
 
 
-![image here](C:/Users/JJ/Pictures/correlation of 0.82.png)
+![image here](C:/Users/qp/Pictures/correlation of 0.82.png)
 
 
-![image here](C:/Users/JJ/Pictures/1.14 sd taller than average.png)
+![image here](C:/Users/qp/Pictures/1.14 sd taller than average.png)
 
 
-![image here](C:/Users/JJ/Pictures/stratifying.png)
+![image here](C:/Users/qp/Pictures/stratifying.png)
 
 
-![image here](C:/Users/JJ/Pictures/conditional average.png)
+![image here](C:/Users/qp/Pictures/conditional average.png)
 
 
-![image here](C:/Users/JJ/Pictures/conditional average2.png)
+![image here](C:/Users/qp/Pictures/conditional average2.png)
 
 ```{r}
 conditional_avg <- galton_heights %>%
@@ -1234,7 +1146,7 @@ galton_heights %>%
   geom_point()
 ```
 
-![image here](C:/Users/JJ/Pictures/slope is 0.5.png)
+![image here](C:/Users/qp/Pictures/slope is 0.5.png)
 
 ```{r}
 r <- galton_heights %>%  
@@ -1274,7 +1186,7 @@ galton_heights %>%
 # So the reason for standardize is the intercept would be easy to define, otherwise we have to guess until its 35 or something,  and also the two plot seems different, this one and the standardized one.  Recall how correlation is calculated, and how scale() function standardizing the data: (x - mean(x)) / sd(x)
 ```
 
-![image here](C:/Users/JJ/Pictures/Correlation_Coefficient.png)
+![image here](C:/Users/qp/Pictures/Correlation_Coefficient.png)
 
 
 ```{r}
@@ -1288,17 +1200,17 @@ a <- galton_heights %>%
 a
 ```
 
-![Read the below statement](C:/Users/JJ/Pictures/for every standard deviation increase above then.png)
+![Read the below statement](C:/Users/qp/Pictures/for every standard deviation increase above then.png)
 
-![image here](C:/Users/JJ/Pictures/formula for regression line.png)
+![image here](C:/Users/qp/Pictures/formula for regression line.png)
 
-![image here](C:/Users/JJ/Pictures/perfect correlation will be sd.png)
+![image here](C:/Users/qp/Pictures/perfect correlation will be sd.png)
 
-![image here](C:/Users/JJ/Pictures/intercept.png)
+![image here](C:/Users/qp/Pictures/intercept.png)
 
-![image here](C:/Users/JJ/Pictures/regression line formula.png)
+![image here](C:/Users/qp/Pictures/regression line formula.png)
 
-![image here](C:/Users/JJ/Pictures/20220503_181448.jpg)
+![image here](C:/Users/qp/Pictures/20220503_181448.jpg)
 
 ```{r}
 mu_x <- mean(galton_heights$father)
@@ -1330,7 +1242,9 @@ galton_heights %>%
   geom_abline(intercept = 0, slope = r)
 ```
 
-![image here](C:/Users/JJ/Pictures/regression lines gives us the prediction.png)
+![image here](C:/Users/qp/Pictures/regression lines gives us the prediction.png)
+
+
 
 
 
@@ -1377,23 +1291,23 @@ galton_heights %>%
 # https://towardsdatascience.com/q-q-plots-explained-5aa8495426c0?gi=409ca0cd036
 ```
 
-![image here](C:/Users/JJ/Pictures/bivate normal distribution.png)
+![image here](C:/Users/qp/Pictures/bivate normal distribution.png)
 
-![image here](C:/Users/JJ/Pictures/scatter plot looks like ovals.png)
+![image here](C:/Users/qp/Pictures/scatter plot looks like ovals.png)
 
-![image here](C:/Users/JJ/Pictures/think means high correlation.png)
+![image here](C:/Users/qp/Pictures/think means high correlation.png)
 
-![image here](C:/Users/JJ/Pictures/circle-shaped mean no correlation.png)
+![image here](C:/Users/qp/Pictures/circle-shaped mean no correlation.png)
 
-![images here](C:/Users/JJ/Pictures/some examples of correlations.png)
+![images here](C:/Users/qp/Pictures/some examples of correlations.png)
 
-![images here](C:/Users/JJ/Pictures/bivariate normal distribution is defined for pairs.png)
+![images here](C:/Users/qp/Pictures/bivariate normal distribution is defined for pairs.png)
 
-![image here](C:/Users/JJ/Pictures/bivariate normal distribution conditions.png)
+![image here](C:/Users/qp/Pictures/bivariate normal distribution conditions.png)
 
-![image here](C:/Users/JJ/Pictures/conditional distribution of y given x=x.png)
+![image here](C:/Users/qp/Pictures/conditional distribution of y given x=x.png)
 
-![image here](C:/Users/JJ/Pictures/we write the notation like this for conditional distribution.png)
+![image here](C:/Users/qp/Pictures/we write the notation like this for conditional distribution.png)
 
 ```{r}
 galton_heights %>%
@@ -1410,18 +1324,20 @@ galton_heights %>%
 
 ```
 
-![image here](C:/Users/JJ/Pictures/follow bivariate normal distribution the formula.png)
+![image here](C:/Users/qp/Pictures/follow bivariate normal distribution the formula.png)
 # Where does above formula comes from???
 
-![image here](C:/Users/JJ/Pictures/as we saw in the previous video.png)
+![image here](C:/Users/qp/Pictures/as we saw in the previous video.png)
 
-![image here](C:/Users/JJ/Pictures/slope of bivariate normal distribution.png)
+![image here](C:/Users/qp/Pictures/slope of bivariate normal distribution.png)
 
-![image here](C:/Users/JJ/Pictures/intercept of bivariate normal distribution.png)
+![image here](C:/Users/qp/Pictures/intercept of bivariate normal distribution.png)
 
-![image here](C:/Users/JJ/Pictures/bivariate normal distribution same as regression line.png)
+![image here](C:/Users/qp/Pictures/bivariate normal distribution same as regression line.png)
 
-![image here](C:/Users/JJ/Pictures/in summary.png)
+![image here](C:/Users/qp/Pictures/in summary.png)
+
+
 
 
 
@@ -1434,7 +1350,7 @@ galton_heights %>%
 # Correction (`  So this video is recorded long times ago, how interesting  `)
 
 ```The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance. **The variance is the standard deviation squared**. See the notes below the video for more clarification.```
-![Variance is standard deviation squared](C:/Users/JJ/Pictures/variance and standard deviation.png)
+![Variance is standard deviation squared](C:/Users/qp/Pictures/variance and standard deviation.png)
 (The theory we've been describing also tells us that the standard deviation of the conditional distribution that we described in a previous video is Var (`  Correction: The equation shown at 0:10 is for the standard deviation of the conditional distribution, not the variance  `) of Y given X equals sigma y times the square root of 1 minus rho squared.  This is where statements like x explains such and such percent of the variation in y comes from.  Note that the variance of y is sigma squared.  That's where we start.  **If we condition on x, then the variance goes down to 1 minus rho squared times sigma squared y**.  So from there, we can compute how much the variance has gone down.  It has gone down by rho squared times 100%.  So the correlation and the amount of variance explained are related to each other.  But it is important to remember that the variance explained statement only makes sense when the data is by a bivariate normal distribution.  
 
 [][Read all the course material and thinking, then trying to answer your questions, its a good way of learning, and thinking]
@@ -1463,18 +1379,19 @@ This video corresponds to the textbook section on variance explained.
 
 
 
-![not the variance](C:/Users/JJ/Pictures/is for standard deviation not the variance.png)
+![not the variance](C:/Users/qp/Pictures/is for standard deviation not the variance.png)
 # Where does above equation comes from ???
 
-![image here](C:/Users/JJ/Pictures/X explain such and such % of the variation in Y.png)
+![image here](C:/Users/qp/Pictures/X explain such and such % of the variation in Y.png)
 
-![image here](C:/Users/JJ/Pictures/variance is sigma squared.png)
+![image here](C:/Users/qp/Pictures/variance is sigma squared.png)
 
-![image here](C:/Users/JJ/Pictures/condition on x then variance goes down.png)
+![image here](C:/Users/qp/Pictures/condition on x then variance goes down.png)
 
-![image here](C:/Users/JJ/Pictures/what what waht what.png)
+![image here](C:/Users/qp/Pictures/what what waht what.png)
 
-![image here](C:/Users/JJ/Pictures/variance explained statement is only legit when bivariaate normal distribution.png)
+![image here](C:/Users/qp/Pictures/variance explained statement is only legit when bivariaate normal distribution.png)
+
 
 
 
@@ -1536,9 +1453,9 @@ m
 b
 ```
 
-![Song predict father wrong](C:/Users/JJ/Pictures/son predict father wrong.png)
+![Song predict father wrong](C:/Users/qp/Pictures/son predict father wrong.png)
 
-![compute expected value of x given y](C:/Users/JJ/Pictures/expected value given y.png)
+![compute expected value of x given y](C:/Users/qp/Pictures/expected value given y.png)
 
 ```{r}
 m <- r * s_x/s_y
@@ -1548,9 +1465,9 @@ m
 b
 ```
 
-![image here](C:/Users/JJ/Pictures/expected value of x giveny2.png)
+![image here](C:/Users/qp/Pictures/expected value of x giveny2.png)
 
-![two different lines depending on what you do](C:/Users/JJ/Pictures/two different lines.png)
+![two different lines depending on what you do](C:/Users/qp/Pictures/two different lines.png)
 
 
 
@@ -1563,7 +1480,7 @@ b
 # Question 1
 
 Look at the figure below.
-![question one image](C:/Users/JJ/Pictures/7_8_1_assessment_IDS.png)
+![question one image](C:/Users/qp/Pictures/7_8_1_assessment_IDS.png)
 Scatter plot of son and father heights with son heights on the y-axis and father heights on the x-axis. There is also a regression line that runs from roughly (63,66) to (78,76).  The dots on the plot are scattered around the line.
 The slope of the regression line in this figure is equal to what, in words?
 **Slope = (correlation coefficient of son and father heights) * (standard deviation of sons’ heights / standard deviation of fathers’ heights)**
@@ -1615,10 +1532,10 @@ The v-shaped distribution of points from the first plot means that the x and y v
 ****When a pair of random variables is approximated by a bivariate normal, the scatter plot looks like an oval**** (as in the 2nd, 3rd, and 4th plots) - [][it is okay if the oval is very round (as in the 3rd plot) or long and thin (as in the 4th plot)].
 
 
-![Question 5 image 1](C:/Users/JJ/Pictures/7_9_2_assessment_A_IDS.png)
-![Question 5 image 2](C:/Users/JJ/Pictures/7_9_2_assessment_B_IDS.png)
-![Question 5 image 3](C:/Users/JJ/Pictures/7_9_2_assessment_C_IDS.png)
-![Question 5 image 4 last one](C:/Users/JJ/Pictures/7_9_2_assessment_D_IDS.png)
+![Question 5 image 1](C:/Users/qp/Pictures/7_9_2_assessment_A_IDS.png)
+![Question 5 image 2](C:/Users/qp/Pictures/7_9_2_assessment_B_IDS.png)
+![Question 5 image 3](C:/Users/qp/Pictures/7_9_2_assessment_C_IDS.png)
+![Question 5 image 4 last one](C:/Users/qp/Pictures/7_9_2_assessment_D_IDS.png)
 
 
 #  Question 6
@@ -1649,6 +1566,7 @@ Given a one inch increase in a father’s height, what is the predicted change i
 correct
 Answer
 Correct: Correct! TThe slope of the regression line is calculated by multiplying the correlation coefficient by the ratio of the standard deviation of son heights and standard deviation of father heights: var_son/var_father.  (Note: here he means SD_son/SD_father, its a mistake)  .
+
 
 
 
@@ -1816,6 +1734,8 @@ Correct (1/1 point)
 
 
 
+
+
 # Questions About Stratification and Variance Explained?
 
 Ask your questions or make your comments about Stratification and Variance Explained here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course).
@@ -1832,6 +1752,7 @@ Some reminders:
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  Linear Models Overview
 
 
@@ -1842,9 +1763,9 @@ In the Linear Models section, you will learn how to do linear regression.
 
 After completing this section, you will be able to:
 
-        Use multivariate regression to adjust for confounders.
+[][*        Use multivariate regression to adjust for confounders.]
         Write linear models to describe the relationship between two or more variables.
-        Calculate the least squares estimates for a regression model using the lm function.
+[][*        Calculate the least squares estimates for a regression model using the lm function.]
         Understand the differences between tibbles and data frames.
         Use the do() function to bridge R functions and the tidyverse.
         Use the tidy(), glance(), and augment() functions from the broom package.
@@ -1853,6 +1774,7 @@ After completing this section, you will be able to:
 This section has four parts: Introduction to Linear Models, Least Squares Estimates, Tibbles, do, and broom, and Regression and Baseball. There are comprehension checks at the end of each part, along with an assessment on linear models at the end of the whole section for Verified learners only.
 
 We encourage you to use R to interactively test out your answers and further your own learning. If you get stuck, we encourage you to search the discussion boards for the answer to your issue or ask us for help!
+
 
 
 
@@ -1888,27 +1810,28 @@ Teams %>%
 
 
 
-![](C:/Users/JJ/Pictures/predicting runs from base on balls.png)
+![](C:/Users/qp/Pictures/predicting runs from base on balls.png)
 
-![](C:/Users/JJ/Pictures/association is not causation.png)
+![](C:/Users/qp/Pictures/association is not causation.png)
 
-![](C:/Users/JJ/Pictures/base on balls and runs relation.png)
+![](C:/Users/qp/Pictures/base on balls and runs relation.png)
 
-![](C:/Users/JJ/Pictures/association is not a causation 1.png)
+![](C:/Users/qp/Pictures/association is not a causation 1.png)
 
-![](C:/Users/JJ/Pictures/how about run with singles, slope dropped.png)
+![](C:/Users/qp/Pictures/how about run with singles, slope dropped.png)
 
-![Why](C:/Users/JJ/Pictures/runners on base have better change of scoring with single than bb.png)
+![Why](C:/Users/qp/Pictures/runners on base have better change of scoring with single than bb.png)
 [][Did you see the logic conflict here ???  Single-R slope < BB-R slope, but Single gives runner better chance.  Now interesting]**++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++**
 
 
-![](C:/Users/JJ/Pictures/confounding cause.png)
+![](C:/Users/qp/Pictures/confounding cause.png)
 
-![](C:/Users/JJ/Pictures/base on balls and home runs.png)
+![](C:/Users/qp/Pictures/base on balls and home runs.png)
 
-![](C:/Users/JJ/Pictures/pitchers avoid strike to home runners, thus .png)
+![](C:/Users/qp/Pictures/pitchers avoid strike to home runners, thus .png)
 
-![](C:/Users/JJ/Pictures/bb are condounded with hr.png)
+![](C:/Users/qp/Pictures/bb are condounded with hr.png)
+
 
 
 
@@ -2036,27 +1959,27 @@ dat %>%
 
 
 
-![](C:/Users/JJ/Pictures/stratify by hr per game.png)
+![](C:/Users/qp/Pictures/stratify by hr per game.png)
 
-![](C:/Users/JJ/Pictures/regression slope for predicting runs with bb is 0.735.png)
+![](C:/Users/qp/Pictures/regression slope for predicting runs with bb is 0.735.png)
 
-![](C:/Users/JJ/Pictures/stritify the hr, now bb on runs and single on runs are similar.png)
+![](C:/Users/qp/Pictures/stritify the hr, now bb on runs and single on runs are similar.png)
 
-![](C:/Users/JJ/Pictures/stratify bb and hr and run share similar slope in each bb stratas.png)
+![](C:/Users/qp/Pictures/stratify bb and hr and run share similar slope in each bb stratas.png)
 
-![](C:/Users/JJ/Pictures/x1 is bb and x2 is hr.png)
+![](C:/Users/qp/Pictures/x1 is bb and x2 is hr.png)
 
-![](C:/Users/JJ/Pictures/if the slopes are same, the beta1x2 and beta2x1 are constant.png)
+![](C:/Users/qp/Pictures/if the slopes are same, the beta1x2 and beta2x1 are constant.png)
 
-![](C:/Users/JJ/Pictures/if the number of hr are fixed, we observe a linear relationship between r and bb.png)
+![](C:/Users/qp/Pictures/if the number of hr are fixed, we observe a linear relationship between r and bb.png)
 
-![](C:/Users/JJ/Pictures/and the slope of that relationship does not depends on hr.png)
+![](C:/Users/qp/Pictures/and the slope of that relationship does not depends on hr.png)
 
-![](C:/Users/JJ/Pictures/in this analysis is multivariate regression.png)
+![](C:/Users/qp/Pictures/in this analysis is multivariate regression.png)
 
-![](C:/users/JJ/Pictures/bb slope id adjusted for hr effect, the confunding one.png)
+![](C:/Users/qp/Pictures/bb slope id adjusted for hr effect, the confunding one.png)
 
-![](C:/users/JJ/Pictures/thus confounding has been accounted for.png)
+![](C:/Users/qp/Pictures/thus confounding has been accounted for.png)
 
 
 
@@ -2100,41 +2023,43 @@ https://rafalab.github.io/dsbook/linear-models.html
 
 
 
-![](C:/Users/JJ/Pictures/regression allows us to find relationships between 2 variables while adjusting for others.png)
+![](C:/Users/qp/Pictures/regression allows us to find relationships between 2 variables while adjusting for others.png)
 
-![](C:/Users/JJ/Pictures/estimate effect of eating fast foods on life expectancy, you can only measure fastfood eaters.png)
+![](C:/Users/qp/Pictures/estimate effect of eating fast foods on life expectancy, you can only measure fastfood eaters.png)
 
-![](C:/Users/JJ/Pictures/real world problem when collecting data of fast food consumers.png)
+![](C:/Users/qp/Pictures/real world problem when collecting data of fast food consumers.png)
 
-![](C:/Users/JJ/Pictures/how do we adjust confounding in practice.png)
+![](C:/Users/qp/Pictures/how do we adjust confounding in practice.png)
 
-![](C:/Users/JJ/Pictures/linear model not linear.png)
+![](C:/Users/qp/Pictures/linear model not linear.png)
 
-![linear combination of x, y and z](C:/Users/JJ/Pictures/2 + 3x - 4y + 5z.png)
+![linear combination of x, y and z](C:/Users/qp/Pictures/2 + 3x - 4y + 5z.png)
 
-![](C:/Users/JJ/Pictures/beta0 + beta1x1 + beta2x2.png)
+![](C:/Users/qp/Pictures/beta0 + beta1x1 + beta2x2.png)
 
-![a horizontal line](C:/Users/JJ/Pictures/simplest linear model is just a constant beta0.png)
+![a horizontal line](C:/Users/qp/Pictures/simplest linear model is just a constant beta0.png)
 
-![second simplest linear mode have a slopel](C:/Users/JJ/Pictures/the next simplest linear model is a line with slope.png)
+![second simplest linear mode have a slopel](C:/Users/qp/Pictures/the next simplest linear model is a line with slope.png)
 
-![](C:/Users/JJ/Pictures/n observed father's heights.png)
+![](C:/Users/qp/Pictures/n observed father's heights.png)
 
-![](C:/Users/JJ/Pictures/model n father heights to sons height.png)
+![](C:/Users/qp/Pictures/model n father heights to sons height.png)
 
-![random son heights we want to predict with conditioned fathers heights.png](C:/Users/JJ/Pictures/random son heights we want to predict with conditioned fathers heights.png)
+![random son heights we want to predict with conditioned fathers heights.png](C:/Users/qp/Pictures/random son heights we want to predict with conditioned fathers heights.png)
 
-![](C:/Users/JJ/Pictures/for bivariate normal distribution the linear model holds.png)
+![](C:/Users/qp/Pictures/for bivariate normal distribution the linear model holds.png)
 
-![](C:/Users/JJ/Pictures/linear models are interpretable.png)
+![](C:/Users/qp/Pictures/linear models are interpretable.png)
 
-![](C:/Users/JJ/Pictures/interpret father-son height data like this way.png)
+![](C:/Users/qp/Pictures/interpret father-son height data like this way.png)
 
-![In father-son heights dataset](C:/Users/JJ/Pictures/epsilon includes these influences.png)
+![In father-son heights dataset](C:/Users/qp/Pictures/epsilon includes these influences.png)
 
-![](C:/Users/JJ/Pictures/rewrite father-son height model this way to make it more interpretable.png)
+![](C:/Users/qp/Pictures/rewrite father-son height model this way to make it more interpretable.png)
 
-![So smart](C:/Users/JJ/Pictures/now the intercept meaning the predicted son height of average father.png)
+![So smart](C:/Users/qp/Pictures/now the intercept meaning the predicted son height of average father.png)
+
+
 
 
 
@@ -2222,7 +2147,7 @@ If we had not centered fathers’ heights to its mean, then the intercept would 
 Suppose we fit a multivariable regression model for expected runs based on BB and HR:
 
 E[R|BB = x_1, HR = x_2] = Beta_0 + Beta_1 * x_1 + Beta_2 * x_2
-![](C:/Users/JJ/Pictures/equation question 4.png)
+![](C:/Users/qp/Pictures/equation question 4.png)
 
 Suppose we fix
 . Then we observe a linear relationship between runs and HR with intercept of:
@@ -2280,6 +2205,8 @@ lm(son ~ father_centered, data = galton_heights)
 
 
 
+
+
 # Questions About Introduction to Linear Models
 
 
@@ -2298,13 +2225,14 @@ Some reminders:
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  2.2: Least Squares Estimates
 
 
 # Least Squares Estimates (LSE)
 
 
-For linear models to be useful, **we have to estimate the unknown parameters, the betas**.  The standard approach in science is to find the values that minimize the distance of the fitted model to the data.  To quantify, this we use the [][**least squares equation**].  For Galton's data, we would write something like this.  This quantity is called the [][**Residual Sum of Squares, RSS**].  Once we find the values that minimize the RSS, **we call the values the Least Squares Estimate, LSE, and denote them, in this case, with beta 0 hat and beta 1 hat**.  
+For linear models to be useful, **we have to estimate the unknown parameters, the betas**.  The standard approach in science is to find the values that minimize the distance of the fitted model to the data.  To quantify, this we use the [][**least squares equation**].  For Galton's data, we would write something like this.  This quantity is called the [][**Residual Sum of Squares, RSS**].  Once we find the values that minimize the RSS, **we call the values the Least Squares Estimate, LSE**, and denote them, in this case, with beta 0 hat and beta 1 hat.  
 
 [][**Let's write the function that computes the RSS for any pair of values, beta 0 and beta 1, for our heights data.  It would look like this.  So for any pair of values, we get an RSS.  So this is a three-dimensional plot with beta 1 and beta 2, and x and y and the RSS as a z.  To find the minimum, you would have to look at this three-dimensional plot**].  Here, we're just going to make a two-dimensional version by keeping beta 0 fixed at 25.  So it will be a function of the RSS as a function of beta 1.  We can use this code to produce this plot.  We can see a clear minimum for beta 1 at around 0.65.  So you could see how we would pick the least squares estimates.  However, this minimum is for beta 1 when beta 0 is fixed at 25.  But we don't know if that's the minimum for beta 0.  We don't know if 25 comma 0.65 minimizes the equation across all pairs.  
 
@@ -2371,15 +2299,15 @@ results %>%
 
 
 
-![](C:/Users/JJ/Pictures/in order to make linear model useful have to estimate the unknow parameters - beta.png)
+![](C:/Users/qp/Pictures/in order to make linear model useful have to estimate the unknow parameters - beta.png)
 
-![](C:/Users/JJ/Pictures/standard approach in data science when estimate is to using least squares equation.png)
+![](C:/Users/qp/Pictures/standard approach in data science when estimate is to using least squares equation.png)
 
-![](C:/Users/JJ/Pictures/residual sum of squares RSS.png)
+![](C:/Users/qp/Pictures/residual sum of squares RSS.png)
 
-![](C:/Users/JJ/Pictures/once we found the values-parameters that minimize RSS we call it least squares estimate LSE.png)
+![](C:/Users/qp/Pictures/once we found the values-parameters that minimize RSS we call it least squares estimate LSE.png)
 
-![](C:/Users/JJ/Pictures/use beta_x hat to denote the LSE_x.png)
+![](C:/Users/qp/Pictures/use beta_x hat to denote the LSE_x.png)
 
 ```{r}
 rss <- function(beta0, beta1, data){
@@ -2398,11 +2326,12 @@ results %>%
   geom_line(aes(beta1, rss), col=2)
 ```
 
-![](C:/Users/JJ/Pictures/we dont know if thats the minimun for beta 0.png)
+![](C:/Users/qp/Pictures/we dont know if thats the minimun for beta 0.png)
 
-![](C:/Users/JJ/Pictures/we dont know if this parameter minimize the equations across all pairs.png)
+![](C:/Users/qp/Pictures/we dont know if this parameter minimize the equations across all pairs.png)
 
 [][**Definition of trial and error: a finding out of the best way to reach a desired result or a correct solution by trying out one or more ways or means and by noting and eliminating errors or causes of failure also : the trying of one thing or another until something succeeds.**]
+
 
 
 
@@ -2461,13 +2390,13 @@ summary(fit)
 
 
 
-![](C:/Users/JJ/Pictures/r lm function.png)
+![](C:/Users/qp/Pictures/r lm function.png)
 
-![](C:/Users/JJ/Pictures/r lm function to fit model of father son height.png)
+![](C:/Users/qp/Pictures/r lm function to fit model of father son height.png)
 
-![](C:/Users/JJ/Pictures/r lm function ~ tilde left to predict.png)
+![](C:/Users/qp/Pictures/r lm function ~ tilde left to predict.png)
 
-![](C:/Users/JJ/Pictures/we can use function - summary to extract more of its information.png)
+![](C:/Users/qp/Pictures/we can use function - summary to extract more of its information.png)
 
 
 
@@ -2576,23 +2505,25 @@ lse %>% summarise(se_0 = sd(beta_0), se_1 = sd(beta_1))
 
 
 
-![](C:/Users/JJ/Pictures/the lse are derived from data through y1 through yn.png)
+![](C:/Users/qp/Pictures/the lse are derived from data through y1 through yn.png)
 
-![](C:/Users/JJ/Pictures/for large enough n the lse will be approximately normal with expected values beta0 and beta1.png)
+![](C:/Users/qp/Pictures/for large enough n the lse will be approximately normal with expected values beta0 and beta1.png)
 
-![](C:/Users/JJ/Pictures/here are standard error for one of our simulated dataset.png)
+![](C:/Users/qp/Pictures/here are standard error for one of our simulated dataset.png)
 
-![you can see the standard error estimates reported by the summary function are close to the standard errors that we obtained from our monte carlo simulation.png](C:/Users/JJ/Pictures/you can see the standard error estimates reported by the summary function are close to the standard errors that we obtained from our monte carlo simulation.png)
+![you can see the standard error estimates reported by the summary function are close to the standard errors that we obtained from our monte carlo simulation.png](C:/Users/qp/Pictures/you can see the standard error estimates reported by the summary function are close to the standard errors that we obtained from our monte carlo simulation.png)
 
-![](C:/Users/JJ/Pictures/the summary function also reports t-statistics and p-value.png)
+![](C:/Users/qp/Pictures/the summary function also reports t-statistics and p-value.png)
 
-![](C:/Users/JJ/Pictures/and here are the p-values pr bigger than absolute value of t column.png)
+![](C:/Users/qp/Pictures/and here are the p-values pr bigger than absolute value of t column.png)
 
-![++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++](C:/Users/JJ/Pictures/the t-statistics are not actually based on center limit theorem but rather on the assumption that the spsilons follow a normal distribution.png)
+![++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++](C:/Users/qp/Pictures/the t-statistics are not actually based on center limit theorem but rather on the assumption that the spsilons follow a normal distribution.png)
 
-![](C:/Users/JJ/Pictures/the 2p values are testing the null hypothesis that beta0 is 0 and beta1 is 0 respectively.png)
+![](C:/Users/qp/Pictures/the 2p values are testing the null hypothesis that beta0 is 0 and beta1 is 0 respectively.png)
 
-![hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png](C:/Users/JJ/Pictures/hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png)
+![hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png](C:/Users/qp/Pictures/hypothesis testing for regression models is very commonly used in many areas as the effecta and b was statistically significant after adjusting for x y and z.png)
+
+
 
 
 
@@ -2650,6 +2581,7 @@ cor(lse[1,], lse[2,])
 
 
 
+
 # Predicted Variables are Random Variables
 
 
@@ -2663,7 +2595,7 @@ cor(lse[1,], lse[2,])
 https://rafalab.github.io/dsbook/linear-models.html#predicted-values-are-random-variables
 ********************************************************************************************************
 
-![](C:/Users/JJ/Pictures/You can see that the standard errors estimates reported by the summary are close to the standard errors from the simulation.png)
+![](C:/Users/qp/Pictures/You can see that the standard errors estimates reported by the summary are close to the standard errors from the simulation.png)
 
 [][Textbook link]
 
@@ -2740,17 +2672,17 @@ names(Y_hat)
 ```
 
 
-![once we fit our model, we can obtain predictions of y by plugging in the estimates into regression model, y_hat is prediction for y.png](C:/Users/JJ/Pictures/once we fit our model, we can obtain predictions of y by plugging in the estimates into regression model, y_hat is prediction for y.png)
+![once we fit our model, we can obtain predictions of y by plugging in the estimates into regression model, y_hat is prediction for y.png](C:/Users/qp/Pictures/once we fit our model, we can obtain predictions of y by plugging in the estimates into regression model, y_hat is prediction for y.png)
 [][*Why do we construct confidence intervals?    Why are confidence intervals important? Because confidence intervals represent the range of scores that are likely if we were to repeat the survey, they are important to consider when generalizing results.*]
 https://www.google.com/search?client=firefox-b-e&q=construct+confidence+intervals
 
-![](C:/Users/JJ/Pictures/ggplot layer geom_smooth, when we provide method=lm, will plots confidence intervals around the predicted y_hat.png)
+![](C:/Users/qp/Pictures/ggplot layer geom_smooth, when we provide method=lm, will plots confidence intervals around the predicted y_hat.png)
 
-![Go read the book](C:/Users/JJ/Pictures/read the book, read the book, and read the book.png)
+![Go read the book](C:/Users/qp/Pictures/read the book, read the book, and read the book.png)
 
-![](C:/users/JJ/Pictures/the band around them are the confidence intervals.png)
+![](C:/Users/qp/Pictures/the band around them are the confidence intervals.png)
 
-![](C:/Users/JJ/Pictures/the r function predict takes an lm object as input and returns these predictions.png)
+![](C:/Users/qp/Pictures/the r function predict takes an lm object as input and returns these predictions.png)
 
 
 
@@ -2930,7 +2862,7 @@ With a large enough N, the central limit theorem applies and tells us that the d
 For hypothesis testing, we assume that the errors in the model are normally distributed.
 You have used 2 of 2 attempts 
 
-![](C:/Users/JJ/Pictures/what does central limit theorem tell us about the variables beta_0 and beta_1, or estimates.png)
+![](C:/Users/qp/Pictures/what does central limit theorem tell us about the variables beta_0 and beta_1, or estimates.png)
 
 
 # Question 5
@@ -3018,6 +2950,7 @@ If using the geom_smooth command, you need to specify that method = “lm” in 
 
 If using the predict command, you need to include the confidence intervals on your figure by first specifying that you want confidence intervals in the predict command, and then adding them to your figure as a geom_ribbon.
 You have used 1 of 2 attempts Some
+
 
 
 
@@ -3167,6 +3100,7 @@ We have shown how BB and singles have similar predictive power for scoring runs.
 Before we get started, we want to generate two tables: one for 2002 and another for the average of 1999-2001 seasons. We want to define per plate appearance statistics, keeping only players with more than 100 plate appearances. Here is how we create the 2002 table:
 ```
 library(Lahman)
+
 bat_02 <- Batting %>% filter(yearID == 2002) %>%
   mutate(pa = AB + BB, singles = (H - X2B - X3B - HR)/pa, bb = BB/pa) %>%
   filter(pa >= 100) %>%
@@ -3400,6 +3334,7 @@ inner_join(bat_02, bat_01_avg, by = 'playerID') %>%
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  2.3: Tibbles, do, and broom
 
 
@@ -3450,7 +3385,6 @@ dat %>%
 dat %>% group_by(HR) %>% head()
 dat %>% group_by(HR) %>% class()
 ```
-
 
 
 
@@ -3511,14 +3445,14 @@ dat %>%
 ```
 
 
-![](C:/Users/JJ/Pictures/we first constracted a data frame similar to this.png)
+![](C:/Users/qp/Pictures/we first constracted a data frame similar to this.png)
 
-![](C:/Users/JJ/Pictures/since we dont know the lm function back then we used the formula directly like this.png)
+![](C:/Users/qp/Pictures/since we dont know the lm function back then we used the formula directly like this.png)
 
-![first note if we try to use lm function to get the estimates we dont get what we want](C:/Users/JJ/Pictures/the lm function ignore the group_by.png)
+![first note if we try to use lm function to get the estimates we dont get what we want](C:/Users/qp/Pictures/the lm function ignore the group_by.png)
 
 
-![](C:/Users/JJ/Pictures/tibble of tidyverse.png)
+![](C:/Users/qp/Pictures/tibble of tidyverse.png)
 
 ```{r}
 dat %>%
@@ -3526,7 +3460,7 @@ dat %>%
   head()
 ```
 
-![](C:/Users/JJ/Pictures/a tibble 6 by 3.png)
+![](C:/Users/qp/Pictures/a tibble 6 by 3.png)
 
 ```{r}
 dat %>%
@@ -3534,19 +3468,19 @@ dat %>%
   class()
 ```
 
-![](C:/Users/JJ/Pictures/this is pronounced tibble.png)
+![](C:/Users/qp/Pictures/this is pronounced tibble.png)
 
-![](C:/Users/JJ/Pictures/group_by is a tidyverse function.png)
+![](C:/Users/qp/Pictures/group_by is a tidyverse function.png)
 
-![](C:/Users/JJ/Pictures/and summarize function of tidyverse always return this type of data frame.png)
+![](C:/Users/qp/Pictures/and summarize function of tidyverse always return this type of data frame.png)
 
-![](C:/Users/JJ/Pictures/the group_by function return a special kind of tibble, the grouped_tibble.png)
+![](C:/Users/qp/Pictures/the group_by function return a special kind of tibble, the grouped_tibble.png)
 
-![Never imaged study the Data Structure in R](C:/Users/JJ/Pictures/manipulation verbe don't necessary reyurns tibble.png)
+![Never imaged study the Data Structure in R](C:/Users/qp/Pictures/manipulation verbe don't necessary reyurns tibble.png)
 
-![](C:/Users/JJ/Pictures/they preserve the class of the input.png)
+![](C:/Users/qp/Pictures/they preserve the class of the input.png)
 
-![](C:/Users/JJ/Pictures/tibbles are the default data frame for tidyverse.png)
+![](C:/Users/qp/Pictures/tibbles are the default data frame for tidyverse.png)
 
 
 
@@ -3598,11 +3532,11 @@ tibble(id = c(1, 2, 3), func = c(mean, median, sd))
 
 
 
-![](C:/Users/JJ/Pictures/difference 1, the print method for tibble is much readable than data frame in r.png)
+![](C:/Users/qp/Pictures/difference 1, the print method for tibble is much readable than data frame in r.png)
 
-![](C:/Users/JJ/Pictures/the print outcome of a tibble is kind of concat outcome.png)
+![](C:/Users/qp/Pictures/the print outcome of a tibble is kind of concat outcome.png)
 
-![](C:/Users/JJ/Pictures/subset column of data frame, you get the integers or else, not data frame.png)
+![](C:/Users/qp/Pictures/subset column of data frame, you get the integers or else, not data frame.png)
 
 
 ```{r}
@@ -3630,18 +3564,15 @@ tibble(Teams)$yearID %>% class()     # tibble doesn't offer you suggesting after
 tibble(Teams)$hello %>% class()
 ```
 
-![](C:/Users/JJ/Pictures/tibble data structure is kind of like pandas or python list.png)
+![](C:/Users/qp/Pictures/tibble data structure is kind of like pandas or python list.png)
 
-![](C:/Users/JJ/Pictures/with tibble we create a data frame that can contain functions in it.png)
+![](C:/Users/qp/Pictures/with tibble we create a data frame that can contain functions in it.png)
 
-![](C:/Users/JJ/Pictures/tibbles can be grouped.png)
+![](C:/Users/qp/Pictures/tibbles can be grouped.png)
 
-![](C:/Users/JJ/Pictures/this is why we only get one pair of estimates here.png)
+![](C:/Users/qp/Pictures/this is why we only get one pair of estimates here.png)
 
-![](C:/Users/JJ/Pictures/function do, which can handle with the tibble data structure, we used them before, recall it.png)
-
-
-
+![](C:/Users/qp/Pictures/function do, which can handle with the tibble data structure, we used them before, recall it.png)
 
 
 
@@ -3783,9 +3714,9 @@ dat %>%
 
 
 
-![](C:/Users/JJ/Pictures/facilitate string command - the pipe in bash.png)
+![](C:/Users/qp/Pictures/facilitate string command - the pipe in bash.png)
 
-![](C:/Users/JJ/Pictures/do function serve as a bridge between R functions such as lm function and the tidyverse.png)
+![](C:/Users/qp/Pictures/do function serve as a bridge between R functions such as lm function and the tidyverse.png)
 
 
 ```{r}
@@ -3795,7 +3726,7 @@ dat %>%
 ```
 
 
-![the do function would create a data frame with the first column being strata value and a column named fit.png](C:/Users/JJ/Pictures/the do function would create a data frame with the first column being strata value and a column named fit.png)
+![the do function would create a data frame with the first column being strata value and a column named fit.png](C:/Users/qp/Pictures/the do function would create a data frame with the first column being strata value and a column named fit.png)
 
 ```{r}
 # Google R function() function, why we don't need to use comma between fit and data.frame() function
@@ -3836,15 +3767,16 @@ dat %>%
 
 
 
-![](C:/Users/JJ/Pictures/we could write for example this function.png)
+![](C:/Users/qp/Pictures/we could write for example this function.png)
 
-![](C:/users/JJ/Pictures/we can write this simple piece of code, and get the expected result.png)
+![](C:/Users/qp/Pictures/we can write this simple piece of code, and get the expected result.png)
 
-![](C:/Users/JJ/Pictures/if we use this code, we get the complexed tibbles with columns having data frames in each column.png)
+![](C:/Users/qp/Pictures/if we use this code, we get the complexed tibbles with columns having data frames in each column.png)
 
-![](C:/Users/JJ/Pictures/Here's an example in which return both estimated parameters..png)
+![](C:/Users/qp/Pictures/Here's an example in which return both estimated parameters..png)
 
-![](C:/users/JJ/Pictures/now the broom package.png)
+![](C:/Users/qp/Pictures/now the broom package.png)
+
 
 
 
@@ -3906,11 +3838,11 @@ glance(fit)
 
 
 
-![](C:/users/JJ/Pictures/now the broom package.png)
+![](C:/Users/qp/Pictures/now the broom package.png)
 
-![](C:/Users/JJ/Pictures/3 Broom function extract information from object return by lm function.png)
+![](C:/Users/qp/Pictures/3 Broom function extract information from object return by lm function.png)
 
-![](C:/Users/JJ/Pictures/The tidy function returns estimates and related information as a data frame.png)
+![](C:/Users/qp/Pictures/The tidy function returns estimates and related information as a data frame.png)
 
 ```{r}
 library(broom)   # tidy() function
@@ -3963,11 +3895,11 @@ small_dat %>%
 # |||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||
 ```
 
-![confidence intervals overlaps](C:/Users/JJ/Pictures/confidence intervals overlaps.png)
+![confidence intervals overlaps](C:/Users/qp/Pictures/confidence intervals overlaps.png)
 
-![](C:/Users/JJ/Pictures/Glance and augment relate to model specific and observation.png)
+![](C:/Users/qp/Pictures/Glance and augment relate to model specific and observation.png)
 
-![](C:/Users/JJ/Pictures/this is what glance function returns, you can take a try on augment.png)
+![](C:/Users/qp/Pictures/this is what glance function returns, you can take a try on augment.png)
 
 
 
@@ -4329,6 +4261,8 @@ dat %>%
   group_by(lgID) %>% 
   do(mod = lm(R ~ HR, data = .))
 ```
+
+
 
 
 
@@ -4802,13 +4736,13 @@ players %>% filter(year(debut) < 1998) %>%
 
 
 
-![](C:/Users/JJ/Pictures/here the data is approximately normal and conditional distribution is also normal.png)
+![](C:/Users/qp/Pictures/here the data is approximately normal and conditional distribution is also normal.png)
 
-![](C:/Users/JJ/Pictures/if bivariate normal condition is met we are justified to pose a linear model like this.png)
+![](C:/Users/qp/Pictures/if bivariate normal condition is met we are justified to pose a linear model like this.png)
 
-![](C:/Users/JJ/Pictures/When we fit the model with only one variable without the adjustment, the estimated bb and hr slope.png)
+![](C:/Users/qp/Pictures/When we fit the model with only one variable without the adjustment, the estimated bb and hr slope.png)
 
-![](C:/Users/JJ/Pictures/when we fit the multivariate model, both slopes go down.png)
+![](C:/Users/qp/Pictures/when we fit the multivariate model, both slopes go down.png)
 
 
 ```{r}
@@ -4865,13 +4799,13 @@ Teams %>%
   #geom_label(aes(label = teamID, size = NULL), nudge_y = 0.1)
 ```
 
-![](C:/Users/JJ/Pictures/plot of lm predicted r_hat comparing with r in 2002.png)
+![](C:/Users/qp/Pictures/plot of lm predicted r_hat comparing with r in 2002.png)
 
-![](C:/Users/JJ/Pictures/the formula would look like this.png)
+![](C:/Users/qp/Pictures/the formula would look like this.png)
 
-![so you need to make the per game team rate comparable to the per plat appearance player rate](C:/Users/JJ/Pictures/for players, a rate that takes into account opportunities is per plat appearance.png)
+![so you need to make the per game team rate comparable to the per plat appearance player rate](C:/Users/qp/Pictures/for players, a rate that takes into account opportunities is per plat appearance.png)
 
-![why you are picking 2002?  in this model, we dont have information of 2002](C:/Users/JJ/Pictures/make the per game team rate comparable to the per plat appearance player rate.png)
+![why you are picking 2002?  in this model, we dont have information of 2002](C:/Users/qp/Pictures/make the per game team rate comparable to the per plat appearance player rate.png)
 
 ```{r}
 pa_per_game <- Batting %>%
@@ -4892,7 +4826,7 @@ Batting %>%
   summarize(pa_per_game = sum(AB+BB)/max(G))
 ```
 
-![](C:/Users/JJ/Pictures/Here is the calculation of what we want to do in one long line of code.png)
+![](C:/Users/qp/Pictures/Here is the calculation of what we want to do in one long line of code.png)
 
 ```{r}
 #head(Batting)
@@ -4949,11 +4883,11 @@ players %>%
   geom_histogram(bins = 20, color = "black")
 ```
 
-![](C:/Users/JJ/Pictures/The player-specific predicted runs computer here can be interpreted as the number of runs we would predict team.png)
+![](C:/Users/qp/Pictures/The player-specific predicted runs computer here can be interpreted as the number of runs we would predict team.png)
 
-![](C:/Users/JJ/Pictures/2002 salaries for each player.png)
+![](C:/Users/qp/Pictures/2002 salaries for each player.png)
 
-![](C:/Users/JJ/Pictures/data wrangling acoss table add information we needed, this is salary.png)
+![](C:/Users/qp/Pictures/data wrangling acoss table add information we needed, this is salary.png)
 
 ```{r}
 players <- Salaries %>%
@@ -4966,19 +4900,19 @@ head(players)
 ```
 
 
-![](C:/Users/JJ/Pictures/next well add defence position.png)
+![](C:/Users/qp/Pictures/next well add defence position.png)
 
-![](C:/Users/JJ/Pictures/top_n function.png)
+![](C:/Users/qp/Pictures/top_n function.png)
 
-![](C:/Users/JJ/Pictures/need to remove OF position, check baseball knowledge with google.png)
+![](C:/Users/qp/Pictures/need to remove OF position, check baseball knowledge with google.png)
 
-![OF positions are outer fields players, they must runs a lot](C:/Users/JJ/Pictures/baseball LF, CF, RF position.png)
+![OF positions are outer fields players, they must runs a lot](C:/Users/qp/Pictures/baseball LF, CF, RF position.png)
 
-![](C:/Users/JJ/Pictures/also remove pitchers.png)
+![](C:/Users/qp/Pictures/also remove pitchers.png)
 
-![](C:/Users/JJ/Pictures/and here is the code doing all above data wrangling.png)
+![](C:/Users/qp/Pictures/and here is the code doing all above data wrangling.png)
 
-![](C:/Users/JJ/Pictures/finally we add they names of these players.png)
+![](C:/Users/qp/Pictures/finally we add they names of these players.png)
 
 ```{r}
 players <- Fielding %>%
@@ -5019,9 +4953,9 @@ players %>%
 
 
 
-![](C:/Users/JJ/Pictures/and here is the outcome, now we have a table with our predicted run statistic.png)
+![](C:/Users/qp/Pictures/and here is the outcome, now we have a table with our predicted run statistic.png)
 
-![](C:/Users/JJ/Pictures/plot our outcome, and think about it.png)
+![](C:/Users/qp/Pictures/plot our outcome, and think about it.png)
 
 ```{r}
 players %>%
@@ -5030,7 +4964,7 @@ players %>%
   scale_x_log10()
 ```
 
-![](C:/Users/JJ/Pictures/and here is the plot with players that debuted before 1997, remore young players.png)
+![](C:/Users/qp/Pictures/and here is the plot with players that debuted before 1997, remore young players.png)
 
 ```{r}
 players %>%
@@ -5169,9 +5103,11 @@ Since the 1980s sabermetricians have used a summary statistic different from bat
         The equasion you see in below image
 
 
-![](C:/Users/JJ/Pictures/people realize bb were important, and other runs shoule be weighted more that singles.png)
+![](C:/Users/qp/Pictures/people realize bb were important, and other runs shoule be weighted more that singles.png)
 
-![](C:/Users/JJ/Pictures/this is the plot comparing our R_hat with they simple On Base Plus Slugging, there are very correlated.png)
+![](C:/Users/qp/Pictures/this is the plot comparing our R_hat with they simple On Base Plus Slugging, there are very correlated.png)
+
+
 
 
 
@@ -5422,27 +5358,27 @@ summarise(two_years, cor(`2013`, `2014`))
 
 
 
-![](C:/Users/JJ/Pictures/sophomore slump.png)
+![](C:/Users/qp/Pictures/sophomore slump.png)
 
-![](C:/Users/JJ/Pictures/rookie of the year is the award given to the first year player that judged to have performed the best.png)
+![](C:/Users/qp/Pictures/rookie of the year is the award given to the first year player that judged to have performed the best.png)
 
-![+++ be curiosity +++, does the data confirm the existance of a sophomore slump ???](C:/Users/JJ/Pictures/fox new articles.png)
+![+++ be curiosity +++, does the data confirm the existance of a sophomore slump ???](C:/Users/qp/Pictures/fox new articles.png)
 
-![](C:/Users/JJ/Pictures/create a table with such statistics of all the rookies of the year players.png)
+![](C:/Users/qp/Pictures/create a table with such statistics of all the rookies of the year players.png)
 
-![since batting average is what people talked about when discussing sophomore slump](C:/Users/JJ/Pictures/specifically we will focus on batting averages.png)
+![since batting average is what people talked about when discussing sophomore slump](C:/Users/qp/Pictures/specifically we will focus on batting averages.png)
 
-![](C:/Users/JJ/Pictures/rookies of the year experienced sophomore slump is 68%, now how can we calculate that value.png)
+![](C:/Users/qp/Pictures/rookies of the year experienced sophomore slump is 68%, now how can we calculate that value.png)
 
-![](C:/Users/JJ/Pictures/now lets check rockie of the year and sophomore slump again with this code.png)
+![](C:/Users/qp/Pictures/now lets check rockie of the year and sophomore slump again with this code.png)
 
-![we see same patterns here batting averages slump in these players, but ther are not reworded as rookies of the year.png](C:/Users/JJ/Pictures/we see same patterns here batting averages slump in these players, but ther are not reworded as rookies of the year.png)
+![we see same patterns here batting averages slump in these players, but ther are not reworded as rookies of the year.png](C:/Users/qp/Pictures/we see same patterns here batting averages slump in these players, but ther are not reworded as rookies of the year.png)
 
-![](C:/Users/JJ/Pictures/and now checking the worse performers, they batting averages goes up in sophomore, so its really just regression I assume.png)
+![](C:/Users/qp/Pictures/and now checking the worse performers, they batting averages goes up in sophomore, so its really just regression I assume.png)
 
-![correlation for performance in 2 separate years is high but not perfect.png](C:/Users/JJ/Pictures/correlation for performance in 2 separate years is high but not perfect.png)
+![correlation for performance in 2 separate years is high but not perfect.png](C:/Users/qp/Pictures/correlation for performance in 2 separate years is high but not perfect.png)
 
-![](C:/Users/JJ/Pictures/and this is our equation to predict 2014 from 2013.png)
+![](C:/Users/qp/Pictures/and this is our equation to predict 2014 from 2013.png)
 
 
 
@@ -5465,27 +5401,27 @@ Dropping the ball, that means the starting velocity is 0 because we start just b
 
 
 
-![](C:/Users/JJ/Pictures/The other major application comes from measurement error models.png)
+![](C:/Users/qp/Pictures/The other major application comes from measurement error models.png)
 
-![](C:/Users/JJ/Pictures/falling_object dataset.png)
+![](C:/Users/qp/Pictures/falling_object dataset.png)
 
-![](C:/Users/JJ/Pictures/a prabola.png)
+![](C:/Users/qp/Pictures/a prabola.png)
 
-![](C:/Users/JJ/Pictures/prabola relationship.png)
+![](C:/Users/qp/Pictures/prabola relationship.png)
 
-![measurement error](C:/Users/JJ/Pictures/we weite this model to include the variables and errors.png)
+![measurement error](C:/Users/qp/Pictures/we weite this model to include the variables and errors.png)
 
-![we also assume there is no bias, which means the expected value of epsilion is 0.png](C:/Users/JJ/Pictures/we also assume there is no bias, which means the expected value of epsilion is 0.png)
+![we also assume there is no bias, which means the expected value of epsilion is 0.png](C:/Users/qp/Pictures/we also assume there is no bias, which means the expected value of epsilion is 0.png)
 
 [][*the LSE seems like a reasonal approach, NOTE the LSE calculation does not require the error to be approximately normal*]
-![the LSE seems like a reasonal approach, NOTE the LSE calculation does not require the error to be approximately normal](C:/Users/JJ/Pictures/the lease square estimates, do you remember them.png)
+![the LSE seems like a reasonal approach, NOTE the LSE calculation does not require the error to be approximately normal](C:/Users/qp/Pictures/the lease square estimates, do you remember them.png)
 
 [][*the lm function will find the betas that minimize the residual sum of squares.png*]
-![](C:/Users/JJ/Pictures/the lm function will find the betas that minimize the residual sum of squares.png)
+![](C:/Users/qp/Pictures/the lm function will find the betas that minimize the residual sum of squares.png)
 
-![](C:/Users/JJ/Pictures/broom function augment helps us check if our estimated parabola fit the data.png)
+![](C:/Users/qp/Pictures/broom function augment helps us check if our estimated parabola fit the data.png)
 
-![](C:/Users/JJ/Pictures/high school physical knowledge gives us this equation.png)
+![](C:/Users/qp/Pictures/high school physical knowledge gives us this equation.png)
 
 
 
@@ -5536,9 +5472,8 @@ augment(fit) %>%
 
 
 
+
 # Assessment: Regression and Baseball, part 1
-
-
 
 
 Comprehension Check due Jun 12, 2022 00:29 AWST
@@ -5741,8 +5676,6 @@ predict(fit, newdata = team_b)
 
 
 # Assessment: Regression and baseball, part 2
-
-
 
 
 Comprehension Check due Jun 12, 2022 00:29 AWST
@@ -6012,6 +5945,7 @@ posted less than a minute ago by john_hhu2020
 
 
 
+
 ## Course  /  Section 2: Linear Models  /  Assessment: Linear Models (Verified Learners only)
 
 
@@ -6177,7 +6111,9 @@ sim_data %>%
 
 
 ```{r}
-N <- 25
+#N <- 25
+#N <- 50
+N <- 100
 G <- 1000000
 
 sim_data <- tibble(group = rep(1:G, each = N), X = rnorm(N*G), Y = rnorm(N*G))
@@ -6201,7 +6137,7 @@ sim_data %>%
   filter(group == res$group[which.max(res$r)]) %>%
   ggplot(aes(X, Y)) +
   geom_point() +
-  geom_smooth(method = "lm")
+  geom_smooth(method = "lm", formula = y ~ x)
 ```
 
 ```{r}
@@ -6217,45 +6153,41 @@ sim_data %>%
 
 
 
+![](C:/Users/qp/Pictures/correlation is not causation.png)
 
+![](C:/Users/qp/Pictures/spurious correlations.png)
 
+![](C:/Users/qp/Pictures/a very strong correlation between divorce rate and margarine consumption1.png)
 
-![](C:/Users/JJ/Pictures/correlation is not causation.png)
+![](C:/Users/qp/Pictures/a very strong correlation between divorce rate and margarine consumption2.png)
 
-![](C:/Users/JJ/Pictures/spurious correlations.png)
+![now do you remember how we use "lm" to specify this line in ggplot ???](C:/Users/qp/Pictures/correlation between divorce rate and margarine consumption.png)
 
-![](C:/Users/JJ/Pictures/a very strong correlation between divorce rate and margarine consumption1.png)
+![](C:/Users/qp/Pictures/you can see many observed examples in this website completely dedicated to spurious correlations.png)
 
-![](C:/Users/JJ/Pictures/a very strong correlation between divorce rate and margarine consumption2.png)
+![](C:/Users/qp/Pictures/data dredging.png)
 
-![now do you remember how we use "lm" to specify this line in ggplot ???](C:/Users/JJ/Pictures/correlation between divorce rate and margarine consumption.png)
+![](C:/Users/qp/Pictures/data fishing.png)
 
-![](C:/Users/JJ/Pictures/you can see many observed examples in this website completely dedicated to spurious correlations.png)
+![](C:/Users/qp/Pictures/data snooping.png)
 
-![](C:/Users/JJ/Pictures/data dredging.png)
+![](C:/Users/qp/Pictures/in united states its called cherry picking.png)
 
-![](C:/Users/JJ/Pictures/data fishing.png)
+![these are just random, independent normally distributed data](C:/Users/qp/Pictures/we create 1 million groups of data with monte carlo simulation.png)
 
-![](C:/Users/JJ/Pictures/data snooping.png)
+![](C:/Users/qp/Pictures/we simulated 1 million groups.png)
 
-![](C:/Users/JJ/Pictures/in united states its called cherry picking.png)
+![](C:/Users/qp/Pictures/1 million groups each with 25 observations.png)
 
-![these are just random, independent normally distributed data](C:/Users/JJ/Pictures/we create 1 million groups of data with monte carlo simulation.png)
+![](C:/Users/qp/Pictures/what we just constructured dataset are obvious not correlated.png)
 
-![](C:/Users/JJ/Pictures/we simulated 1 million groups.png)
+![](C:/Users/qp/Pictures/then we compute the correlation between a and y for each group.png)
 
-![](C:/Users/JJ/Pictures/1 million groups each with 25 observations.png)
+![](C:/Users/qp/Pictures/if we plot this specific group, it shows a convincing plot thta x and y are correlated.png)
 
-![](C:/Users/JJ/Pictures/what we just constructured dataset are obvious not correlated.png)
+![look how small the p value is here, though only one is small](C:/Users/qp/Pictures/this particular form of data dredging is referred to as p-hacking .png)
 
-![](C:/Users/JJ/Pictures/then we compute the correlation between a and y for each group.png)
-
-![](C:/Users/JJ/Pictures/if we plot this specific group, it shows a convincing plot thta x and y are correlated.png)
-
-![look how small the p value is here, though only one is small](C:/Users/JJ/Pictures/this particular form of data dredging is referred to as p-hacking .png)
-
-![](C:/Users/JJ/Pictures/the multiple comparison problem.png)
-
+![](C:/Users/qp/Pictures/the multiple comparison problem.png)
 
 
 
@@ -6265,6 +6197,73 @@ sim_data %>%
 
 
 
+# Correlation is Not Causation: Outliers
+
+
+[][**Another way that we can see high correlations when there's no causation is when we have outliers**].  Suppose we take measurements from two independent outcomes, x and y, and we standardize the measurements.  However, imagine we made a mistake and forgot to standardize entry 23.  We can simulate such data using the following code.  The data looks like this.  Not surprisingly, the correlation is very high.  That one point, that one outlier, is making the correlation be as high as 0.99.  But again, this is driven by that one outlier.  
+
+If we remove this outlier, the correlation is greatly reduced to almost 0, which is what it should be.  Here's what we get if we remove entry 23.  **So one way to deal with outliers is to try to detect them and remove them**.  But there is an alternative way to the sample correlation for estimating the population correlation that is robust to outliers.  It is called [][*Spearman correlation*].  The idea is simple.  Compute the correlation on the ranks of the values, rather than the values themselves.  Here's a plot of the ranks plotted against each other for that data set that includes the outlier.  Note that the one point that's very large is just at the 100-100 location.  It is no longer really out there and pulling the correlation towards 1.  So if we compute the correlation of the ranks, we get something much closer to 0, as we see here.  Spearman correlation can also be calculated with the correlation function, but using the method argument to tell cor which correlation to compute.  There are also methods for robust fitting of linear models, which you can learn about in, for example, this book.  
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on outliers.
+https://rafalab.github.io/dsbook/association-is-not-causation.html#outliers-1
+
+
+[][Key points]
+
+        Correlations can be caused by outliers.
+        The Spearman correlation is calculated based on the ranks of data.
+
+Code
+
+# simulate independent X, Y and standardize all except entry 23
+set.seed(1985)
+x <- rnorm(100,100,1)
+y <- rnorm(100,84,1)
+x[-23] <- scale(x[-23])
+y[-23] <- scale(y[-23])
+
+# plot shows the outlier
+qplot(x, y, alpha = 0.5)
+
+# outlier makes it appear there is correlation
+cor(x,y)
+cor(x[-23], y[-23])
+
+# use rank instead
+qplot(rank(x), rank(y))
+cor(rank(x), rank(y))
+
+# Spearman correlation with cor function
+cor(x, y, method = "spearman")
+
+
+
+![](C:/Users/qp/Pictures/another way that we see high correlations when there is no causations is when we have outliers.png)
+
+![](C:/Users/qp/Pictures/suppose we take measurements from 2 independent outcomes and forgot standardize 23.png)
+
+![](C:/Users/qp/Pictures/and then the data would looks like this1.png)
+
+![](C:/Users/qp/Pictures/the plotted data would looks like this 2.png)
+
+![](C:/Users/qp/Pictures/not surprisingly the correlation is very high.png)
+
+![](C:/Users/qp/Pictures/after remore the point entry 23, the correlation would be this.png)
+
+![](C:/Users/qp/Pictures/the spearman correlation is used to estimate the population correlation that is robust to outliers.png)
+
+![](C:/Users/qp/Pictures/the idea of spearman correlation is simple, compute the correlation on the ranks of the values rather than the values themself.png)
+
+![](C:/Users/qp/Pictures/here is the ran plotted against each other.png)
+
+![](C:/Users/qp/Pictures/here we compute the correlation of the ranks we get something much closer to real value.png)
+
+![](C:/Users/qp/Pictures/the spearman correlation can also be calculated with the correlation with the correlation function with method argument.png)
+
+![](C:/Users/qp/Pictures/there are also methods for robust fitting of linear model which you can learn in this book.png)
 
 
 
@@ -6272,6 +6271,128 @@ sim_data %>%
 
 
 
+
+
+# Correlation is Not Causation: Reversing Cause and Effect
+
+
+Another way associations are confounded with causation is when the cause and effect are reversed.  **An example of this is claiming that tutoring makes students perform worse because they test lower than peers that are not tutored**.  Here, the tutoring is not causing the low test, but the other way around.  A form of this claim was actually made in an op ed in the New York Times, titled "Parental Involvement is Overrated".  Consider this quote from the article.  "When we examine whether regular help with homework had a positive impact on children's academic performance, we were quite startled by what we found.  Regardless of family social class, racial, or ethnic background, or child's grade level, consistent homework help almost never improved test scores or grades.  Even more surprising to us was that when parents regularly helped with homework, kids usually performed worse."  A very likely possibility is that children needing regular parental help get this help because they don't perform well in school.  
+
+To see another example, we're going to use one of the data sets that we've seen in this course.  Specifically, we can easily construct an example of cause and effect reversal using the father and son height data.  Note that if we fit the following model to the father and son height data, with x representing the father height, and y representing the son height, we do get a statistically significant result.  You can see that with this simple code.  This model fits the data very well.  However, if we look at the mathematical formulation of the model, it could easily be incorrectly interpreted as to suggest that the son being tall caused the father to be tall.  But given what we know about genetics and biology, we know it's the other way around.  The model is technically correct.  The estimates and p-value were obtained correctly as well.  What is wrong here is simply the interpretation.  
+
+
+[][Textbook link]
+
+This video corresponds to the textbook section on reversing cause and effect.
+https://rafalab.github.io/dsbook/association-is-not-causation.html#reversing-cause-and-effect
+
+
+[][Key points]
+
+        Another way association can be confused with causation is when the cause and effect are reversed.
+        As discussed in the video, in the Galton data, when father and son were reversed in the regression, the model was technically correct. The estimates and p-values were obtained correctly as well. What was incorrect was the interpretation of the model.
+
+Code
+
+# cause and effect reversal using son heights to predict father heights
+library(HistData)
+data("GaltonFamilies")
+GaltonFamilies %>%
+  filter(childNum == 1 & gender == "male") %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight) %>% 
+  do(tidy(lm(father ~ son, data = .)))
+
+
+
+# This model fit the data very well, however, if we look at the mathematical formulation of the model, it could be easily be incorrectly interpreted as to suggest that the son being tall cause the father to be tall.  Not make sense at all.   
+# =====================================================================================================================================================
+```{r}
+library(tidyverse)
+library(broom)
+library(HistData)
+data("GaltonFamilies")
+
+
+GaltonFamilies
+
+GaltonFamilies %>%
+  filter(childNum == 1 & gender == "male") %>%
+  select(father, childHeight) %>%
+  rename(son = childHeight) %>%
+  do(tidy(lm(father ~ son, data = .)))
+
+```
+
+
+
+
+![](C:/Users/qp/Pictures/another way associations are confunded with causation is when cause and effect are reversed.png)
+
+![](C:/Users/qp/Pictures/a form of such claim was actually made open end in nyt.png)
+
+![how about we fit a following model with x representing father height and y representing son height we do get a statistically significant result.png](C:/Users/qp/Pictures/how about we fit a following model with x representing father height and y representing son height we do get a statistically significant result.png)
+
+![](C:/Users/qp/Pictures/with this simple code fitting father height with son height we also get a very statistically significiant result.png)
+
+
+
+
+
+
+
+
+
+# Correlation is Not Causation: Confounders
+
+
+
+# =============================================================================================================================
+# https://rpubs.com/hafif_muhammad/linear_regression_on_graduate_admissions_prediction
+# https://towardsdatascience.com/understanding-linear-regression-output-in-r-7a9cbda948b3?gi=f2368ecdcfcc
+# =============================================================================================================================
+```{r}
+library(HistData)
+
+
+data(admissions)
+
+
+
+```
+
+
+
+
+
+
+![](C:/Users/qp/Pictures/confounders were perhaps the most common reason that leads to associations being misinterpreted.png)
+
+![](C:/Users/qp/Pictures/definition of confounder.png)
+
+![](C:/Users/qp/Pictures/Incorrect interpretation due to confounders.png)
+
+![](C:/Users/qp/Pictures/uc berkeley major admitted data in 1973 .png)
+
+![](C:/Users/qp/Pictures/here is that uc berkerly data.png)
+
+![](C:/Users/qp/Pictures/the percent of men and wemon got accepted.png)
+
+![](C:/Users/qp/Pictures/the statistical test chi-squared test clearly rejects the hypothesis that genders and admissions are independent.png)
+
+![](C:/Users/qp/Pictures/Here are the percent of admissions by major.png)
+
+![](C:/Users/qp/Pictures/lets defind 3 variables x 1 for men 0 for women.png)
+
+![](C:/Users/qp/Pictures/y is 1 for admitted 0 for not.png)
+
+![](C:/Users/qp/Pictures/and Z quantifies how selective the major is.png)
+
+![](C:/Users/qp/Pictures/A gender bias claim would be based on the fact that this probability is higher when X is women.png)
+
+![](C:/Users/qp/Pictures/but z is an important confounder.png)
+
+![](C:/Users/qp/Pictures/but is major selectivity, which we call Z, associated with gender.png)
 
 
 
