@@ -5483,13 +5483,10 @@ What is the final linear model (in the video "Building a Better Offensive Metric
 
           lm(R ~ BB + HR)
         
-
           lm(HR ~ BB + singles + doubles + triples)
         
-
           lm(R ~ BB + singles + doubles + triples + HR)
         
-
           lm(R ~ singles + doubles + triples + HR)
         
 
@@ -6352,14 +6349,65 @@ GaltonFamilies %>%
 # https://towardsdatascience.com/understanding-linear-regression-output-in-r-7a9cbda948b3?gi=f2368ecdcfcc
 # =============================================================================================================================
 ```{r}
-library(HistData)
+library(tidyverse)
+library(dbplyr)
+library(broom)
 
-
+# UC-Berkeley admission data
+library(dslabs)
 data(admissions)
+admissions
 
 
+admissions %>%
+  group_by(gender) %>%
+  summarize(percentage = sum(admitted*applicants)/sum(applicants))
+#=========================== Why we are multiple applicants here ??????
 
+
+admissions %>%
+  group_by(gender) %>%
+  summarize(total_admitted = sum(admitted/applicants*100), 
+            not_admitted = sum(applicants) - sum(total_admitted)) %>%
+  select(-gender) %>%
+  do(tidy(chisq.test(.)))     # What is this test ??
+# ========================================================
 ```
+
+```{r}
+sum(admissions$admitted[admissions$gender=='women']) / 
+sum(admissions$applicants[admissions$gender=='women'])
+
+
+sum(admissions$admitted[admissions$gender=='women'])/sum(admissions$admitted)
+```
+
+
+```{r}
+(admissions %>% filter(gender='women'))/()
+```
+
+
+```{r}
+admissions %>%
+  select(major, gender, admitted) %>%
+  spread(gender, admitted) %>%
+  mutate(women_minus_men = women - men)
+```
+
+```{r}
+library(ggplot2)
+
+
+admissions %>%
+  group_by(major) %>%
+  summarize(major_selectivity = sum(admitted*applicants)/sum(applicants), 
+            percent_women_applicants = sum(applicants*(gender=='women')/sum(applicants))*100) %>%
+  # Why we are doing this way? why we are using summarize function?
+  ggplot(aes(major_selectivity, percent_women_applicants, label=major)) +
+  geom_text()
+```
+
 
 
 
@@ -6382,13 +6430,15 @@ data(admissions)
 
 ![](C:/Users/qp/Pictures/Here are the percent of admissions by major.png)
 
+![](C:/Users/qp/Pictures/4 out of 6 majors favor women.png)
+
 ![](C:/Users/qp/Pictures/lets defind 3 variables x 1 for men 0 for women.png)
 
 ![](C:/Users/qp/Pictures/y is 1 for admitted 0 for not.png)
 
 ![](C:/Users/qp/Pictures/and Z quantifies how selective the major is.png)
 
-![](C:/Users/qp/Pictures/A gender bias claim would be based on the fact that this probability is higher when X is women.png)
+![gender bias claim would be based on the fact that this probability is higher when X is women](C:/Users/qp/Pictures/A gender bias claim would be based on the fact that this probability is higher when X is women.png)
 
 ![](C:/Users/qp/Pictures/but z is an important confounder.png)
 
