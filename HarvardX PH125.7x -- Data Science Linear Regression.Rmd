@@ -6106,6 +6106,17 @@ sim_data %>%
 
 
 
+```{r}
+N <- 25
+G <- 1000000
+
+sim_data <- tibble(group = rep(1:G, each = N), X = rnorm(N*G), Y = rnorm(N*G))
+
+
+sum(sim_data$Y[sim_data$Y>=0.05])/sum(sim_data$Y)
+```
+
+
 
 ```{r}
 #N <- 25
@@ -6343,11 +6354,86 @@ GaltonFamilies %>%
 # Correlation is Not Causation: Confounders
 
 
+[][*Confounders are perhaps the most common reason that leads to associations being misinterpreted*].  If X and Y are correlated, we call Z a confounder if changes in Z cause changes in both X and Y. Earlier, when studying baseball data, we saw how home runs was a confounder that resulted in higher correlation than expected when studying the relationship between bases and balls and runs.  In some cases, we can use linear models to account for confounders, as we did in the baseball example.  But it is not always possible.  Incorrect interpretation due to confounders are ubiquitous in the lay press.  They are sometimes hard to detect.  
 
-# =============================================================================================================================
+We examined admission data from UC Berkeley majors from 1973 that showed that more men were being admitted than women.  44% men were admitted compared to 30% women (*I question this way of calculation, *).  Here's the data.  The percent of men and women that got accepted can be computed from this data using this simple piece of code.  A statistical test, the [][*chi-squared test*] that we learned about in a previous course, clearly rejects the hypothesis that gender and admissions are independent.  The p value is very small.  
+
+But closer inspection shows a paradoxical result.  Here are the percent of admissions by major.  Four out of the six majors favor women.  But more importantly, all the differences are much smaller than the 14% difference that we see when examining the totals.  The paradox is that analyzing the totals suggest a dependence between admissions and gender.  But when the data is grouped by major, this dependence seems to disappear (*you are only considering the absolute value of admitted, that the UC Berkeley demand, not the admission rate of student*).  What's going on?  This actually can happen if an uncounted confounder is driving most of the variability.  
+
+So let's define three variables.  X is 1 for men and 0 for women, Y is 1 for those admitted and 0 otherwise, and Z quantifies how selective the major is.  A gender bias claim would be based on the fact that this probability is higher when X is 1 than when X is 0.  But Z is an important confounder.  Clearly, Z is associated with Y, because the more selective a major, the lower the probability that someone enters that major.  But is major selectivity, which we call Z, associated with gender?  One way to see this is to plot the total percent admitted to a major versus the percent of women that make up the applicants.  We can see that in this plot.  There seems to be an association.  
+
+The plot suggests that women were much more likely to apply to the two hard majors.  Gender and major selectivity are confounded.  Compare, for example, major B and major E. Major E is much harder to enter than major B. And over 60% of applicants to major E were women, while less than 30% of the applicants of major B were women.  The following plot shows the percentage of applicants that were accepted by gender.  The color here represents major.  It also breaks down the acceptance rates by major.  The size of the colored bar represent the percent of each major students that were admitted to.  This breakdown lets us see that the majority of accepted men came from two majors, A and B. It also lets us see that few women apply to these two easy majors.  
+
+What the plot does not show us is what's the percent admitted by major.  In this plot, we can see that if we condition or stratify by major, and then look at differences, we control for the confounder, and the effect goes away.  Now we see that major by major, there's not much difference.  The size of the dot represents the number of applicants, and explains the paradox.  We see large red dots and small blue dots for the easiest majors, A and B.  If we first stratify by major, compute the difference, and then average, we find that the percent difference is actually quite small.  This is actually an example of something that is called Simpson's paradox, which we will describe in the next video.  
+
+
+Textbook link
+
+This video corresponds to the textbook section on confounders.
+https://rafalab.github.io/dsbook/association-is-not-causation.html#confounders
+
+
+Key points
+
+        If X and Y are correlated, we call Z a confounder if changes in Z causes changes in both X and Y.
+
+Code
+
+# UC-Berkeley admission data
+library(dslabs)
+data(admissions)
+admissions
+
+# percent men and women accepted
+admissions %>% group_by(gender) %>% 
+  summarize(percentage = 
+              round(sum(admitted*applicants)/sum(applicants),1))
+              
+# test whether gender and admission are independent
+admissions %>% group_by(gender) %>% 
+  summarize(total_admitted = round(sum(admitted / 100 * applicants)), 
+            not_admitted = sum(applicants) - sum(total_admitted)) %>%
+  select(-gender) %>% 
+  do(tidy(chisq.test(.)))
+  
+# percent admissions by major
+admissions %>% select(major, gender, admitted) %>%
+  spread(gender, admitted) %>%
+  mutate(women_minus_men = women - men)
+  
+# plot total percent admitted to major versus percent women applicants
+admissions %>% 
+  group_by(major) %>% 
+  summarize(major_selectivity = sum(admitted * applicants) / sum(applicants),
+            percent_women_applicants = sum(applicants * (gender=="women")) /
+                                             sum(applicants) * 100) %>%
+  ggplot(aes(major_selectivity, percent_women_applicants, label = major)) +
+  geom_text()
+  
+# plot number of applicants admitted and not
+admissions %>%
+  mutate(yes = round(admitted/100*applicants), no = applicants - yes) %>%
+  select(-applicants, -admitted) %>%
+  gather(admission, number_of_students, -c("major", "gender")) %>%
+  ggplot(aes(gender, number_of_students, fill = admission)) +
+  geom_bar(stat = "identity", position = "stack") +
+  facet_wrap(. ~ major)
+
+admissions %>% 
+  mutate(percent_admitted = admitted * applicants/sum(applicants)) %>%
+  ggplot(aes(gender, y = percent_admitted, fill = major)) +
+  geom_bar(stat = "identity", position = "stack")
+
+# condition on major and then look at differences
+admissions %>% ggplot(aes(major, admitted, col = gender, size = applicants)) + geom_point()
+
+# average difference by major
+admissions %>%  group_by(gender) %>% summarize(average = mean(admitted))
+
+
+
 # https://rpubs.com/hafif_muhammad/linear_regression_on_graduate_admissions_prediction
 # https://towardsdatascience.com/understanding-linear-regression-output-in-r-7a9cbda948b3?gi=f2368ecdcfcc
-# =============================================================================================================================
 ```{r}
 library(tidyverse)
 library(dbplyr)
@@ -6361,6 +6447,7 @@ admissions
 
 admissions %>%
   group_by(gender) %>%
+  #filter(gender=='men') %>%   # 44.51951
   summarize(percentage = sum(admitted*applicants)/sum(applicants))
 #=========================== Why we are multiple applicants here ??????
 
@@ -6374,19 +6461,27 @@ admissions %>%
 # ========================================================
 ```
 
+# dig in untill fully understand the knowledge used here
+```{r}
+(6+28+33+37+63+62)/(825+560+325+417+191+373)   # men$admitted/men$applicants
+
+(6+28+33+37+63+62)/(6+28+33+37+63+62+82+68+34+35+24+7)   # men$admitted/total$admitted
+
+(82+68+34+35+24+7)/(6+28+33+37+63+62+82+68+34+35+24+7)   # women$admitted/total$admitted
+```
+
+
 ```{r}
 sum(admissions$admitted[admissions$gender=='women']) / 
 sum(admissions$applicants[admissions$gender=='women'])
 
+sum(admissions$admitted[admissions$gender=='men']) / 
+sum(admissions$applicants[admissions$gender=='men'])
+
+
 
 sum(admissions$admitted[admissions$gender=='women'])/sum(admissions$admitted)
 ```
-
-
-```{r}
-(admissions %>% filter(gender='women'))/()
-```
-
 
 ```{r}
 admissions %>%
@@ -6406,6 +6501,11 @@ admissions %>%
   # Why we are doing this way? why we are using summarize function?
   ggplot(aes(major_selectivity, percent_women_applicants, label=major)) +
   geom_text()
+```
+# The plot suggests that women were much more likely to apply to the two hard majors.  
+
+```{r}
+
 ```
 
 
@@ -6442,8 +6542,256 @@ admissions %>%
 
 ![](C:/Users/qp/Pictures/but z is an important confounder.png)
 
-![](C:/Users/qp/Pictures/but is major selectivity, which we call Z, associated with gender.png)
+![so whats is the major selectivity](C:/Users/qp/Pictures/but is major selectivity, which we call Z, associated with gender.png)
+
+![I don't understand here, why we are doing it this way.  The total percent admitted to each major and percent of women make up the applicants???  And the equation used to calculate major_selectivity](C:/Users/qp/Pictures/one way to check the major selectivity association with gender is to plot the XXXX.png)
+
+![](C:/Users/qp/Pictures/the plot shows the percentage of applicants that were accepted by gender and use color to represents the major.png)
+
+![](C:/Users/qp/Pictures/the colore here are used to represent the major.png)
+
+![](C:/Users/qp/Pictures/this plot can be used to represent the percent admitted by major.png)
+
+![](C:/Users/qp/Pictures/here we stratify the confounder major.png)
+
+![](C:/Users/qp/Pictures/atratify by major and compute the difference then average.png)
+
+![](C:/Users/qp/Pictures/this is something called simpson's paradox.png)
 
 
 
+
+
+
+
+
+
+## Simpson's Paradox
+
+
+We have just seen an example of Simpson's paradox.  It is called a paradox because we see the sign of the correlation flip when we computed on the entire population and when we computed on specific strata.  Now, we're going to use a very illustrative simulated example to show you how this can happen.  Suppose you have three variables-- x, y, and z.  Here's a scatter plot of y versus x.  You can see that x and y are negatively correlated.  However, once we stratify by z--the confounder which we haven't looked at yet--we see that another pattern emerges.  
+
+This plot, the different strata defined by disease, are shown in different colors.  If you compute the correlation in each strata, you see that the correlations are now positive.  So it's really z that is negatively correlated with x.  If we stratify by z, the x and y are actually positively correlated.  This is an example of Simpson's paradox.  
+
+
+Textbook link
+
+This video corresponds to the textbook section on Simpson's paradox.
+https://rafalab.github.io/dsbook/association-is-not-causation.html#simpsons-paradox
+
+
+Key point
+
+[][*        Simpson’s Paradox happens when we see the sign of the correlation flip when comparing the entire dataset with specific strata. *]
+
+
+
+![](C:/Users/qp/Pictures/here is a scatter plot of y versus x.png)
+
+![So it's really z that is negatively correlated with x.](C:/Users/qp/Pictures/now what if take the another variable z into consideration.png)
+
+
+
+
+
+
+
+
+
+## Assessment: Correlation is Not Causation
+
+
+Comprehension Check due Jun 26, 2022 00:29 AWST
+
+## Question 1
+0/1 point (graded)
+
+In the videos, we ran one million tests of correlation for two random variables, X and Y.
+How many of these correlations would you expect to have a significant p-value (
+), just by chance?
+5,000
+50,000
+100,000
+It’s impossible to know
+incorrect
+Answer
+# ===================================================================================================================
+[][***Incorrect: Try again - we can in fact estimate the number of significant correlations we see by chance. Remember that the p-value is defined as the probability of finding the observed result when the null hypothesis (no correlation) is true. When we have a p-value of 0.05, this means the chance of finding a correlation when none exists is 5% - e.g., 0.05*1,000,000 chances.***]
+You have used 1 of 2 attempts Some
+
+
+##  Question 2
+0.75/1 point (graded)
+Which of the following are examples of p-hacking?
+
+Select ALL that apply.
+Looking for associations between an outcome and several exposures and only reporting the one that is significant.
+Trying several different models and selecting the one that yields the smallest p-value.
+Repeating an experiment multiple times and only reporting the one with the smallest p-value.
+Using a Monte Carlo simulations in an analysis.
+partially correct
+Answer
+Incorrect:
+Correct, this is one of the three examples of multiple testing included in the video.
+Correct, this is one of the three examples of multiple testing included in the video.
+You have used 1 of 2 attempts Some
+
+
+##  Question 3
+1/1 point (graded)
+The Spearman correlation coefficient is robust to outliers because:
+It drops outliers before calculating correlation.
+It is the correlation of standardized values.
+It calculates correlation between ranks, not values.
+correct
+You have used 1 of 1 attempt Some
+
+
+##  Question 4
+1/1 point (graded)
+What can you do to determine if you are misinterpreting results because of a confounder?
+Nothing. If the p-value says the result is significant, then it is.
+More closely examine the results by stratifying and plotting the data.
+Always assume that you are misinterpreting the results.
+Use linear models to tease out a confounder.
+correct
+Answer
+Correct: Correct. Although you can sometimes use linear models, you can't always and exploratory data analysis (stratifying and plotting data) will help determine if there is a confounder.
+You have used 1 of 2 attempts Some
+
+
+##  Question 5
+1/1 point (graded)
+
+Look again at the admissions data presented in the confounders video using ?admissions.
+What important characteristic of the table variables do you need to know to understand the calculations used in this video?
+The data are from 1973.
+The columns major and gender are of class character, while admitted and applicants are numeric.
+The data are from the dslabs package.
+The column admitted is the percent of students admitted, while the column applicants is the total number of applicants.
+correct
+Answer
+Correct: Correct. In all data science projects, it is important to understand the data that you are working with.
+
+Explanation
+
+[][*Several of these statements are true but not relevant to understanding the calculations in the video. The only statement that is critical for the analysis is that "The column admitted is the percent of students admitted, while the column applicants is the total number of applicants." In all data science projects, it is important to understand the data that you are working with.*]
+You have used 1 of 2 attempts Some
+
+
+##  Question 6
+1/1 point (graded)
+In the example in the confounders video, major selectivity confounds the relationship between UC Berkeley admission rates and gender because:
+It was harder for women to be admitted to UC Berkeley.
+Major selectivity is associated with both admission rates and with gender, as women tended to apply to more selective majors.
+Some majors are more selective than others.
+Major selectivity is not a confounder.
+correct
+
+Explanation
+
+Major selectivity is a confounder because it is associated with both admission rate and with gender.
+You have used 1 of 2 attempts Some
+
+
+##  Question 7
+0/1 point (graded)
+Admission rates at UC Berkeley are an example of Simpson’s Paradox because:
+It appears that men have higher a higher admission rate than women, however, after we stratify by major, we see that on average women have a higher admission rate than men.
+correct
+It was a paradox that women were being admitted at a lower rate than men.
+The relationship between admissions and gender is confounded by major selectivity.
+incorrect
+Answer
+Incorrect: Incorrect. This is true, but, Simpson’s Paradox refers specifically to cases where the sign of the correlation flips when comparing the entire dataset vs. specific strata.
+
+Explanation
+
+Simpson’s Paradox refers specifically to cases where the sign of the correlation flips when comparing the entire dataset vs. specific strata, so only the first statement is correct.
+You have used 1 of 1 attempt 
+
+
+
+
+
+
+
+
+## Questions About Correlation is Not Causation?
+
+
+
+
+Ask your questions or make your comments about Correlation is Not Causation here! Remember, one of the best ways to reinforce your own learning is by explaining something to someone else, so we encourage you to answer each other's questions (without giving away the answers, of course).
+
+Some reminders:
+
+        Search the discussion board before posting to see if someone else has asked the same thing before asking a new question
+        Please be specific in the title and body of your post regarding which question you're asking about to facilitate answering your question.
+        Posting snippets of code is okay, but posting full code solutions is not.
+        If you do post snippets of code, please format it as code for readability. If you're not sure how to do this, there are instructions in a pinned post in the "general" discussion forum.
+
+Discussion: Correlation is Not Causation
+Topic: Section 3: Confounding / 3.1: Correlation is Not Causation
+
+
+
+
+
+UC Berkeley Admission admission 44% and 30% does not make sense
+
+question posted about 4 hours ago by john_hhu2020
+
+admissions %>% group_by(gender) %>% summarize(percentage = sum(admitted*applicants)/sum(applicants))
+
+I think the way to calculate its should be 1>divide data into men and women groups, 2>for each group calculate % using sum of admitted divide by sum of applicants, 3>that will gives us 13% for women and 8% for men. I'm confusing on this for a while, please help
+
+
+
+
+
+
+
+## Course  /  Section 3: Confounding  /  Assessment: Confounding (Verified Learners only)
+
+
+# Assessment: Confounding (Verified Learners only)
+
+
+
+Assessment due Jun 26, 2022 00:29 AWST
+
+For this set of exercises, we examine the data from a 2014 PNAS paper that analyzed success rates from funding agencies in the Netherlands and concluded:
+http://www.pnas.org/content/112/40/12349.abstract
+
+"our results reveal gender bias favoring male applicants over female applicants in the prioritization of their "quality of researcher" (but not "quality of proposal") evaluations and success rates, as well as in the language used in instructional and evaluation materials."
+
+A response was published a few months later titled No evidence that gender contributes to personal research funding success in The Netherlands: A reaction to Van der Lee and Ellemers, which concluded:
+http://www.pnas.org/content/112/51/E7036.extract
+
+However, the overall gender effect borders on statistical significance, despite the large sample. Moreover, their conclusion could be a prime example of Simpson’s paradox; if a higher percentage of women apply for grants in more competitive scientific disciplines (i.e., with low application success rates for both men and women), then an analysis across all disciplines could incorrectly show "evidence" of gender inequality. 
+
+Who is right here: the original paper or the response? Here, you will examine the data and come to your own conclusion.
+
+The main evidence for the conclusion of the original paper comes down to a comparison of the percentages. The information we need was originally in Table S1 in the paper, which we include in dslabs:
+
+library(dslabs)
+data("research_funding_rates")
+research_funding_rates
+
+
+```{r}
+library(dslabs)
+data("research_funding_rates")
+research_funding_rates
+
+```
+
+
+
+
+
+
+
+## Questions About Confounding Assessment?
 
